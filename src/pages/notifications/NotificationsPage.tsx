@@ -183,7 +183,7 @@ export function NotificationsPage() {
             }
             action={
               debouncedSearch || audience || type || unreadOnly ? undefined : (
-                <Button view="action" size="l" onClick={() => navigate('/notifications/new')}>
+                <Button view="normal" size="l" onClick={() => navigate('/notifications/new')}>
                   Создать рассылку
                 </Button>
               )

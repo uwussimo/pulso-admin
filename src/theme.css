@@ -140,7 +140,6 @@ body {
 }
 
 .sheet__content {
-  max-width: 1280px;
   padding: var(--g-spacing-6) var(--g-spacing-8) var(--g-spacing-10);
   box-sizing: border-box;
 }

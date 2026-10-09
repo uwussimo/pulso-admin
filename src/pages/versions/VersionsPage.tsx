@@ -71,7 +71,7 @@ export function VersionsPage() {
         title="Версии приложения"
         description="Какую версию считать актуальной и ниже какой заставлять обновляться, отдельно для iOS и Android."
         actions={
-          <Button view="action" size="l" onClick={() => setDialog({ open: true, initial: null })}>
+          <Button view="normal" size="l" onClick={() => setDialog({ open: true, initial: null })}>
             <Icon data={Plus} size={16} />
             Добавить платформу
           </Button>
@@ -97,7 +97,7 @@ export function VersionsPage() {
             title="Версии ещё не настроены"
             description="Пока строк нет, приложение не требует обновлений. Добавьте платформу, чтобы управлять версиями."
             action={
-              <Button view="action" onClick={() => setDialog({ open: true, initial: null })}>
+              <Button view="normal" size="l" onClick={() => setDialog({ open: true, initial: null })}>
                 Добавить платформу
               </Button>
             }
