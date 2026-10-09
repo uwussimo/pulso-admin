@@ -1,5 +1,5 @@
 import { Button, Checkbox, Icon, Select, Table, Text, TextInput, withTableActions, type TableColumnConfig } from '@gravity-ui/uikit'
-import { Magnifier, Pencil, TrashBin } from '@gravity-ui/icons'
+import { Magnifier, Pencil, Plus, TrashBin } from '@gravity-ui/icons'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -133,6 +133,12 @@ export function NotificationsPage() {
       <PageHeader
         title="Уведомления"
         description="Рассылки и системные сообщения пользователям. Отправленное нельзя отправить повторно — только исправить или отозвать."
+        actions={
+          <Button view="action" size="l" onClick={() => navigate('/notifications/new')}>
+            <Icon data={Plus} size={16} />
+            Создать рассылку
+          </Button>
+        }
       />
 
       <div className="panel">
@@ -183,7 +189,7 @@ export function NotificationsPage() {
             }
             action={
               debouncedSearch || audience || type || unreadOnly ? undefined : (
-                <Button view="normal" size="l" onClick={() => navigate('/notifications/new')}>
+                <Button view="action" size="l" onClick={() => navigate('/notifications/new')}>
                   Создать рассылку
                 </Button>
               )

@@ -1,8 +1,8 @@
 import { Alert, Button, Flex, Icon, Text, useToaster } from '@gravity-ui/uikit'
-import { ArrowLeft, Pencil, TrashBin } from '@gravity-ui/icons'
+import { Pencil, TrashBin } from '@gravity-ui/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { notificationsApi } from '../../api/notifications'
 import { AudienceLabel } from '../../components/AudienceLabel'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
@@ -39,11 +39,7 @@ export function NotificationDetailPage() {
     onError: (e) => toaster.add({ name: 'retract-error', theme: 'danger', title: 'Не удалось отозвать', content: errorText(e) }),
   })
 
-  const back = (
-    <Link to="/notifications" style={{ color: 'inherit' }}>
-      <Icon data={ArrowLeft} size={12} /> Уведомления
-    </Link>
-  )
+  const back = 'Уведомления'
 
   if (!Number.isInteger(id) || id <= 0) {
     return (

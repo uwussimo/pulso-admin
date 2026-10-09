@@ -50,10 +50,10 @@
   --g-color-text-link-visited: #1a5fd0;
   --g-color-text-link-visited-hover: #0f4fb8;
 
-  --app-workspace-bg: #ffffff;
+  --app-workspace-bg: #f2f3f5;
   --app-sheet-bg: #ffffff;
-  --app-nav-active-bg: #f0f1f3;
-  --app-nav-hover-bg: rgba(0, 0, 0, 0.035);
+  --app-nav-active-bg: #e4e6ea;
+  --app-nav-hover-bg: rgba(0, 0, 0, 0.045);
   --app-popup-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
   --app-ink: #1f1f1f;
   --app-ink-contrast: #ffffff;
@@ -74,9 +74,9 @@
   --g-color-text-link-visited: #7fb0ff;
   --g-color-text-link-visited-hover: #a3c6ff;
 
-  --app-workspace-bg: #1f2023;
-  --app-sheet-bg: #1f2023;
-  --app-nav-active-bg: #2f3136;
+  --app-workspace-bg: #1a1b1e;
+  --app-sheet-bg: #26272b;
+  --app-nav-active-bg: #33353a;
   --app-nav-hover-bg: rgba(255, 255, 255, 0.05);
   --app-popup-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   --app-ink: #ffffff;
@@ -148,6 +148,8 @@ body {
   min-width: 0;
   min-height: 0;
   display: flex;
+  padding: var(--g-spacing-2) var(--g-spacing-2) var(--g-spacing-2) 0;
+  box-sizing: border-box;
 }
 
 .sheet {
@@ -156,6 +158,7 @@ body {
   min-height: 0;
   overflow-y: auto;
   background: var(--app-sheet-bg);
+  border-radius: var(--g-border-radius-xl);
 }
 
 .sheet__content {
@@ -166,14 +169,21 @@ body {
 .aside__head {
   display: flex;
   align-items: center;
-  height: 48px;
-  padding: 0 var(--g-spacing-3);
+  justify-content: space-between;
+  gap: var(--g-spacing-2);
+  min-height: 48px;
+  padding: 0 var(--g-spacing-2) 0 var(--g-spacing-3);
   margin-bottom: var(--g-spacing-3);
 }
 
 .aside_compact .aside__head {
+  flex-direction: column-reverse;
   padding: 0;
-  justify-content: center;
+  gap: var(--g-spacing-3);
+}
+
+.aside__toggle {
+  flex-shrink: 0;
 }
 
 .wordmark {
@@ -194,10 +204,6 @@ body {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-}
-
-.aside__cta {
-  margin-bottom: var(--g-spacing-4);
 }
 
 .nav {
@@ -279,14 +285,6 @@ body {
 
 .aside_compact .aside__footer {
   align-items: center;
-}
-
-.aside__collapse {
-  align-self: flex-start;
-}
-
-.aside_compact .aside__collapse {
-  align-self: center;
 }
 
 /* hack on an internal class, pinned to @gravity-ui/uikit 7.51: the switcher wrapper is inline by default. */
@@ -677,6 +675,10 @@ a.tile:hover {
 }
 
 @media (max-width: 900px) {
+  .shell__main {
+    padding: var(--g-spacing-2);
+  }
+
   .sheet__content {
     padding: var(--g-spacing-4) var(--g-spacing-4) var(--g-spacing-8);
   }

@@ -1,7 +1,8 @@
-import { Avatar, Button, Drawer, Icon, Text } from '@gravity-ui/uikit'
+import { Avatar, Button, Drawer, Icon } from '@gravity-ui/uikit'
 import { Bars } from '@gravity-ui/icons'
 import { Link, Outlet } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { PulsoLogo } from './PulsoLogo'
 import { Sidebar } from './Sidebar'
 import { useSidebarState } from './SidebarState'
 import { MOBILE_QUERY, useMediaQuery } from './useMediaQuery'
@@ -16,12 +17,7 @@ function MobileTopBar() {
         <Icon data={Bars} size={20} />
       </Button>
       <Link to="/" className="wordmark" aria-label="Pulso, на обзор">
-        <span className="wordmark__mark" aria-hidden>
-          <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
-            <path d="M5 17h5l3-7 5 12 3-7h6" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </span>
-        <Text variant="subheader-3">Pulso</Text>
+        <PulsoLogo />
       </Link>
       <button type="button" className="topbar__avatar" onClick={() => setMobileOpen(true)} aria-label="Аккаунт и меню">
         <Avatar text={name} size="s" theme="brand" />

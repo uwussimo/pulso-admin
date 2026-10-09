@@ -1,6 +1,7 @@
 import { Avatar, Button, DropdownMenu, Icon, Menu, Text, Tooltip } from '@gravity-ui/uikit'
-import { ArrowRightFromSquare, ChevronDown, ChevronLeft, ChevronRight, Gear, Moon, Plus, Sun } from '@gravity-ui/icons'
+import { ArrowRightFromSquare, ChevronDown, Gear, LayoutSideContentLeft, Moon, Sun } from '@gravity-ui/icons'
 import { useState } from 'react'
+import { PulsoLogo } from './PulsoLogo'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { formatPhone } from '../lib/format'
@@ -122,45 +123,29 @@ function AccountMenu({ compact, onNavigate }: { compact: boolean; onNavigate?: (
 }
 
 export function Sidebar({ compact = false, onToggleCompact, onNavigate }: SidebarProps) {
-  const navigate = useNavigate()
-
-  const cta = (
-    <Button
-      view="action"
-      size="xl"
-      width={compact ? undefined : 'max'}
-      className="aside__cta"
-      aria-label={compact ? 'Создать рассылку' : undefined}
-      onClick={() => {
-        onNavigate?.()
-        navigate('/notifications/new')
-      }}
-    >
-      <Icon data={Plus} size={18} />
-      {compact ? null : 'Создать рассылку'}
-    </Button>
-  )
+  const toggle = onToggleCompact ? (
+    <Tooltip content={compact ? 'Развернуть меню' : 'Свернуть меню'} placement="right" openDelay={300}>
+      <Button
+        view="flat-secondary"
+        size="l"
+        className="aside__toggle"
+        onClick={onToggleCompact}
+        aria-label={compact ? 'Развернуть меню' : 'Свернуть меню'}
+        aria-pressed={compact}
+      >
+        <Icon data={LayoutSideContentLeft} size={18} />
+      </Button>
+    </Tooltip>
+  ) : null
 
   return (
     <div className={['aside', compact ? 'aside_compact' : ''].join(' ')}>
       <div className="aside__head">
         <NavLink to="/" className="wordmark" onClick={onNavigate} aria-label="Pulso, на обзор">
-          <span className="wordmark__mark" aria-hidden>
-            <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
-              <path d="M5 17h5l3-7 5 12 3-7h6" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
-          {compact ? null : <Text variant="header-2">Pulso</Text>}
+          <PulsoLogo compact={compact} />
         </NavLink>
+        {toggle}
       </div>
-
-      {compact ? (
-        <Tooltip content="Создать рассылку" placement="right" openDelay={200}>
-          {cta}
-        </Tooltip>
-      ) : (
-        cta
-      )}
 
       <nav aria-label="Разделы">
         <div className="nav">
@@ -184,14 +169,6 @@ export function Sidebar({ compact = false, onToggleCompact, onNavigate }: Sideba
 
       <div className="aside__footer">
         <AccountMenu compact={compact} onNavigate={onNavigate} />
-        {onToggleCompact ? (
-          <Tooltip content={compact ? 'Развернуть меню' : 'Свернуть меню'} placement="right" openDelay={300}>
-            <Button view="flat-secondary" size="m" className="aside__collapse" onClick={onToggleCompact} aria-label={compact ? 'Развернуть меню' : 'Свернуть меню'}>
-              <Icon data={compact ? ChevronRight : ChevronLeft} size={16} />
-              {compact ? null : 'Свернуть'}
-            </Button>
-          </Tooltip>
-        ) : null}
       </div>
     </div>
   )

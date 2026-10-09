@@ -12,10 +12,10 @@ import {
   TextArea,
   useToaster,
 } from '@gravity-ui/uikit'
-import { ArrowLeft, Bell, Check } from '@gravity-ui/icons'
+import { Bell, Check } from '@gravity-ui/icons'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { notificationsApi } from '../../api/notifications'
 import type {
   CreateNotificationResponse,
@@ -215,14 +215,7 @@ export function NotificationCreatePage() {
     const pushError = created?.push_error
     return (
       <>
-        <PageHeader
-          title={pushError ? 'Сохранено, пуш не ушёл' : 'Отправлено'}
-          eyebrow={
-            <Link to="/notifications" style={{ color: 'inherit' }}>
-              <Icon data={ArrowLeft} size={12} /> К списку
-            </Link>
-          }
-        />
+        <PageHeader title={pushError ? 'Сохранено, пуш не ушёл' : 'Отправлено'} eyebrow="Уведомления" />
         <Flex direction="column" gap={4} style={{ maxWidth: 640 }}>
           {pushError ? (
             <Alert
@@ -287,11 +280,7 @@ export function NotificationCreatePage() {
     <>
       <PageHeader
         title="Новая рассылка"
-        eyebrow={
-          <Link to="/notifications" style={{ color: 'inherit' }}>
-            <Icon data={ArrowLeft} size={12} /> Уведомления
-          </Link>
-        }
+        eyebrow="Уведомления"
         description="Выберите, кому отправить, напишите текст на трёх языках, проверьте превью и отправьте."
       />
 
