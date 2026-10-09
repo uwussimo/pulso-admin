@@ -35,16 +35,16 @@
   --g-text-area-border-color-active: var(--g-color-line-generic-active);
 }
 
-/* Full brand set, light: Yandex yellow with dark text (Upload / Compose), blue links. */
+/* Full brand set, light: near-black primary like Yandex ID, blue links. */
 .g-root_theme_light {
-  --g-color-base-brand: #ffdb4d;
-  --g-color-base-brand-hover: #ffd633;
-  --g-color-base-selection: rgba(255, 219, 77, 0.25);
-  --g-color-base-selection-hover: rgba(255, 219, 77, 0.4);
-  --g-color-line-brand: #f2c400;
-  --g-color-text-brand: #8a6d00;
-  --g-color-text-brand-heavy: #5c4800;
-  --g-color-text-brand-contrast: #1f1f1f;
+  --g-color-base-brand: #1f1f1f;
+  --g-color-base-brand-hover: #3a3a3a;
+  --g-color-base-selection: rgba(0, 0, 0, 0.05);
+  --g-color-base-selection-hover: rgba(0, 0, 0, 0.09);
+  --g-color-line-brand: #1f1f1f;
+  --g-color-text-brand: #1f1f1f;
+  --g-color-text-brand-heavy: #000000;
+  --g-color-text-brand-contrast: #ffffff;
   --g-color-text-link: #1a5fd0;
   --g-color-text-link-hover: #0f4fb8;
   --g-color-text-link-visited: #1a5fd0;
@@ -59,16 +59,16 @@
   --app-ink-contrast: #ffffff;
 }
 
-/* Full brand set, dark: same yellow, dark text, lighter links. */
+/* Full brand set, dark: a light primary keeps the same "ink on paper" feel. */
 .g-root_theme_dark {
-  --g-color-base-brand: #ffdb4d;
-  --g-color-base-brand-hover: #ffe066;
-  --g-color-base-selection: rgba(255, 219, 77, 0.18);
-  --g-color-base-selection-hover: rgba(255, 219, 77, 0.28);
-  --g-color-line-brand: #ffdb4d;
-  --g-color-text-brand: #ffdb4d;
-  --g-color-text-brand-heavy: #ffe680;
-  --g-color-text-brand-contrast: #1f1f1f;
+  --g-color-base-brand: #f2f2f2;
+  --g-color-base-brand-hover: #d9d9d9;
+  --g-color-base-selection: rgba(255, 255, 255, 0.08);
+  --g-color-base-selection-hover: rgba(255, 255, 255, 0.14);
+  --g-color-line-brand: #f2f2f2;
+  --g-color-text-brand: #f2f2f2;
+  --g-color-text-brand-heavy: #ffffff;
+  --g-color-text-brand-contrast: #111111;
   --g-color-text-link: #7fb0ff;
   --g-color-text-link-hover: #a3c6ff;
   --g-color-text-link-visited: #7fb0ff;

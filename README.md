@@ -1,6 +1,6 @@
 # Pulso · панель оператора
 
-Internal dashboard for the Pulso cashback app. React 19 + Vite + TypeScript, UI on [Gravity UI](https://github.com/gravity-ui/uikit) themed after Yandex ID / Yandex 360: grey workspace, white content sheet, yellow primary action, grey pill navigation (`src/theme.css`).
+Internal dashboard for the Pulso cashback app. React 19 + Vite + TypeScript, UI on [Gravity UI](https://github.com/gravity-ui/uikit) themed after Yandex ID / Yandex 360: grey workspace, white content sheet, near-black primary action, grey pill navigation (`src/theme.css`).
 
 ## Run
 
