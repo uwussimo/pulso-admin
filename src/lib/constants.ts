@@ -1,4 +1,4 @@
-import type { Audience, Locale, NotificationType, Platform } from '../api/types'
+import type { Audience, Locale, NotificationType, Platform, UserStatus } from '../api/types'
 
 export const LOCALES: { key: Locale; label: string; short: string }[] = [
   { key: 'ru', label: 'Русский', short: 'RU' },
@@ -6,16 +6,13 @@ export const LOCALES: { key: Locale; label: string; short: string }[] = [
   { key: 'uzCyrl', label: 'Ўзбекча (кирилл)', short: 'ЎЗ' },
 ]
 
-/**
- * The backend only documents the numeric codes 100…500 and does not name them.
- * Labels are kept neutral on purpose; rename here once the product team settles on names.
- */
+/** Names come from the backend's dto.NotificationType constants: Reward, Status, Reminder, Promo, System. */
 export const NOTIFICATION_TYPES: { value: NotificationType; label: string }[] = [
-  { value: 100, label: 'Тип 100' },
-  { value: 200, label: 'Тип 200' },
-  { value: 300, label: 'Тип 300' },
-  { value: 400, label: 'Тип 400' },
-  { value: 500, label: 'Тип 500' },
+  { value: 100, label: 'Начисление' },
+  { value: 200, label: 'Статус' },
+  { value: 300, label: 'Напоминание' },
+  { value: 400, label: 'Промо' },
+  { value: 500, label: 'Системное' },
 ]
 
 export function notificationTypeLabel(t: number | undefined): string {
@@ -69,3 +66,14 @@ export const TTL_OPTIONS: { value: string; label: string }[] = [
 
 /** Phrase an operator must type to confirm a broadcast. */
 export const BROADCAST_CONFIRM_PHRASE = 'ВСЕМ'
+
+
+export const USER_STATUSES: { value: UserStatus; label: string; theme: 'success' | 'danger' | 'unknown' }[] = [
+  { value: 'active', label: 'Активен', theme: 'success' },
+  { value: 'blocked', label: 'Заблокирован', theme: 'danger' },
+  { value: 'deleted', label: 'Удалён', theme: 'unknown' },
+]
+
+export function userStatusMeta(s: UserStatus) {
+  return USER_STATUSES.find((x) => x.value === s) ?? { value: s, label: s, theme: 'unknown' as const }
+}

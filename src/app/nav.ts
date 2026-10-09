@@ -35,6 +35,7 @@ export interface NavItem {
 export const NAV_MAIN: NavItem[] = [
   { to: '/', label: 'Обзор', icon: House, iconActive: HouseFill },
   { to: '/notifications', label: 'Уведомления', icon: Bell, iconActive: BellFill },
+  { to: '/users', label: 'Пользователи', icon: Person, iconActive: PersonFill },
   { to: '/versions', label: 'Версии приложения', icon: CircleArrowUp, iconActive: CircleArrowUpFill },
   { to: '/cashback', label: 'Перевод кешбэка', icon: CircleDollar, iconActive: CircleDollarFill },
 ]
@@ -42,7 +43,6 @@ export const NAV_MAIN: NavItem[] = [
 /** Sections that wait for the backend. Grouped and dimmed so they don't compete for attention. */
 export const NAV_SOON: NavItem[] = [
   { to: '/transactions', label: 'Транзакции', icon: Receipt, iconActive: ReceiptFill, soon: true },
-  { to: '/users', label: 'Пользователи', icon: Person, iconActive: PersonFill, soon: true },
   { to: '/promo', label: 'Промо-товары', icon: Star, iconActive: StarFill, soon: true },
   { to: '/upsell', label: 'Апселл', icon: CirclePlus, iconActive: CirclePlusFill, soon: true },
   { to: '/switch', label: 'Смена продукта', icon: ForwardStep, iconActive: ForwardStepFill, soon: true },

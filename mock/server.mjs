@@ -12,6 +12,13 @@ const notifications = [
   { id: 116, audience: 'targeted', title: { ru: 'Опрос от производителя', uz: "Ishlab chiqaruvchidan so'rovnoma" }, description: { ru: 'Ответьте на 5 вопросов и получите 5 000 сум.' }, type: 400, url: '/survey', created_at: new Date(now - 50 * h).toISOString(), targeted_count: 500, read_count: 212, unread_count: 288 },
   { id: 115, audience: 'targeted', title: { ru: 'Друг зарегистрировался' }, description: { ru: 'Вы получите 20 000 сум после его первого чека.' }, type: 500, url: '/referrals', created_at: new Date(now - 80 * h).toISOString(), targeted_count: 37, read_count: 30, unread_count: 7 },
 ]
+const users = [
+  { id: 1052, phone: '+998901234567', full_name: 'Мадина Каримова', is_verified: true, is_admin: true, status: 'active', balance_available: 12_500_000, balance_pending: 320_000, receipts_total: 14, receipts_approved: 12, last_receipt_at: new Date(now - 3 * h).toISOString(), referrals_count: 3, created_at: new Date(now - 400 * h).toISOString(), updated_at: new Date(now - 3 * h).toISOString() },
+  { id: 1051, phone: '+998935550011', full_name: 'Azizbek Tursunov', is_verified: false, is_admin: false, status: 'active', balance_available: 450_000, balance_pending: 0, receipts_total: 2, receipts_approved: 1, last_receipt_at: new Date(now - 30 * h).toISOString(), referrals_count: 0, invited_by: 1052, created_at: new Date(now - 60 * h).toISOString(), updated_at: new Date(now - 30 * h).toISOString() },
+  { id: 1050, phone: '+998971112233', full_name: '', is_verified: true, is_admin: false, status: 'blocked', balance_available: 0, balance_pending: 0, receipts_total: 41, receipts_approved: 9, last_receipt_at: new Date(now - 200 * h).toISOString(), referrals_count: 17, created_at: new Date(now - 900 * h).toISOString(), updated_at: new Date(now - 100 * h).toISOString() },
+  { id: 1049, phone: '+998909876543', full_name: 'Nilufar Rashidova', is_verified: true, is_admin: false, status: 'active', balance_available: 2_080_000, balance_pending: 150_000, receipts_total: 6, receipts_approved: 6, last_receipt_at: new Date(now - 10 * h).toISOString(), referrals_count: 1, invited_by: 1052, created_at: new Date(now - 300 * h).toISOString(), updated_at: new Date(now - 10 * h).toISOString() },
+  { id: 1048, phone: '+998901110000', full_name: 'Удалённый аккаунт', is_verified: false, is_admin: false, status: 'deleted', balance_available: 0, balance_pending: 0, receipts_total: 0, receipts_approved: 0, referrals_count: 0, created_at: new Date(now - 1000 * h).toISOString(), updated_at: new Date(now - 500 * h).toISOString() },
+]
 let versions = [
   { platform: 'ios', version: '1.4.0', min_supported_version: '1.2.0', minimum_os_version: '15.0', force_update: false, rollout_percent: 100, update_url: 'https://apps.apple.com/app/id0', release_notes: 'Исправлен сканер чеков, быстрее открывается кошелёк.' },
   { platform: 'android', version: '1.3.2', min_supported_version: '1.3.0', force_update: true, rollout_percent: 50, update_url: 'https://play.google.com/store/apps/details?id=x', release_notes: 'Принудительное обновление из-за ошибки в выводе средств.' },
@@ -66,6 +73,23 @@ http.createServer(async (req, res) => {
   }
   if (m === 'POST' && p === '/internal/push/send') { const b = await read(req); const c = b.target?.push_tokens?.length ?? 1; return json(res, 200, { resolved: c, sent: c, failed: 0, skipped_revoked: 0 }) }
   if (m === 'POST' && p === '/internal/receipts/promote-pending') return json(res, 200, { before: url.searchParams.get('before') || new Date(now - 60000).toISOString(), promoted: 14 })
+  if (m === 'GET' && p === '/internal/users') {
+    const q = url.searchParams
+    let items = users.slice()
+    const digits = (q.get('phone') || '').replace(/\D/g, '')
+    if (digits) items = items.filter((u) => u.phone.replace(/\D/g, '').includes(digits))
+    if (q.get('status')) items = items.filter((u) => u.status === q.get('status'))
+    else items = items.filter((u) => u.status !== 'deleted')
+    const before = Number(q.get('before_id') || 0)
+    if (before) items = items.filter((u) => u.id < before)
+    const limit = Number(q.get('limit') || 20)
+    return json(res, 200, { items: items.slice(0, limit), has_more: items.length > limit, totals: items.length })
+  }
+  const userDetail = p.match(/^\/internal\/users\/(\d+)$/)
+  if (userDetail && m === 'GET') {
+    const u = users.find((x) => x.id === Number(userDetail[1]))
+    return u ? json(res, 200, u) : json(res, 404, { alias: 'users.not_found', message: 'user not found', type: 'error' })
+  }
   if (m === 'GET' && p === '/internal/versions') return json(res, 200, { items: versions, totals: versions.length })
   if (m === 'POST' && p === '/internal/versions') {
     const b = await read(req)

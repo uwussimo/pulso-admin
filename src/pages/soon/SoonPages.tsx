@@ -15,20 +15,6 @@ export function TransactionsSoonPage() {
   )
 }
 
-export function UsersSoonPage() {
-  return (
-    <ComingSoon
-      title="Пользователи"
-      purpose="Найти человека по телефону, когда он пишет в поддержку, и разобраться в его балансе."
-      items={[
-        { title: 'Поиск по телефону', text: 'Баланс, чеки, выводы, статус KYC, рефералы.' },
-        { title: 'Блокировка', text: 'Остановить мошенника и зафиксировать причину.' },
-        { title: 'История уведомлений', text: 'Что человек получал и что открыл.' },
-      ]}
-    />
-  )
-}
-
 export function PromoSoonPage() {
   return (
     <ComingSoon

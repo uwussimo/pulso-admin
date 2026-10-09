@@ -43,6 +43,12 @@ export function formatSum(n: number | null | undefined): string {
   return `${formatNumber(n)} сум`
 }
 
+/** API money is in tiyns (1/100 сум); the panel shows whole сум. */
+export function tiynsToSum(tiyns: number | null | undefined): number | null {
+  if (tiyns === null || tiyns === undefined || Number.isNaN(tiyns)) return null
+  return Math.trunc(tiyns / 100)
+}
+
 /** plural(3, ['чек', 'чека', 'чеков']) → "3 чека". */
 export function plural(n: number, forms: [string, string, string], withNumber = true): string {
   const abs = Math.abs(n) % 100

@@ -375,7 +375,7 @@ export function NotificationCreatePage() {
                     options={[{ value: '', content: 'Без перехода' }, ...APP_ROUTES.map((r) => ({ value: r.value, content: r.label }))]}
                   />
                 </Field>
-                <Field label="Тип" help="Числовой код типа из приложения. Названия типов пока не заданы.">
+                <Field label="Тип" help="Тип определяет, как приложение показывает уведомление.">
                   <Select
                     size="l"
                     value={[String(type)]}

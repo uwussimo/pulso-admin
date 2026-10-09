@@ -23,10 +23,11 @@ npm run preview
 | --- | --- |
 | Вход / выход / смена пароля | `POST /internal/auth/login`, `GET /internal/auth`, `POST /internal/auth/refresh`, `POST /internal/auth/logout`, `POST /internal/auth/password` |
 | Уведомления | `GET/POST /internal/notifications`, `GET/PATCH/DELETE /internal/notifications/{id}`, `POST /internal/push/send` |
+| Пользователи | `GET /internal/users`, `GET /internal/users/{id}` (service-pulso PR #18) |
 | Версии приложения | `GET/POST /internal/versions`, `DELETE /internal/versions/{platform}` |
 | Перевод кешбэка | `POST /internal/receipts/promote-pending` |
 
-Everything else (Обзор metrics, Транзакции, Пользователи, Промо, Апселл, Смена продукта, Акции 5+1, журнал действий, операторы) is shown as «Скоро» with a description and no numbers.
+Everything else (Обзор metrics, Транзакции, Промо, Апселл, Смена продукта, Акции 5+1, журнал действий, операторы) is shown as «Скоро» with a description and no numbers.
 
 ## Layout
 
@@ -39,7 +40,7 @@ Everything else (Обзор metrics, Транзакции, Пользовате�
 - `.agents/skills/gravity-ui` — the Gravity UI agent skill (`npx skills add gravity-ui/skills`).
 - `.agents/skills/ux-laws` — UX heuristics skill used for layout and flow decisions (`npx skills add uwussimo/ux-laws`).
 
-Notification type codes 100–500 are not named by the backend; labels live in `src/lib/constants.ts`.
+Notification type labels (Начисление, Статус, Напоминание, Промо, Системное) mirror the backend's `dto.NotificationType` constants and live in `src/lib/constants.ts`.
 
 ## Deploying to Cloudflare Pages
 

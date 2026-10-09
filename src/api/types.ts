@@ -163,3 +163,38 @@ export interface StaleWriteErrorBody extends ErrorEnvelope {
   stored_platform?: string
   stored_version?: string
 }
+
+export type UserStatus = 'active' | 'blocked' | 'deleted'
+
+export interface AdminUser {
+  id: number
+  phone: string
+  full_name: string
+  avatar_url?: string
+  is_verified: boolean
+  is_admin: boolean
+  status: UserStatus
+  /** Tiyns, like every transaction amount. */
+  balance_available: number
+  balance_pending: number
+  receipts_total: number
+  receipts_approved: number
+  last_receipt_at?: string
+  referrals_count: number
+  invited_by?: number
+  created_at: string
+  updated_at: string
+}
+
+export interface AdminUsersListResponse {
+  items: AdminUser[]
+  totals: number
+  has_more: boolean
+}
+
+export interface UsersListParams {
+  phone?: string
+  status?: UserStatus
+  limit?: number
+  before_id?: number
+}
