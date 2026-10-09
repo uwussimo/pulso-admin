@@ -41,6 +41,15 @@ Everything else (Обзор metrics, Транзакции, Пользовате�
 
 Notification type codes 100–500 are not named by the backend; labels live in `src/lib/constants.ts`.
 
+## Deploying to Cloudflare Pages
+
+Build command `npm run build`, output directory `dist`. Two files make it work without any backend change:
+
+- `public/_redirects` sends every path to `index.html` so client-side routes survive a reload.
+- `functions/internal/[[path]].js` is a Pages Function that proxies `/internal/*` to the operator API, so the browser stays same-origin and no CORS is needed. Override the upstream with the `API_ORIGIN` environment variable in the Pages project; it defaults to `https://api.pulso.dorim.com`.
+
+Leave `VITE_API_BASE` empty for this setup.
+
 ## Mock API for local development
 
 `mock/server.mjs` is a dependency-free stand-in for the operator API with a few seeded notifications and versions. Run it in one terminal and point the dev server at it in another:
