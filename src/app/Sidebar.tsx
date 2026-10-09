@@ -16,12 +16,16 @@ function Item({ item }: { item: NavItem }) {
         ['nav__item', isActive ? 'nav__item_active' : '', item.soon ? 'nav__item_soon' : ''].filter(Boolean).join(' ')
       }
     >
-      <span className="nav__icon">
-        <Icon data={item.icon} size={16} />
-      </span>
-      <Text variant="body-2" className="nav__label">
-        {item.label}
-      </Text>
+      {({ isActive }) => (
+        <>
+          <span className="nav__icon">
+            <Icon data={isActive ? item.iconActive : item.icon} size={16} />
+          </span>
+          <Text variant="body-2" className="nav__label">
+            {item.label}
+          </Text>
+        </>
+      )}
     </NavLink>
   )
 }
