@@ -12,7 +12,7 @@ import {
   TextArea,
   useToaster,
 } from '@gravity-ui/uikit'
-import { ArrowLeft, Bell } from '@gravity-ui/icons'
+import { ArrowLeft, Bell, Check } from '@gravity-ui/icons'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -110,6 +110,16 @@ export function NotificationCreatePage() {
   const cleanDescription = useMemo(() => compactLocaleMap(description), [description])
 
   const missingLocales = LOCALES.filter((l) => !cleanTitle[l.key]).map((l) => l.short)
+
+  const audienceReady =
+    audienceKind === 'all' || audienceKind === 'platform' || (audienceKind === 'users' ? ids.length > 0 : tokens.length > 0)
+  const readiness: { label: string; done: boolean }[] = [
+    { label: 'Выбрана аудитория', done: audienceReady },
+    { label: 'Заголовок на русском', done: Boolean(cleanTitle.ru) },
+    { label: 'Текст на русском', done: Boolean(cleanDescription.ru) },
+    { label: 'Узбекские версии', done: Boolean(cleanTitle.uz && cleanTitle.uzCyrl) },
+  ]
+  const requiredDone = readiness.slice(0, 2).every((r) => r.done)
 
   function buildTarget(): Target {
     switch (audienceKind) {
@@ -402,7 +412,7 @@ export function NotificationCreatePage() {
           <Flex gap={2} alignItems="center">
             <Button view="action" size="xl" onClick={onSendClick} loading={send.isPending}>
               <Icon data={Bell} size={16} />
-              Отправить
+              {requiredDone ? 'Отправить' : 'Проверить и отправить'}
             </Button>
             <Button view="flat" size="xl" onClick={() => navigate('/notifications')}>
               Отмена
@@ -442,6 +452,18 @@ export function NotificationCreatePage() {
                 </Text>
               ) : null}
             </div>
+            <ul className="checklist" aria-label="Готовность к отправке">
+              {readiness.map((r) => (
+                <li key={r.label} className="checklist__item">
+                  <span className={['checklist__mark', r.done ? 'checklist__mark_done' : ''].join(' ')}>
+                    {r.done ? <Icon data={Check} size={12} /> : null}
+                  </span>
+                  <Text variant="body-1" color={r.done ? 'primary' : 'secondary'}>
+                    {r.label}
+                  </Text>
+                </li>
+              ))}
+            </ul>
             <div className="kv">
               <Text variant="body-1" className="kv__key">
                 Кому

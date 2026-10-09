@@ -1,6 +1,6 @@
 # Pulso · панель оператора
 
-Internal dashboard for the Pulso cashback app. React 19 + Vite + TypeScript, UI on [Gravity UI](https://github.com/gravity-ui/uikit) with a Yandex-ID-flavoured theme (`src/theme.css`).
+Internal dashboard for the Pulso cashback app. React 19 + Vite + TypeScript, UI on [Gravity UI](https://github.com/gravity-ui/uikit) themed after Yandex ID / Yandex 360: grey workspace, white content sheet, yellow primary action, grey pill navigation (`src/theme.css`).
 
 ## Run
 
@@ -37,6 +37,7 @@ Everything else (Обзор metrics, Транзакции, Пользовате�
 - `src/components` — page header, confirm dialog, states, field wrapper.
 - `src/lib` — formatting (сум, Tashkent time, plurals), constants, error text.
 - `.agents/skills/gravity-ui` — the Gravity UI agent skill (`npx skills add gravity-ui/skills`).
+- `.agents/skills/ux-laws` — UX heuristics skill used for layout and flow decisions (`npx skills add uwussimo/ux-laws`).
 
 Notification type codes 100–500 are not named by the backend; labels live in `src/lib/constants.ts`.
 

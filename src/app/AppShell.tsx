@@ -6,8 +6,10 @@ export function AppShell() {
     <div className="shell">
       <Sidebar />
       <main className="shell__main">
-        <div className="shell__content">
-          <Outlet />
+        <div className="sheet">
+          <div className="sheet__content">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>

@@ -6,6 +6,12 @@
       "sourceType": "github",
       "skillPath": "skills/gravity-ui/SKILL.md",
       "computedHash": "5ec5126433c1de30a0e2ba5406eb46e90b919600c0b9b13b47b2046169ae5196"
+    },
+    "ux-laws": {
+      "source": "uwussimo/ux-laws",
+      "sourceType": "github",
+      "skillPath": "ux-laws/SKILL.md",
+      "computedHash": "d771175fe96ccee918b79110d59c700f12d63e26dd85d618436134a687fd4cc0"
     }
   }
 }

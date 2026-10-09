@@ -1,7 +1,7 @@
 /*
- * Pulso admin — Yandex-flavoured theme on top of Gravity UI tokens.
+ * Pulso admin — Yandex ID / Yandex 360 look on top of Gravity UI tokens.
  * Imported AFTER @gravity-ui/uikit/styles/styles.css so these win the cascade.
- * Only semantic --g-* tokens and documented component CSS APIs are touched here.
+ * Semantic --g-* tokens and documented component CSS APIs only; app-level tokens are --app-*.
  */
 
 .g-root {
@@ -9,19 +9,18 @@
     'YS Text', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
     sans-serif;
 
-  /* Softer, larger corners — the Yandex ID / 360 look. */
+  /* Soft, large corners — Yandex ID / 360. */
   --g-border-radius-xs: 6px;
   --g-border-radius-s: 8px;
   --g-border-radius-m: 12px;
   --g-border-radius-l: 16px;
   --g-border-radius-xl: 20px;
 
-  /* Component CSS APIs (inherited by every instance). */
   --g-button-border-radius: var(--g-border-radius-m);
   --g-text-input-border-radius: var(--g-border-radius-m);
   --g-text-area-border-radius: var(--g-border-radius-m);
   --g-card-border-radius: var(--g-border-radius-xl);
-  --g-modal-border-radius: var(--g-border-radius-xl);
+  --g-modal-border-radius: 24px;
   --g-alert-border-radius: var(--g-border-radius-l);
   --g-toaster-item-border-radius: var(--g-border-radius-l);
 
@@ -29,43 +28,64 @@
   --g-text-input-background-color: var(--g-color-base-generic);
   --g-text-input-border-color: transparent;
   --g-text-input-border-color-hover: var(--g-color-line-generic-hover);
-  --g-text-input-border-color-active: var(--g-color-line-brand);
+  --g-text-input-border-color-active: var(--g-color-line-generic-active);
   --g-text-area-background-color: var(--g-color-base-generic);
   --g-text-area-border-color: transparent;
   --g-text-area-border-color-hover: var(--g-color-line-generic-hover);
-  --g-text-area-border-color-active: var(--g-color-line-brand);
+  --g-text-area-border-color-active: var(--g-color-line-generic-active);
 }
 
-/* Full brand set, light: near-black primary like Yandex ID, blue links. */
+/* Full brand set, light: Yandex yellow with dark text (Upload / Compose), blue links. */
 .g-root_theme_light {
-  --g-color-base-brand: #1f1f1f;
-  --g-color-base-brand-hover: #3a3a3a;
-  --g-color-base-selection: rgba(0, 0, 0, 0.05);
-  --g-color-base-selection-hover: rgba(0, 0, 0, 0.09);
-  --g-color-line-brand: #1f1f1f;
-  --g-color-text-brand: #1f1f1f;
-  --g-color-text-brand-heavy: #000000;
-  --g-color-text-brand-contrast: #ffffff;
+  --g-color-base-brand: #ffdb4d;
+  --g-color-base-brand-hover: #ffd633;
+  --g-color-base-selection: rgba(255, 219, 77, 0.25);
+  --g-color-base-selection-hover: rgba(255, 219, 77, 0.4);
+  --g-color-line-brand: #f2c400;
+  --g-color-text-brand: #8a6d00;
+  --g-color-text-brand-heavy: #5c4800;
+  --g-color-text-brand-contrast: #1f1f1f;
   --g-color-text-link: #1a5fd0;
   --g-color-text-link-hover: #0f4fb8;
   --g-color-text-link-visited: #1a5fd0;
   --g-color-text-link-visited-hover: #0f4fb8;
+
+  --app-workspace-bg: #f2f3f5;
+  --app-sheet-bg: #ffffff;
+  --app-nav-active-bg: #e6e8ec;
+  --app-nav-hover-bg: rgba(0, 0, 0, 0.045);
+  --app-popup-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+  --app-ink: #1f1f1f;
+  --app-ink-contrast: #ffffff;
 }
 
-/* Full brand set, dark: a light primary keeps the same "ink on paper" feel. */
+/* Full brand set, dark: same yellow, dark text, lighter links. */
 .g-root_theme_dark {
-  --g-color-base-brand: #f2f2f2;
-  --g-color-base-brand-hover: #d9d9d9;
-  --g-color-base-selection: rgba(255, 255, 255, 0.08);
-  --g-color-base-selection-hover: rgba(255, 255, 255, 0.14);
-  --g-color-line-brand: #f2f2f2;
-  --g-color-text-brand: #f2f2f2;
-  --g-color-text-brand-heavy: #ffffff;
-  --g-color-text-brand-contrast: #111111;
+  --g-color-base-brand: #ffdb4d;
+  --g-color-base-brand-hover: #ffe066;
+  --g-color-base-selection: rgba(255, 219, 77, 0.18);
+  --g-color-base-selection-hover: rgba(255, 219, 77, 0.28);
+  --g-color-line-brand: #ffdb4d;
+  --g-color-text-brand: #ffdb4d;
+  --g-color-text-brand-heavy: #ffe680;
+  --g-color-text-brand-contrast: #1f1f1f;
   --g-color-text-link: #7fb0ff;
   --g-color-text-link-hover: #a3c6ff;
   --g-color-text-link-visited: #7fb0ff;
   --g-color-text-link-visited-hover: #a3c6ff;
+
+  --app-workspace-bg: #1a1b1e;
+  --app-sheet-bg: #26272b;
+  --app-nav-active-bg: #33353a;
+  --app-nav-hover-bg: rgba(255, 255, 255, 0.05);
+  --app-popup-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --app-ink: #ffffff;
+  --app-ink-contrast: #1f1f1f;
+}
+
+/* Inside the white sheet, "background" means the sheet surface (dark theme differs from the workspace). */
+.sheet {
+  --g-color-base-background: var(--app-sheet-bg);
 }
 
 html,
@@ -76,26 +96,28 @@ body,
 }
 
 body {
-  background: var(--g-color-base-background);
+  background: var(--app-workspace-bg);
   color: var(--g-color-text-primary);
   -webkit-font-smoothing: antialiased;
 }
 
-/* ---------- App shell ---------- */
+/* ---------- App shell: sidebar on the grey workspace, white content sheet ---------- */
 
 .shell {
   display: flex;
   height: 100vh;
   min-height: 560px;
+  background: var(--app-workspace-bg);
 }
 
 .shell__aside {
   flex-shrink: 0;
-  width: 272px;
+  width: 264px;
   display: flex;
   flex-direction: column;
-  padding: var(--g-spacing-5) var(--g-spacing-4);
+  padding: var(--g-spacing-5) var(--g-spacing-4) var(--g-spacing-4);
   box-sizing: border-box;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
@@ -103,33 +125,56 @@ body {
   flex: 1;
   min-width: 0;
   min-height: 0;
-  overflow-y: auto;
+  padding: var(--g-spacing-2) var(--g-spacing-2) var(--g-spacing-2) 0;
+  box-sizing: border-box;
+  display: flex;
 }
 
-.shell__content {
+.sheet {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--app-sheet-bg);
+  border-radius: var(--g-border-radius-xl);
+}
+
+.sheet__content {
   max-width: 1280px;
-  padding: var(--g-spacing-7) var(--g-spacing-8) var(--g-spacing-10);
+  padding: var(--g-spacing-6) var(--g-spacing-8) var(--g-spacing-10);
   box-sizing: border-box;
+}
+
+.aside__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--g-spacing-2);
+  padding: 0 var(--g-spacing-2) var(--g-spacing-4);
 }
 
 .wordmark {
   display: flex;
   align-items: center;
   gap: var(--g-spacing-2);
-  padding: var(--g-spacing-1) var(--g-spacing-3) var(--g-spacing-6);
   text-decoration: none;
   color: inherit;
+  min-width: 0;
 }
 
 .wordmark__mark {
   width: 28px;
   height: 28px;
   border-radius: 9px;
-  background: var(--g-color-base-brand);
-  color: var(--g-color-text-brand-contrast);
+  background: var(--app-ink);
+  color: var(--app-ink-contrast);
   display: grid;
   place-items: center;
   flex-shrink: 0;
+}
+
+.aside__cta {
+  margin-bottom: var(--g-spacing-4);
 }
 
 .nav {
@@ -142,24 +187,21 @@ body {
   display: flex;
   align-items: center;
   gap: var(--g-spacing-3);
-  height: 44px;
+  height: 40px;
   padding: 0 var(--g-spacing-3);
-  border-radius: var(--g-border-radius-l);
+  border-radius: var(--g-border-radius-m);
   color: var(--g-color-text-primary);
   text-decoration: none;
   transition: background-color 0.12s ease;
 }
 
 .nav__item:hover {
-  background: var(--g-color-base-simple-hover);
+  background: var(--app-nav-hover-bg);
 }
 
-.nav__item_active {
-  background: var(--g-color-base-generic);
-}
-
+.nav__item_active,
 .nav__item_active:hover {
-  background: var(--g-color-base-generic-hover);
+  background: var(--app-nav-active-bg);
 }
 
 .nav__item_soon {
@@ -170,7 +212,7 @@ body {
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  width: 20px;
+  width: 18px;
 }
 
 .nav__label {
@@ -188,31 +230,60 @@ body {
 
 .aside__footer {
   margin-top: auto;
-  padding-top: var(--g-spacing-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--g-spacing-2);
+  padding-top: var(--g-spacing-4);
 }
 
-.aside__user {
+/* hack on an internal class, pinned to @gravity-ui/uikit 7.51: the switcher wrapper is inline by default. */
+.aside__footer .g-dropdown-menu__switcher-wrapper {
+  display: block;
+}
+
+.account-button {
   display: flex;
   align-items: center;
   gap: var(--g-spacing-3);
+  width: 100%;
   padding: var(--g-spacing-2) var(--g-spacing-3);
-  border-radius: var(--g-border-radius-l);
+  border: 0;
+  border-radius: var(--g-border-radius-m);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
-.aside__user-text {
+.account-button:hover {
+  background: var(--app-nav-hover-bg);
+}
+
+.account-button__text {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
 }
 
-.aside__links {
+/* Yandex-style account card. */
+.account-card {
+  width: 280px;
+  padding: var(--g-spacing-3);
+  box-sizing: border-box;
+}
+
+.account-card__head {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: var(--g-spacing-1);
-  padding: 0 var(--g-spacing-1);
+  padding: var(--g-spacing-3) var(--g-spacing-3) var(--g-spacing-4);
+  text-align: center;
+}
+
+.account-card__divider {
+  height: 1px;
+  margin: var(--g-spacing-2) var(--g-spacing-2);
+  background: var(--g-color-line-generic);
 }
 
 /* ---------- Content primitives ---------- */
@@ -240,7 +311,7 @@ body {
 }
 
 .panel {
-  background: var(--g-color-base-generic-ultralight);
+  background: var(--g-color-base-background);
   border: 1px solid var(--g-color-line-generic);
   border-radius: var(--g-border-radius-xl);
   overflow: hidden;
@@ -395,8 +466,8 @@ a.tile:hover {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: var(--g-color-base-brand);
-  color: var(--g-color-text-brand-contrast);
+  background: var(--app-ink);
+  color: var(--app-ink-contrast);
   display: grid;
   place-items: center;
 }
@@ -407,6 +478,38 @@ a.tile:hover {
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--g-spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.checklist__item {
+  display: flex;
+  align-items: center;
+  gap: var(--g-spacing-2);
+}
+
+.checklist__mark {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--g-color-line-generic-accent);
+  color: var(--g-color-text-hint);
+}
+
+.checklist__mark_done {
+  border-color: var(--g-color-base-positive-heavy);
+  background: var(--g-color-base-positive-heavy);
+  color: #ffffff;
 }
 
 .kv {
@@ -426,6 +529,7 @@ a.tile:hover {
   place-items: center;
   padding: var(--g-spacing-6);
   box-sizing: border-box;
+  background: var(--app-workspace-bg);
 }
 
 .login__card {
@@ -436,7 +540,7 @@ a.tile:hover {
   gap: var(--g-spacing-5);
   padding: var(--g-spacing-8) var(--g-spacing-7);
   border-radius: 28px;
-  background: var(--g-color-base-generic);
+  background: var(--app-sheet-bg);
   box-sizing: border-box;
 }
 
@@ -476,15 +580,6 @@ a.tile:hover {
   color: var(--g-color-text-secondary);
 }
 
-.status-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: var(--g-spacing-2);
-  vertical-align: middle;
-}
-
 @media (max-width: 900px) {
   .shell {
     flex-direction: column;
@@ -494,8 +589,12 @@ a.tile:hover {
 
   .shell__aside {
     width: auto;
-    padding: var(--g-spacing-3) var(--g-spacing-4);
+    padding: var(--g-spacing-3) var(--g-spacing-3) 0;
     overflow: visible;
+  }
+
+  .shell__main {
+    padding: var(--g-spacing-2);
   }
 
   .nav {
@@ -512,11 +611,11 @@ a.tile:hover {
   }
 
   .aside__footer {
-    margin-top: var(--g-spacing-3);
+    margin-top: var(--g-spacing-2);
     padding-top: 0;
   }
 
-  .shell__content {
+  .sheet__content {
     padding: var(--g-spacing-5) var(--g-spacing-4) var(--g-spacing-8);
   }
 

@@ -18,6 +18,14 @@ interface Props {
 
 const SEMVER = /^\d+(\.\d+){0,3}$/
 
+/** "1.3.2" → "1.3.3": the smallest version the server will accept. */
+function bumpPatch(v: string): string {
+  if (!SEMVER.test(v)) return ''
+  const parts = v.split('.').map(Number)
+  parts[parts.length - 1] += 1
+  return parts.join('.')
+}
+
 function compareVersions(a: string, b: string): number {
   const pa = a.split('.').map(Number)
   const pb = b.split('.').map(Number)
@@ -54,7 +62,7 @@ function VersionForm({ initial, existingPlatforms, onClose, onSaved }: Omit<Prop
   const [platform, setPlatform] = useState(
     () => initial?.platform ?? PLATFORMS.find((p) => !existingPlatforms.includes(p.value))?.value ?? 'ios',
   )
-  const [version, setVersion] = useState(initial?.version ?? '')
+  const [version, setVersion] = useState(() => (initial ? bumpPatch(initial.version) || initial.version : ''))
   const [minVersion, setMinVersion] = useState(initial?.min_supported_version ?? '')
   const [minOs, setMinOs] = useState(initial?.minimum_os_version ?? '')
   const [force, setForce] = useState(Boolean(initial?.force_update))
@@ -123,7 +131,11 @@ function VersionForm({ initial, existingPlatforms, onClose, onSaved }: Omit<Prop
                 options={PLATFORMS.map((p) => ({ value: p.value, content: p.label }))}
               />
             </Field>
-            <Field label="Актуальная версия" required hint={initial ? `Сейчас ${initial.version}. Нужно выше.` : 'Например 1.4.0'}>
+            <Field
+              label="Актуальная версия"
+              required
+              hint={initial ? `Сейчас ${initial.version}. Подставили следующую; можно указать любую выше.` : 'Например 1.4.0'}
+            >
               <TextInput size="l" value={version} onUpdate={setVersion} placeholder="1.4.0" controlProps={{ inputMode: 'decimal' }} />
             </Field>
           </div>
