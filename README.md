@@ -42,14 +42,14 @@ Everything else (Обзор metrics, Транзакции, Промо, Апсе�
 
 Notification type labels (Начисление, Статус, Напоминание, Промо, Системное) mirror the backend's `dto.NotificationType` constants and live in `src/lib/constants.ts`.
 
-## Deploying to Cloudflare Pages
+## Deploying to Cloudflare
 
-Build command `npm run build`, output directory `dist`. Two files make it work without any backend change:
+The project deploys as a Cloudflare Worker with static assets (`wrangler.jsonc`). Build command `npm run build`, deploy command `npx wrangler deploy`.
 
-- `public/_redirects` sends every path to `index.html` so client-side routes survive a reload.
-- `functions/internal/[[path]].js` is a Pages Function that proxies `/internal/*` to the operator API, so the browser stays same-origin and no CORS is needed. Override the upstream with the `API_ORIGIN` environment variable in the Pages project; it defaults to `https://api.pulso.dorim.com`.
+- `assets.not_found_handling: single-page-application` serves `index.html` for client-side routes.
+- `worker/index.js` runs only for `/internal/*` and proxies to the operator API, so the browser stays same-origin and no CORS is needed. Change the upstream with the `API_ORIGIN` variable in `wrangler.jsonc` or the dashboard; it defaults to `https://api.pulso.dorim.com`.
 
-Leave `VITE_API_BASE` empty for this setup.
+Leave `VITE_API_BASE` empty for this setup. Local check: `npm run build && npx wrangler dev`.
 
 ## Mock API for local development
 
