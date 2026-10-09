@@ -12,6 +12,12 @@
       "sourceType": "github",
       "skillPath": "ux-laws/SKILL.md",
       "computedHash": "d771175fe96ccee918b79110d59c700f12d63e26dd85d618436134a687fd4cc0"
+    },
+    "yandex-ui": {
+      "source": "uwussimo/yandex-ui",
+      "sourceType": "github",
+      "skillPath": "yandex-ui/SKILL.md",
+      "computedHash": "f4fbc0ce8b7fd8ef80c404f6c90ae0245600cbe46d8e4afa4f4d71a1d59d7cfe"
     }
   }
 }
