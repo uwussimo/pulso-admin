@@ -11,6 +11,7 @@ import './theme.css'
 import { App } from './app/App'
 import { AuthProvider } from './auth/AuthContext'
 import { AppThemeProvider, useAppTheme } from './app/AppTheme'
+import { SidebarStateProvider } from './app/SidebarState'
 
 configure({ lang: 'ru' })
 
@@ -27,7 +28,9 @@ function ThemedRoot() {
     <ThemeProvider theme={theme}>
       <ToasterProvider toaster={toaster}>
         <AuthProvider>
-          <App />
+          <SidebarStateProvider>
+            <App />
+          </SidebarStateProvider>
         </AuthProvider>
         <ToasterComponent />
       </ToasterProvider>

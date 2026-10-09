@@ -1,5 +1,5 @@
-import { Avatar, Button, DropdownMenu, Icon, Menu, Text } from '@gravity-ui/uikit'
-import { ArrowRightFromSquare, ChevronDown, Gear, Moon, Plus, Sun } from '@gravity-ui/icons'
+import { Avatar, Button, DropdownMenu, Icon, Menu, Text, Tooltip } from '@gravity-ui/uikit'
+import { ArrowRightFromSquare, ChevronDown, ChevronLeft, ChevronRight, Gear, Moon, Plus, Sun } from '@gravity-ui/icons'
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
@@ -7,11 +7,21 @@ import { formatPhone } from '../lib/format'
 import { useAppTheme } from './AppTheme'
 import { NAV_MAIN, NAV_SOON, type NavItem } from './nav'
 
-function Item({ item }: { item: NavItem }) {
-  return (
+interface SidebarProps {
+  /** Icon-only rail. */
+  compact?: boolean
+  onToggleCompact?: () => void
+  /** Called after any navigation, so a mobile drawer can close itself. */
+  onNavigate?: () => void
+}
+
+function Item({ item, compact, onNavigate }: { item: NavItem; compact: boolean; onNavigate?: () => void }) {
+  const link = (
     <NavLink
       to={item.to}
       end={item.to === '/'}
+      onClick={onNavigate}
+      aria-label={compact ? item.label : undefined}
       className={({ isActive }) =>
         ['nav__item', isActive ? 'nav__item_active' : '', item.soon ? 'nav__item_soon' : ''].filter(Boolean).join(' ')
       }
@@ -19,18 +29,26 @@ function Item({ item }: { item: NavItem }) {
       {({ isActive }) => (
         <>
           <span className="nav__icon">
-            <Icon data={isActive ? item.iconActive : item.icon} size={16} />
+            <Icon data={isActive ? item.iconActive : item.icon} size={20} />
           </span>
-          <Text variant="body-2" className="nav__label">
-            {item.label}
-          </Text>
+          {compact ? null : (
+            <Text variant="body-2" className="nav__label">
+              {item.label}
+            </Text>
+          )}
         </>
       )}
     </NavLink>
   )
+  if (!compact) return link
+  return (
+    <Tooltip content={item.soon ? `${item.label} · скоро` : item.label} placement="right" openDelay={200}>
+      {link}
+    </Tooltip>
+  )
 }
 
-function AccountMenu() {
+function AccountMenu({ compact, onNavigate }: { compact: boolean; onNavigate?: () => void }) {
   const { me, logout } = useAuth()
   const { theme, toggle } = useAppTheme()
   const navigate = useNavigate()
@@ -41,19 +59,30 @@ function AccountMenu() {
     <DropdownMenu
       open={open}
       onOpenToggle={setOpen}
-      popupProps={{ placement: 'top-start', offset: 8 }}
+      popupProps={{ placement: compact ? 'right-end' : 'top-start', offset: 8 }}
       renderSwitcher={(props) => (
-        <button {...props} type="button" className="account-button" aria-haspopup="menu" aria-expanded={open}>
+        <button
+          {...props}
+          type="button"
+          className={['account-button', compact ? 'account-button_compact' : ''].join(' ')}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label={compact ? 'Аккаунт' : undefined}
+        >
           <Avatar text={name} size="m" theme="brand" />
-          <span className="account-button__text">
-            <Text variant="subheader-1" ellipsis>
-              {name}
-            </Text>
-            <Text variant="caption-2" color="secondary" ellipsis>
-              {formatPhone(me?.phone)}
-            </Text>
-          </span>
-          <Icon data={ChevronDown} size={14} />
+          {compact ? null : (
+            <>
+              <span className="account-button__text">
+                <Text variant="subheader-1" ellipsis>
+                  {name}
+                </Text>
+                <Text variant="caption-2" color="secondary" ellipsis>
+                  {formatPhone(me?.phone)}
+                </Text>
+              </span>
+              <Icon data={ChevronDown} size={14} />
+            </>
+          )}
         </button>
       )}
     >
@@ -71,6 +100,7 @@ function AccountMenu() {
             iconStart={<Icon data={Gear} size={16} />}
             onClick={() => {
               setOpen(false)
+              onNavigate?.()
               navigate('/settings')
             }}
           >
@@ -91,47 +121,78 @@ function AccountMenu() {
   )
 }
 
-export function Sidebar() {
+export function Sidebar({ compact = false, onToggleCompact, onNavigate }: SidebarProps) {
   const navigate = useNavigate()
 
+  const cta = (
+    <Button
+      view="action"
+      size="xl"
+      width={compact ? undefined : 'max'}
+      className="aside__cta"
+      aria-label={compact ? 'Создать рассылку' : undefined}
+      onClick={() => {
+        onNavigate?.()
+        navigate('/notifications/new')
+      }}
+    >
+      <Icon data={Plus} size={18} />
+      {compact ? null : 'Создать рассылку'}
+    </Button>
+  )
+
   return (
-    <aside className="shell__aside">
+    <div className={['aside', compact ? 'aside_compact' : ''].join(' ')}>
       <div className="aside__head">
-        <NavLink to="/" className="wordmark">
+        <NavLink to="/" className="wordmark" onClick={onNavigate} aria-label="Pulso, на обзор">
           <span className="wordmark__mark" aria-hidden>
-            <svg width="16" height="16" viewBox="0 0 32 32" fill="none">
+            <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
               <path d="M5 17h5l3-7 5 12 3-7h6" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
-          <Text variant="header-2">Pulso</Text>
+          {compact ? null : <Text variant="header-2">Pulso</Text>}
         </NavLink>
       </div>
 
-      {/* The single most common action lives where Compose / Upload live in Yandex 360. */}
-      <Button view="action" size="xl" width="max" className="aside__cta" onClick={() => navigate('/notifications/new')}>
-        <Icon data={Plus} size={16} />
-        Создать рассылку
-      </Button>
+      {compact ? (
+        <Tooltip content="Создать рассылку" placement="right" openDelay={200}>
+          {cta}
+        </Tooltip>
+      ) : (
+        cta
+      )}
 
       <nav aria-label="Разделы">
         <div className="nav">
           {NAV_MAIN.map((it) => (
-            <Item key={it.to} item={it} />
+            <Item key={it.to} item={it} compact={compact} onNavigate={onNavigate} />
           ))}
         </div>
-        <Text variant="caption-2" className="nav__group" as="div">
-          СКОРО
-        </Text>
+        {compact ? (
+          <div className="nav__divider" />
+        ) : (
+          <Text variant="caption-2" className="nav__group" as="div">
+            СКОРО
+          </Text>
+        )}
         <div className="nav">
           {NAV_SOON.map((it) => (
-            <Item key={it.to} item={it} />
+            <Item key={it.to} item={it} compact={compact} onNavigate={onNavigate} />
           ))}
         </div>
       </nav>
 
       <div className="aside__footer">
-        <AccountMenu />
+        <AccountMenu compact={compact} onNavigate={onNavigate} />
+        {onToggleCompact ? (
+          <Tooltip content={compact ? 'Развернуть меню' : 'Свернуть меню'} placement="right" openDelay={300}>
+            <Button view="flat-secondary" size="m" className="aside__collapse" onClick={onToggleCompact} aria-label={compact ? 'Развернуть меню' : 'Свернуть меню'}>
+              <Icon data={compact ? ChevronRight : ChevronLeft} size={16} />
+              {compact ? null : 'Свернуть'}
+            </Button>
+          </Tooltip>
+        ) : null}
       </div>
-    </aside>
+    </div>
   )
 }

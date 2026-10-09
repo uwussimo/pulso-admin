@@ -50,10 +50,10 @@
   --g-color-text-link-visited: #1a5fd0;
   --g-color-text-link-visited-hover: #0f4fb8;
 
-  --app-workspace-bg: #f2f3f5;
+  --app-workspace-bg: #ffffff;
   --app-sheet-bg: #ffffff;
-  --app-nav-active-bg: #e6e8ec;
-  --app-nav-hover-bg: rgba(0, 0, 0, 0.045);
+  --app-nav-active-bg: #f0f1f3;
+  --app-nav-hover-bg: rgba(0, 0, 0, 0.035);
   --app-popup-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
   --app-ink: #1f1f1f;
   --app-ink-contrast: #ffffff;
@@ -74,9 +74,9 @@
   --g-color-text-link-visited: #7fb0ff;
   --g-color-text-link-visited-hover: #a3c6ff;
 
-  --app-workspace-bg: #1a1b1e;
-  --app-sheet-bg: #26272b;
-  --app-nav-active-bg: #33353a;
+  --app-workspace-bg: #1f2023;
+  --app-sheet-bg: #1f2023;
+  --app-nav-active-bg: #2f3136;
   --app-nav-hover-bg: rgba(255, 255, 255, 0.05);
   --app-popup-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   --app-ink: #ffffff;
@@ -101,7 +101,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ---------- App shell: sidebar on the grey workspace, white content sheet ---------- */
+/* ---------- App shell: Yandex ID canvas, sidebar with 48px rows, collapsible rail, mobile top bar ---------- */
 
 .shell {
   display: flex;
@@ -112,21 +112,41 @@ body {
 
 .shell__aside {
   flex-shrink: 0;
-  width: 264px;
+  width: 256px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: width 0.15s ease;
+}
+
+.shell__aside_compact {
+  width: 88px;
+}
+
+.shell__aside_drawer {
+  width: 296px;
+  height: 100%;
+  background: var(--app-sheet-bg);
+}
+
+.aside {
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   padding: var(--g-spacing-5) var(--g-spacing-4) var(--g-spacing-4);
   box-sizing: border-box;
-  overflow-x: hidden;
-  overflow-y: auto;
+}
+
+.aside_compact {
+  align-items: center;
+  padding-left: var(--g-spacing-3);
+  padding-right: var(--g-spacing-3);
 }
 
 .shell__main {
   flex: 1;
   min-width: 0;
   min-height: 0;
-  padding: var(--g-spacing-2) var(--g-spacing-2) var(--g-spacing-2) 0;
-  box-sizing: border-box;
   display: flex;
 }
 
@@ -136,35 +156,39 @@ body {
   min-height: 0;
   overflow-y: auto;
   background: var(--app-sheet-bg);
-  border-radius: var(--g-border-radius-xl);
 }
 
 .sheet__content {
-  padding: var(--g-spacing-6) var(--g-spacing-8) var(--g-spacing-10);
+  padding: var(--g-spacing-6) var(--g-spacing-8) var(--g-spacing-10) var(--g-spacing-6);
   box-sizing: border-box;
 }
 
 .aside__head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--g-spacing-2);
-  padding: 0 var(--g-spacing-2) var(--g-spacing-4);
+  height: 48px;
+  padding: 0 var(--g-spacing-3);
+  margin-bottom: var(--g-spacing-3);
+}
+
+.aside_compact .aside__head {
+  padding: 0;
+  justify-content: center;
 }
 
 .wordmark {
   display: flex;
   align-items: center;
-  gap: var(--g-spacing-2);
+  gap: var(--g-spacing-3);
   text-decoration: none;
   color: inherit;
   min-width: 0;
 }
 
 .wordmark__mark {
-  width: 28px;
-  height: 28px;
-  border-radius: 9px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   background: var(--app-ink);
   color: var(--app-ink-contrast);
   display: grid;
@@ -182,16 +206,27 @@ body {
   gap: 2px;
 }
 
+.aside_compact .nav {
+  align-items: center;
+}
+
 .nav__item {
   display: flex;
   align-items: center;
   gap: var(--g-spacing-3);
-  height: 40px;
-  padding: 0 var(--g-spacing-3);
-  border-radius: var(--g-border-radius-m);
+  height: 48px;
+  padding: 0 var(--g-spacing-4);
+  border-radius: var(--g-border-radius-l);
   color: var(--g-color-text-primary);
   text-decoration: none;
+  box-sizing: border-box;
   transition: background-color 0.12s ease;
+}
+
+.aside_compact .nav__item {
+  width: 48px;
+  padding: 0;
+  justify-content: center;
 }
 
 .nav__item:hover {
@@ -211,7 +246,7 @@ body {
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  width: 18px;
+  width: 20px;
 }
 
 .nav__label {
@@ -223,13 +258,35 @@ body {
 }
 
 .nav__group {
-  padding: var(--g-spacing-5) var(--g-spacing-3) var(--g-spacing-2);
+  padding: var(--g-spacing-5) var(--g-spacing-4) var(--g-spacing-2);
   color: var(--g-color-text-hint);
+}
+
+.nav__divider {
+  width: 32px;
+  height: 1px;
+  margin: var(--g-spacing-3) auto;
+  background: var(--g-color-line-generic);
 }
 
 .aside__footer {
   margin-top: auto;
   padding-top: var(--g-spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--g-spacing-1);
+}
+
+.aside_compact .aside__footer {
+  align-items: center;
+}
+
+.aside__collapse {
+  align-self: flex-start;
+}
+
+.aside_compact .aside__collapse {
+  align-self: center;
 }
 
 /* hack on an internal class, pinned to @gravity-ui/uikit 7.51: the switcher wrapper is inline by default. */
@@ -242,14 +299,22 @@ body {
   align-items: center;
   gap: var(--g-spacing-3);
   width: 100%;
+  min-height: 48px;
   padding: var(--g-spacing-2) var(--g-spacing-3);
   border: 0;
-  border-radius: var(--g-border-radius-m);
+  border-radius: var(--g-border-radius-l);
   background: transparent;
   color: inherit;
   font: inherit;
   text-align: left;
   cursor: pointer;
+  box-sizing: border-box;
+}
+
+.account-button_compact {
+  width: 48px;
+  justify-content: center;
+  padding: 0;
 }
 
 .account-button:hover {
@@ -283,6 +348,38 @@ body {
   height: 1px;
   margin: var(--g-spacing-2) var(--g-spacing-2);
   background: var(--g-color-line-generic);
+}
+
+/* Mobile: top bar + drawer. */
+.shell_mobile {
+  flex-direction: column;
+  height: auto;
+  min-height: 100vh;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: var(--g-spacing-2);
+  height: 56px;
+  padding: 0 var(--g-spacing-3);
+  background: var(--app-sheet-bg);
+  border-bottom: 1px solid var(--g-color-line-generic);
+}
+
+.topbar .wordmark {
+  flex: 1;
+}
+
+.topbar__avatar {
+  border: 0;
+  padding: 2px;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
 /* ---------- Content primitives ---------- */
@@ -580,45 +677,58 @@ a.tile:hover {
 }
 
 @media (max-width: 900px) {
-  .shell {
+  .sheet__content {
+    padding: var(--g-spacing-4) var(--g-spacing-4) var(--g-spacing-8);
+  }
+
+  .page-header {
     flex-direction: column;
-    height: auto;
-    min-height: 100vh;
+    align-items: stretch;
   }
 
-  .shell__aside {
-    width: auto;
-    padding: var(--g-spacing-3) var(--g-spacing-3) 0;
-    overflow: visible;
-  }
-
-  .shell__main {
-    padding: var(--g-spacing-2);
-  }
-
-  .nav {
-    flex-direction: row;
+  .page-header__actions {
     flex-wrap: wrap;
   }
 
-  .nav__item {
-    height: 36px;
+  .page-header__actions > * {
+    flex: 1;
   }
 
-  .nav__group {
-    display: none;
+  .toolbar {
+    padding: var(--g-spacing-3) var(--g-spacing-3);
   }
 
-  .aside__footer {
-    margin-top: var(--g-spacing-2);
-    padding-top: 0;
+  .toolbar__search {
+    flex-basis: 100%;
+    max-width: none;
   }
 
-  .sheet__content {
-    padding: var(--g-spacing-5) var(--g-spacing-4) var(--g-spacing-8);
+  .panel__body,
+  .panel__title {
+    padding-left: var(--g-spacing-4);
+    padding-right: var(--g-spacing-4);
+  }
+
+  .tiles {
+    grid-template-columns: 1fr;
   }
 
   .kv {
+    grid-template-columns: 1fr;
+    gap: 2px var(--g-spacing-3);
+  }
+
+  .kv > .kv__key {
+    margin-top: var(--g-spacing-2);
+  }
+
+  .login__card {
+    padding: var(--g-spacing-6) var(--g-spacing-5);
+  }
+}
+
+@media (max-width: 600px) {
+  .form__row {
     grid-template-columns: 1fr;
   }
 }
