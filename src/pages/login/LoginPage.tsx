@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { isApiError } from '../../api/client'
 import { useAuth } from '../../auth/AuthContext'
 import { errorText } from '../../lib/errors'
+import { PulsoMark } from '../../app/PulsoLogo'
 
 function normalizePhone(raw: string): string {
   const digits = raw.replace(/\D/g, '')
@@ -55,11 +56,14 @@ export function LoginPage() {
   return (
     <div className="login">
       <form className="login__card" onSubmit={onSubmit} noValidate>
-        <Flex direction="column" gap={1}>
-          <Text variant="header-2">Pulso</Text>
-          <Text variant="body-2" color="secondary">
-            Вход для операторов
-          </Text>
+        <Flex direction="column" gap={3}>
+          <PulsoMark size={44} />
+          <Flex direction="column" gap={1}>
+            <Text variant="header-2">Pulso</Text>
+            <Text variant="body-2" color="secondary">
+              Вход для операторов
+            </Text>
+          </Flex>
         </Flex>
 
         {expiredNotice && !error ? (

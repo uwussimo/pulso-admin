@@ -198,7 +198,7 @@ body {
 .wordmark__mark {
   width: 32px;
   height: 32px;
-  border-radius: 10px;
+  border-radius: 30%;
   background: var(--app-ink);
   color: var(--app-ink-contrast);
   display: grid;
