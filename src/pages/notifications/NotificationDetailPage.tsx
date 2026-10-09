@@ -36,7 +36,8 @@ export function NotificationDetailPage() {
       void queryClient.invalidateQueries({ queryKey: ['notifications'] })
       navigate('/notifications', { replace: true })
     },
-    onError: (e) => toaster.add({ name: 'retract-error', theme: 'danger', title: 'Не удалось отозвать', content: errorText(e) }),
+    onError: (e) =>
+      toaster.add({ name: 'retract-error', theme: 'danger', title: 'Не удалось отозвать', content: errorText(e) }),
   })
 
   const back = 'Уведомления'
@@ -68,7 +69,8 @@ export function NotificationDetailPage() {
 
   const d = query.data
   const n = d.notification
-  const readShare = d.audience === 'targeted' && d.targeted_count > 0 ? Math.round((d.read_count / d.targeted_count) * 100) : null
+  const readShare =
+    d.audience === 'targeted' && d.targeted_count > 0 ? Math.round((d.read_count / d.targeted_count) * 100) : null
 
   return (
     <>
@@ -136,7 +138,11 @@ export function NotificationDetailPage() {
             <div className="panel__body kv">
               <Text className="kv__key">Аудитория</Text>
               <span>
-                <AudienceLabel audience={d.audience} targetPlatform={d.target_platform} targetedCount={d.targeted_count} />
+                <AudienceLabel
+                  audience={d.audience}
+                  targetPlatform={d.target_platform}
+                  targetedCount={d.targeted_count}
+                />
               </span>
               <Text className="kv__key">Экран</Text>
               <Text>{appRouteLabel(n.url)}</Text>

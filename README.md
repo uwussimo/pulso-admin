@@ -15,17 +15,20 @@ In development Vite proxies `/internal/*` to `VITE_API_PROXY_TARGET` (defaults t
 ```sh
 npm run build          # typecheck + bundle to dist/
 npm run preview
+npm run lint           # oxlint
+npm run format         # prettier --write (config in .prettierrc.json)
+npm run format:check
 ```
 
 ## What's wired to the API
 
-| Section | Endpoints |
-| --- | --- |
+| Section                     | Endpoints                                                                                                                                      |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | Вход / выход / смена пароля | `POST /internal/auth/login`, `GET /internal/auth`, `POST /internal/auth/refresh`, `POST /internal/auth/logout`, `POST /internal/auth/password` |
-| Уведомления | `GET/POST /internal/notifications`, `GET/PATCH/DELETE /internal/notifications/{id}`, `POST /internal/push/send` |
-| Пользователи | `GET /internal/users`, `GET /internal/users/{id}` (service-pulso PR #18) |
-| Версии приложения | `GET/POST /internal/versions`, `DELETE /internal/versions/{platform}` |
-| Перевод кешбэка | `POST /internal/receipts/promote-pending` |
+| Уведомления                 | `GET/POST /internal/notifications`, `GET/PATCH/DELETE /internal/notifications/{id}`, `POST /internal/push/send`                                |
+| Пользователи                | `GET /internal/users`, `GET /internal/users/{id}` (service-pulso PR #18)                                                                       |
+| Версии приложения           | `GET/POST /internal/versions`, `DELETE /internal/versions/{platform}`                                                                          |
+| Перевод кешбэка             | `POST /internal/receipts/promote-pending`                                                                                                      |
 
 Everything else (Обзор metrics, Транзакции, Промо, Апселл, Смена продукта, Акции 5+1, журнал действий, операторы) is shown as «Скоро» with a description and no numbers.
 

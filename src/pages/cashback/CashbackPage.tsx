@@ -30,7 +30,9 @@ export function CashbackPage() {
       toaster.add({
         name: 'promoted',
         theme: 'success',
-        title: res.promoted ? `Переведено: ${plural(res.promoted, ['чек', 'чека', 'чеков'])}` : 'Зависших чеков не было',
+        title: res.promoted
+          ? `Переведено: ${plural(res.promoted, ['чек', 'чека', 'чеков'])}`
+          : 'Зависших чеков не было',
       })
     },
     onError: (e) => {
@@ -54,8 +56,8 @@ export function CashbackPage() {
             <div className="panel__body form">
               <Text variant="subheader-2">Какие чеки перевести</Text>
               <Text variant="body-2" color="secondary">
-                Все чеки, которые до сих пор «ожидают» и были отсканированы раньше указанного момента. По умолчанию — всё,
-                что старше одной минуты.
+                Все чеки, которые до сих пор «ожидают» и были отсканированы раньше указанного момента. По умолчанию —
+                всё, что старше одной минуты.
               </Text>
 
               <Flex gap={2} wrap>
@@ -94,7 +96,13 @@ export function CashbackPage() {
               />
 
               <Flex>
-                <Button view="action" size="xl" onClick={() => setConfirmOpen(true)} disabled={cutoffInvalid} loading={promote.isPending}>
+                <Button
+                  view="action"
+                  size="xl"
+                  onClick={() => setConfirmOpen(true)}
+                  disabled={cutoffInvalid}
+                  loading={promote.isPending}
+                >
                   Перевести
                   <Icon data={ArrowRight} size={16} />
                 </Button>
@@ -138,7 +146,10 @@ export function CashbackPage() {
           <Text variant="body-2">
             Все зависшие чеки станут проведёнными, и их кешбэк можно будет вывести. Отменить это нельзя.
           </Text>
-          <ConfirmLine label="Чеки до:" value={useCustom && beforeIso ? formatDateTime(beforeIso) : 'минуту назад (по умолчанию)'} />
+          <ConfirmLine
+            label="Чеки до:"
+            value={useCustom && beforeIso ? formatDateTime(beforeIso) : 'минуту назад (по умолчанию)'}
+          />
           <Text variant="body-1" color="secondary">
             Точное число чеков узнаем после выполнения.
           </Text>

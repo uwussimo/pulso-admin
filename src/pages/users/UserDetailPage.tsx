@@ -137,7 +137,9 @@ export function UserDetailPage() {
                 <Text color="hint"> из {formatNumber(u.receipts_total)}</Text>
               </Text>
               <Text className="kv__key">Последний чек</Text>
-              <Text className="num">{u.last_receipt_at ? formatDateTime(u.last_receipt_at) : <Text color="hint">не сканировал</Text>}</Text>
+              <Text className="num">
+                {u.last_receipt_at ? formatDateTime(u.last_receipt_at) : <Text color="hint">не сканировал</Text>}
+              </Text>
             </div>
           </div>
         </div>

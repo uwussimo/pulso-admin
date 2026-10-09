@@ -29,7 +29,15 @@ export function EditNotificationDialog({ open, notification, onClose, onSaved }:
   )
 }
 
-function EditForm({ notification, onClose, onSaved }: { notification: NotificationJSON; onClose: () => void; onSaved: () => void }) {
+function EditForm({
+  notification,
+  onClose,
+  onSaved,
+}: {
+  notification: NotificationJSON
+  onClose: () => void
+  onSaved: () => void
+}) {
   const [title, setTitle] = useState<LocaleMap>(() => ({ ...notification.title }))
   const [description, setDescription] = useState<LocaleMap>(() => ({ ...(notification.description ?? {}) }))
   const [type, setType] = useState<NotificationType>(notification.type)
@@ -75,7 +83,10 @@ function EditForm({ notification, onClose, onSaved }: { notification: Notificati
                 size="l"
                 value={url ? [url] : ['']}
                 onUpdate={(v) => setUrl(v[0] ?? '')}
-                options={[{ value: '', content: 'Без перехода' }, ...APP_ROUTES.map((r) => ({ value: r.value, content: r.label }))]}
+                options={[
+                  { value: '', content: 'Без перехода' },
+                  ...APP_ROUTES.map((r) => ({ value: r.value, content: r.label })),
+                ]}
               />
             </Field>
           </div>

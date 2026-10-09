@@ -1,4 +1,14 @@
-import { Alert, Button, Icon, Label, Table, Text, useToaster, withTableActions, type TableColumnConfig } from '@gravity-ui/uikit'
+import {
+  Alert,
+  Button,
+  Icon,
+  Label,
+  Table,
+  Text,
+  useToaster,
+  withTableActions,
+  type TableColumnConfig,
+} from '@gravity-ui/uikit'
 import { Pencil, Plus, TrashBin } from '@gravity-ui/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
@@ -28,14 +38,25 @@ export function VersionsPage() {
       setRemoving(null)
       void queryClient.invalidateQueries({ queryKey: ['versions'] })
     },
-    onError: (e) => toaster.add({ name: 'version-remove-error', theme: 'danger', title: 'Не удалось удалить', content: errorText(e) }),
+    onError: (e) =>
+      toaster.add({
+        name: 'version-remove-error',
+        theme: 'danger',
+        title: 'Не удалось удалить',
+        content: errorText(e),
+      }),
   })
 
   const items = query.data?.items ?? []
   const forced = items.filter((v) => v.force_update)
 
   const columns: TableColumnConfig<VersionConfig>[] = [
-    { id: 'platform', name: 'Платформа', primary: true, template: (v) => <Text variant="subheader-1">{platformLabel(v.platform)}</Text> },
+    {
+      id: 'platform',
+      name: 'Платформа',
+      primary: true,
+      template: (v) => <Text variant="subheader-1">{platformLabel(v.platform)}</Text>,
+    },
     { id: 'version', name: 'Актуальная', template: (v) => <Text className="num">{v.version}</Text> },
     {
       id: 'min',
@@ -45,13 +66,18 @@ export function VersionsPage() {
     {
       id: 'force',
       name: 'Обновление',
-      template: (v) => (v.force_update ? <Label theme="danger">Принудительное</Label> : <Label theme="normal">По желанию</Label>),
+      template: (v) =>
+        v.force_update ? <Label theme="danger">Принудительное</Label> : <Label theme="normal">По желанию</Label>,
     },
     {
       id: 'rollout',
       name: 'Раскатка',
       align: 'end',
-      template: (v) => <Text className="num">{v.rollout_percent === undefined || v.rollout_percent === null ? '—' : `${v.rollout_percent}%`}</Text>,
+      template: (v) => (
+        <Text className="num">
+          {v.rollout_percent === undefined || v.rollout_percent === null ? '—' : `${v.rollout_percent}%`}
+        </Text>
+      ),
     },
     { id: 'os', name: 'Мин. ОС', template: (v) => <Text className="num">{v.minimum_os_version || '—'}</Text> },
     {
@@ -110,8 +136,17 @@ export function VersionsPage() {
               getRowId={(v) => v.platform}
               rowActionsSize="m"
               getRowActions={(v) => [
-                { text: 'Изменить', icon: <Icon data={Pencil} size={16} />, handler: () => setDialog({ open: true, initial: v }) },
-                { text: 'Удалить', theme: 'danger', icon: <Icon data={TrashBin} size={16} />, handler: () => setRemoving(v) },
+                {
+                  text: 'Изменить',
+                  icon: <Icon data={Pencil} size={16} />,
+                  handler: () => setDialog({ open: true, initial: v }),
+                },
+                {
+                  text: 'Удалить',
+                  theme: 'danger',
+                  icon: <Icon data={TrashBin} size={16} />,
+                  handler: () => setRemoving(v),
+                },
               ]}
               edgePadding
             />
@@ -120,8 +155,8 @@ export function VersionsPage() {
       </div>
 
       <Text variant="body-1" color="hint" as="p">
-        Сервер принимает только версию выше сохранённой. Чтобы поменять другие настройки, например включить принудительное
-        обновление, укажите новую версию.
+        Сервер принимает только версию выше сохранённой. Чтобы поменять другие настройки, например включить
+        принудительное обновление, укажите новую версию.
       </Text>
 
       <VersionDialog

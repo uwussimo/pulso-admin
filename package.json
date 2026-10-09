@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "dev:mock": "VITE_API_PROXY_TARGET=http://localhost:8787 vite",
     "mock": "node mock/server.mjs",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@gravity-ui/icons": "^2.22.0",
@@ -26,6 +28,7 @@
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
     "oxlint": "^1.81.0",
+    "prettier": "3.9.9",
     "typescript": "~6.0.2",
     "vite": "^8.3.0"
   }

@@ -11,7 +11,12 @@ interface SidebarState {
   setMobileOpen: (open: boolean) => void
 }
 
-const Ctx = createContext<SidebarState>({ compact: false, toggleCompact: () => {}, mobileOpen: false, setMobileOpen: () => {} })
+const Ctx = createContext<SidebarState>({
+  compact: false,
+  toggleCompact: () => {},
+  mobileOpen: false,
+  setMobileOpen: () => {},
+})
 
 function readCompact(): boolean {
   try {
@@ -35,7 +40,10 @@ export function SidebarStateProvider({ children }: { children: ReactNode }) {
       return next
     })
   }, [])
-  const value = useMemo(() => ({ compact, toggleCompact, mobileOpen, setMobileOpen }), [compact, toggleCompact, mobileOpen])
+  const value = useMemo(
+    () => ({ compact, toggleCompact, mobileOpen, setMobileOpen }),
+    [compact, toggleCompact, mobileOpen],
+  )
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
 

@@ -67,7 +67,6 @@ export const TTL_OPTIONS: { value: string; label: string }[] = [
 /** Phrase an operator must type to confirm a broadcast. */
 export const BROADCAST_CONFIRM_PHRASE = 'ВСЕМ'
 
-
 export const USER_STATUSES: { value: UserStatus; label: string; theme: 'success' | 'danger' | 'unknown' }[] = [
   { value: 'active', label: 'Активен', theme: 'success' },
   { value: 'blocked', label: 'Заблокирован', theme: 'danger' },

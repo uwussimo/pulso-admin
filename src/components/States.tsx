@@ -27,7 +27,15 @@ export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () =>
   )
 }
 
-export function EmptyState({ title, description, action }: { title: string; description?: string; action?: ReactNode }) {
+export function EmptyState({
+  title,
+  description,
+  action,
+}: {
+  title: string
+  description?: string
+  action?: ReactNode
+}) {
   return (
     <Flex direction="column" alignItems="center" gap={2} style={{ padding: 'var(--g-spacing-10) var(--g-spacing-5)' }}>
       <Text variant="subheader-2">{title}</Text>

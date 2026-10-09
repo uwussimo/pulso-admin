@@ -20,6 +20,9 @@ export default {
     const upstream = await fetch(origin + url.pathname + url.search, init)
     const out = new Headers(upstream.headers)
     out.set('cache-control', 'no-store')
-    return new Response(upstream.body, { status: upstream.status, headers: out })
+    return new Response(upstream.body, {
+      status: upstream.status,
+      headers: out,
+    })
   },
 }

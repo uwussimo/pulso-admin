@@ -1,0 +1,8 @@
+dist
+node_modules
+.wrangler
+.agents
+skills-lock.json
+package-lock.json
+public/*.svg
+src/assets/*.svg

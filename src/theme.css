@@ -6,8 +6,7 @@
 
 .g-root {
   --g-font-family-sans:
-    'YS Text', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-    sans-serif;
+    'YS Text', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
   /* Soft, large corners — Yandex ID / 360. */
   --g-border-radius-xs: 6px;

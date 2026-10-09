@@ -39,7 +39,12 @@ export function UsersPage() {
     queryKey: ['users', 'list', { phone: debouncedPhone, status }],
     queryFn: ({ pageParam, signal }) =>
       usersApi.list(
-        { phone: debouncedPhone || undefined, status: status || undefined, limit: PAGE, before_id: pageParam || undefined },
+        {
+          phone: debouncedPhone || undefined,
+          status: status || undefined,
+          limit: PAGE,
+          before_id: pageParam || undefined,
+        },
         signal,
       ),
     initialPageParam: 0,
@@ -112,8 +117,21 @@ export function UsersPage() {
         </Text>
       ),
     },
-    { id: 'referrals', name: 'Рефералы', align: 'end', template: (u) => <Text className="num">{formatNumber(u.referrals_count)}</Text> },
-    { id: 'created', name: 'Регистрация', template: (u) => <Text className="num" whiteSpace="nowrap">{formatDateTime(u.created_at)}</Text> },
+    {
+      id: 'referrals',
+      name: 'Рефералы',
+      align: 'end',
+      template: (u) => <Text className="num">{formatNumber(u.referrals_count)}</Text>,
+    },
+    {
+      id: 'created',
+      name: 'Регистрация',
+      template: (u) => (
+        <Text className="num" whiteSpace="nowrap">
+          {formatDateTime(u.created_at)}
+        </Text>
+      ),
+    },
   ]
 
   return (
@@ -132,7 +150,9 @@ export function UsersPage() {
             value={phone}
             onUpdate={(v) => setParam('phone', v)}
             placeholder="Телефон, можно часть номера"
-            startContent={<Icon data={Magnifier} size={16} style={{ marginInlineStart: 8, color: 'var(--g-color-text-hint)' }} />}
+            startContent={
+              <Icon data={Magnifier} size={16} style={{ marginInlineStart: 8, color: 'var(--g-color-text-hint)' }} />
+            }
             hasClear
             controlProps={{ inputMode: 'tel', autoComplete: 'off' }}
           />
@@ -154,7 +174,11 @@ export function UsersPage() {
         ) : items.length === 0 ? (
           <EmptyState
             title={filtered ? 'Никого не нашли' : 'Пользователей ещё нет'}
-            description={filtered ? 'Проверьте номер: ищем по любой части цифр, без кода страны тоже подойдёт.' : 'Как только кто-то зарегистрируется в приложении, он появится здесь.'}
+            description={
+              filtered
+                ? 'Проверьте номер: ищем по любой части цифр, без кода страны тоже подойдёт.'
+                : 'Как только кто-то зарегистрируется в приложении, он появится здесь.'
+            }
           />
         ) : (
           <>

@@ -64,7 +64,14 @@ function parseIds(raw: string): number[] {
 }
 
 function parseTokens(raw: string): string[] {
-  return [...new Set(raw.split(/[\s,;]+/).map((s) => s.trim()).filter(Boolean))]
+  return [
+    ...new Set(
+      raw
+        .split(/[\s,;]+/)
+        .map((s) => s.trim())
+        .filter(Boolean),
+    ),
+  ]
 }
 
 function PushSummaryView({ summary }: { summary: SendSummary }) {
@@ -112,7 +119,9 @@ export function NotificationCreatePage() {
   const missingLocales = LOCALES.filter((l) => !cleanTitle[l.key]).map((l) => l.short)
 
   const audienceReady =
-    audienceKind === 'all' || audienceKind === 'platform' || (audienceKind === 'users' ? ids.length > 0 : tokens.length > 0)
+    audienceKind === 'all' ||
+    audienceKind === 'platform' ||
+    (audienceKind === 'users' ? ids.length > 0 : tokens.length > 0)
   const readiness: { label: string; done: boolean }[] = [
     { label: 'Выбрана аудитория', done: audienceReady },
     { label: 'Заголовок на русском', done: Boolean(cleanTitle.ru) },
@@ -250,7 +259,9 @@ export function NotificationCreatePage() {
                 <Text>{audienceSummary}</Text>
                 <Text className="kv__key">Записей в ленте</Text>
                 <Text className="num">
-                  {created.targets_created ? formatNumber(created.targets_created) : 'одна общая (аудитория не хранится)'}
+                  {created.targets_created
+                    ? formatNumber(created.targets_created)
+                    : 'одна общая (аудитория не хранится)'}
                 </Text>
                 <Text className="kv__key">ID уведомления</Text>
                 <Text className="num">{created.notification.id}</Text>
@@ -324,14 +335,32 @@ export function NotificationCreatePage() {
               {audienceKind === 'users' ? (
                 <Field
                   label="ID пользователей"
-                  hint={ids.length ? `Распознано: ${plural(ids.length, ['пользователь', 'пользователя', 'пользователей'])}` : 'Например: 42, 77, 1050'}
+                  hint={
+                    ids.length
+                      ? `Распознано: ${plural(ids.length, ['пользователь', 'пользователя', 'пользователей'])}`
+                      : 'Например: 42, 77, 1050'
+                  }
                 >
-                  <TextArea size="l" minRows={2} maxRows={6} value={idsRaw} onUpdate={setIdsRaw} placeholder="42, 77, 1050" />
+                  <TextArea
+                    size="l"
+                    minRows={2}
+                    maxRows={6}
+                    value={idsRaw}
+                    onUpdate={setIdsRaw}
+                    placeholder="42, 77, 1050"
+                  />
                 </Field>
               ) : null}
 
               {audienceKind === 'tokens' ? (
-                <Field label="Push-токены" hint={tokens.length ? `Распознано: ${plural(tokens.length, ['токен', 'токена', 'токенов'])}` : 'По одному в строке'}>
+                <Field
+                  label="Push-токены"
+                  hint={
+                    tokens.length
+                      ? `Распознано: ${plural(tokens.length, ['токен', 'токена', 'токенов'])}`
+                      : 'По одному в строке'
+                  }
+                >
                   <TextArea size="l" minRows={2} maxRows={6} value={tokensRaw} onUpdate={setTokensRaw} />
                 </Field>
               ) : null}
@@ -372,7 +401,10 @@ export function NotificationCreatePage() {
                     size="l"
                     value={url ? [url] : ['']}
                     onUpdate={(v) => setUrl(v[0] ?? '')}
-                    options={[{ value: '', content: 'Без перехода' }, ...APP_ROUTES.map((r) => ({ value: r.value, content: r.label }))]}
+                    options={[
+                      { value: '', content: 'Без перехода' },
+                      ...APP_ROUTES.map((r) => ({ value: r.value, content: r.label })),
+                    ]}
                   />
                 </Field>
                 <Field label="Тип" help="Тип определяет, как приложение показывает уведомление.">
@@ -383,8 +415,16 @@ export function NotificationCreatePage() {
                     options={NOTIFICATION_TYPES.map((t) => ({ value: String(t.value), content: t.label }))}
                   />
                 </Field>
-                <Field label="Срок доставки пуша" help="Если телефон выключен дольше этого срока, пуш не придёт. Запись в ленте остаётся.">
-                  <Select size="l" value={[ttl]} onUpdate={(v) => setTtl(v[0] ?? '')} options={TTL_OPTIONS.map((t) => ({ value: t.value, content: t.label }))} />
+                <Field
+                  label="Срок доставки пуша"
+                  help="Если телефон выключен дольше этого срока, пуш не придёт. Запись в ленте остаётся."
+                >
+                  <Select
+                    size="l"
+                    value={[ttl]}
+                    onUpdate={(v) => setTtl(v[0] ?? '')}
+                    options={TTL_OPTIONS.map((t) => ({ value: t.value, content: t.label }))}
+                  />
                 </Field>
               </div>
               <Switch size="l" checked={saveToFeed} onUpdate={setSaveToFeed}>

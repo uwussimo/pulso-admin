@@ -1,4 +1,14 @@
-import { Button, Checkbox, Icon, Select, Table, Text, TextInput, withTableActions, type TableColumnConfig } from '@gravity-ui/uikit'
+import {
+  Button,
+  Checkbox,
+  Icon,
+  Select,
+  Table,
+  Text,
+  TextInput,
+  withTableActions,
+  type TableColumnConfig,
+} from '@gravity-ui/uikit'
 import { Magnifier, Pencil, Plus, TrashBin } from '@gravity-ui/icons'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
@@ -79,7 +89,8 @@ export function NotificationsPage() {
       setRetracting(null)
       void queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
-    onError: (e) => toaster.add({ name: 'retract-error', theme: 'danger', title: 'Не удалось отозвать', content: errorText(e) }),
+    onError: (e) =>
+      toaster.add({ name: 'retract-error', theme: 'danger', title: 'Не удалось отозвать', content: errorText(e) }),
   })
 
   const columns: TableColumnConfig<AdminNotification>[] = [
@@ -107,7 +118,9 @@ export function NotificationsPage() {
     {
       id: 'audience',
       name: 'Аудитория',
-      template: (n) => <AudienceLabel audience={n.audience} targetPlatform={n.target_platform} targetedCount={n.targeted_count} />,
+      template: (n) => (
+        <AudienceLabel audience={n.audience} targetPlatform={n.target_platform} targetedCount={n.targeted_count} />
+      ),
     },
     {
       id: 'read',
@@ -125,7 +138,15 @@ export function NotificationsPage() {
     },
     { id: 'type', name: 'Тип', template: (n) => <Text color="secondary">{notificationTypeLabel(n.type)}</Text> },
     { id: 'url', name: 'Экран', template: (n) => <Text color="secondary">{appRouteLabel(n.url)}</Text> },
-    { id: 'created', name: 'Отправлено', template: (n) => <Text className="num" whiteSpace="nowrap">{formatDateTime(n.created_at)}</Text> },
+    {
+      id: 'created',
+      name: 'Отправлено',
+      template: (n) => (
+        <Text className="num" whiteSpace="nowrap">
+          {formatDateTime(n.created_at)}
+        </Text>
+      ),
+    },
   ]
 
   return (
@@ -149,7 +170,9 @@ export function NotificationsPage() {
             value={search}
             onUpdate={(v) => setParam('q', v)}
             placeholder="Поиск по заголовку и тексту"
-            startContent={<Icon data={Magnifier} size={16} style={{ marginInlineStart: 8, color: 'var(--g-color-text-hint)' }} />}
+            startContent={
+              <Icon data={Magnifier} size={16} style={{ marginInlineStart: 8, color: 'var(--g-color-text-hint)' }} />
+            }
             hasClear
           />
           <Select
@@ -208,7 +231,12 @@ export function NotificationsPage() {
                 getRowActions={(n) => [
                   { text: 'Открыть', handler: () => navigate(`/notifications/${n.id}`) },
                   { text: 'Исправить текст', icon: <Icon data={Pencil} size={16} />, handler: () => setEditing(n) },
-                  { text: 'Отозвать', theme: 'danger', icon: <Icon data={TrashBin} size={16} />, handler: () => setRetracting(n) },
+                  {
+                    text: 'Отозвать',
+                    theme: 'danger',
+                    icon: <Icon data={TrashBin} size={16} />,
+                    handler: () => setRetracting(n),
+                  },
                 ]}
                 edgePadding
                 verticalAlign="top"
