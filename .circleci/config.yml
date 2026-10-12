@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
-  aws-ecr: circleci/aws-ecr@9.0.2
+  aws-ecr: circleci/aws-ecr@8.2.1
+  aws-ecr9: circleci/aws-ecr@9.0.2
   node: circleci/node@5.2.0
   discord: teka23/discord@0.0.1
 
@@ -45,7 +46,7 @@ jobs:
 
   build-and-push-docker-image:
     executor:
-      name: aws-ecr/default
+      name: aws-ecr9/default
     parameters:
       repo:
         type: string
