@@ -10,6 +10,8 @@ interface Props {
   cancelText?: string
   danger?: boolean
   loading?: boolean
+  /** Blocks the confirm button while a field inside the body is invalid. */
+  confirmDisabled?: boolean
   /** If set, the operator must type this phrase to enable the confirm button. */
   typedPhrase?: string
   onConfirm: () => void
@@ -24,6 +26,7 @@ export function ConfirmDialog({
   cancelText = 'Отмена',
   danger,
   loading,
+  confirmDisabled,
   typedPhrase,
   onConfirm,
   onClose,
@@ -78,7 +81,7 @@ export function ConfirmDialog({
               size="l"
               onClick={onConfirm}
               loading={loading}
-              disabled={!phraseOk}
+              disabled={!phraseOk || confirmDisabled}
             >
               {confirmText}
             </Button>

@@ -177,6 +177,270 @@ let versions = [
   },
 ]
 
+// Mirror of the real seed so the panel can be exercised without a backend:
+// one receipt per status, including one an operator already rejected, and a
+// reversed cashback row that a rejection created.
+let receipts = [
+  {
+    id: 101,
+    user_id: 1,
+    user_phone: '+998901234567',
+    user_name: 'Мадина Каримова',
+    status: 'approved',
+    company_tin: '312019876',
+    company_name: 'Аптека «Здоровье»',
+    url: 'https://ofd.soliq.uz/check?t=AA100000000001&r=1',
+    total: 845000,
+    cashback: 84500,
+    error_code: '',
+    rejected_by_operator: false,
+    scanned_at: new Date(now - 2 * h).toISOString(),
+    created_at: new Date(now - 2 * h).toISOString(),
+    updated_at: new Date(now - 2 * h).toISOString(),
+    fiscalized_at: new Date(now - 2 * h).toISOString(),
+    item_count: 4,
+    medical_item_count: 3,
+    cashback_transaction: { id: 9001, amount: 84500, status: 'posted' },
+  },
+  {
+    id: 100,
+    user_id: 2,
+    user_phone: '+998935551201',
+    user_name: 'Бекзод Шоқиров',
+    status: 'pending',
+    company_tin: '',
+    company_name: '',
+    url: 'https://ofd.soliq.uz/check?t=AA100000000002&r=1',
+    total: 0,
+    cashback: 0,
+    error_code: '',
+    rejected_by_operator: false,
+    scanned_at: new Date(now - 5 * 60000).toISOString(),
+    created_at: new Date(now - 5 * 60000).toISOString(),
+    updated_at: new Date(now - 5 * 60000).toISOString(),
+    item_count: 0,
+    medical_item_count: 0,
+  },
+  {
+    id: 99,
+    user_id: 1,
+    user_phone: '+998901234567',
+    user_name: 'Мадина Каримова',
+    status: 'canceled',
+    company_tin: '201019876',
+    company_name: 'Аптека «Вита»',
+    url: 'https://ofd.soliq.uz/check?t=AA100000000003&r=1',
+    total: 0,
+    cashback: 0,
+    cancel_reason: 'Чек поддельный или дублирующий',
+    error_code: 'receipts.rejected_by_operator',
+    rejected_by_operator: true,
+    scanned_at: new Date(now - 26 * h).toISOString(),
+    created_at: new Date(now - 26 * h).toISOString(),
+    updated_at: new Date(now - h).toISOString(),
+    item_count: 2,
+    medical_item_count: 2,
+    cashback_transaction: { id: 9002, amount: 23000, status: 'reversed' },
+  },
+  {
+    id: 98,
+    user_id: 3,
+    user_phone: '+998907778899',
+    user_name: 'Нина Юсупова',
+    status: 'canceled',
+    company_tin: '212019876',
+    company_name: 'Аптека «Шифо»',
+    url: 'https://ofd.soliq.uz/check?t=AA100000000004&r=1',
+    total: 0,
+    cashback: 0,
+    cancel_reason: 'Срок проверки истёк',
+    error_code: 'receipts.expired',
+    rejected_by_operator: false,
+    scanned_at: new Date(now - 96 * h).toISOString(),
+    created_at: new Date(now - 96 * h).toISOString(),
+    updated_at: new Date(now - 70 * h).toISOString(),
+    item_count: 0,
+    medical_item_count: 0,
+  },
+]
+
+const receiptItems = {
+  101: [
+    {
+      id: 1,
+      name: 'Ибупрофен 200мг',
+      count_hundredths: 200,
+      price: 42000,
+      ikpu_code: '0000000001',
+      nomenclature_id: 412,
+      cashback: 4200,
+      status: 'cashbacked',
+    },
+    {
+      id: 2,
+      name: 'Парацетамол 500мг',
+      count_hundredths: 100,
+      price: 12500,
+      ikpu_code: '0000000002',
+      nomenclature_id: 413,
+      cashback: 1250,
+      status: 'cashbacked',
+    },
+    {
+      id: 3,
+      name: 'Витамины C',
+      count_hundredths: 100,
+      price: 39000,
+      ikpu_code: '0000000003',
+      nomenclature_id: 414,
+      cashback: 3900,
+      status: 'cashbacked',
+    },
+    {
+      id: 4,
+      name: 'Шампунь',
+      count_hundredths: 100,
+      price: 68300,
+      ikpu_code: '',
+      nomenclature_id: 0,
+      cashback: 0,
+      status: 'non_medical',
+    },
+  ],
+  99: [
+    {
+      id: 5,
+      name: 'Антибиотик',
+      count_hundredths: 100,
+      price: 115000,
+      ikpu_code: '0000000004',
+      nomenclature_id: 415,
+      cashback: 11500,
+      status: 'cashbacked',
+    },
+    {
+      id: 6,
+      name: 'Бинт',
+      count_hundredths: 100,
+      price: 11500,
+      ikpu_code: '0000000005',
+      nomenclature_id: 416,
+      cashback: 1150,
+      status: 'cashbacked',
+    },
+  ],
+}
+
+let transactions = [
+  {
+    id: 9002,
+    user_id: 1,
+    user_phone: '+998901234567',
+    user_name: 'Мадина Каримова',
+    type: 'receipt_scan',
+    amount: 23000,
+    reference: 'receipt:99',
+    description: 'Cashback for scanned receipt',
+    status: 'reversed',
+    reversed: true,
+    created_at: new Date(now - 26 * h).toISOString(),
+  },
+  {
+    id: 9001,
+    user_id: 1,
+    user_phone: '+998901234567',
+    user_name: 'Мадина Каримова',
+    type: 'receipt_scan',
+    amount: 84500,
+    reference: 'receipt:101',
+    description: 'Cashback for scanned receipt',
+    status: 'posted',
+    reversed: false,
+    created_at: new Date(now - 2 * h).toISOString(),
+    posted_at: new Date(now - 2 * h).toISOString(),
+  },
+  {
+    id: 9000,
+    user_id: 1,
+    user_phone: '+998901234567',
+    user_name: 'Мадина Каримова',
+    type: 'welcome_bonus',
+    amount: 50000,
+    reference: 'user:1:welcome',
+    description: 'Welcome bonus',
+    status: 'posted',
+    reversed: false,
+    created_at: new Date(now - 200 * h).toISOString(),
+    posted_at: new Date(now - 200 * h).toISOString(),
+  },
+  {
+    id: 8999,
+    user_id: 2,
+    user_phone: '+998935551201',
+    user_name: 'Бекзод Шоқиров',
+    type: 'card_withdrawal',
+    amount: 120000,
+    reference: 'payout:5501',
+    description: 'Вывод на карту',
+    status: 'posted',
+    reversed: false,
+    created_at: new Date(now - 30 * h).toISOString(),
+    posted_at: new Date(now - 30 * h).toISOString(),
+  },
+  {
+    id: 8998,
+    user_id: 3,
+    user_phone: '+998907778899',
+    user_name: 'Нина Юсупова',
+    type: 'receipt_scan',
+    amount: 15000,
+    reference: 'receipt:97',
+    description: 'Cashback for scanned receipt',
+    status: 'pending',
+    reversed: false,
+    created_at: new Date(now - 2 * 60000).toISOString(),
+  },
+]
+
+const receiptSummary = (rows) => {
+  const approved = rows.filter((r) => r.status === 'approved')
+  const sum = (list, k) => list.reduce((a, r) => a + (r[k] || 0), 0)
+  return {
+    totals: rows.length,
+    pending: rows.filter((r) => r.status === 'pending').length,
+    approved: approved.length,
+    canceled: rows.filter((r) => r.status === 'canceled').length,
+    rejected_by_operator: rows.filter((r) => r.rejected_by_operator).length,
+    total_amount: sum(approved, 'total'),
+    cashback_total: sum(approved, 'cashback'),
+  }
+}
+
+const transactionSummary = (rows) => {
+  const credits = ['welcome_bonus', 'friend_invitation', 'receipt_scan', 'survey_completion']
+  const posted = rows.filter((r) => r.status === 'posted')
+  const sum = (list, k) => list.reduce((a, r) => a + (r[k] || 0), 0)
+  return {
+    totals: rows.length,
+    pending: rows.filter((r) => r.status === 'pending').length,
+    posted: posted.length,
+    rejected: rows.filter((r) => r.status === 'rejected').length,
+    reversed: rows.filter((r) => r.status === 'reversed').length,
+    posted_credits: sum(
+      posted.filter((r) => credits.includes(r.type)),
+      'amount',
+    ),
+    posted_debits: sum(
+      posted.filter((r) => !credits.includes(r.type)),
+      'amount',
+    ),
+    pending_total: sum(
+      rows.filter((r) => r.status === 'pending'),
+      'amount',
+    ),
+  }
+}
+
 const json = (res, code, body) => {
   res.writeHead(code, { 'Content-Type': 'application/json' })
   res.end(body === undefined ? '' : JSON.stringify(body))
@@ -323,6 +587,109 @@ http
         before: url.searchParams.get('before') || new Date(now - 60000).toISOString(),
         promoted: 14,
       })
+    if (m === 'GET' && p === '/internal/receipts') {
+      const q = url.searchParams
+      let items = receipts.slice()
+      if (q.get('status')) items = items.filter((r) => r.status === q.get('status'))
+      if (q.get('user_id')) items = items.filter((r) => r.user_id === Number(q.get('user_id')))
+      const company = (q.get('company') || '').toLowerCase()
+      if (company) items = items.filter((r) => r.company_name.toLowerCase().includes(company))
+      const before = Number(q.get('before_id') || 0)
+      if (before) items = items.filter((r) => r.id < before)
+      const limit = Number(q.get('limit') || 25)
+      // The summary is computed before the page is cut, matching the real
+      // endpoint's "whole filtered set" semantics.
+      const summary = receiptSummary(items)
+      return json(res, 200, {
+        items: items.slice(0, limit),
+        has_more: items.length > limit,
+        totals: summary.totals,
+        summary,
+      })
+    }
+    const receiptReject = p.match(/^\/internal\/receipts\/(\d+)\/reject$/)
+    if (receiptReject && m === 'POST') {
+      const b = await read(req)
+      const row = receipts.find((r) => r.id === Number(receiptReject[1]))
+      if (!row) return json(res, 404, { alias: 'receipts.not_found', message: 'receipt not found', type: 'error' })
+      if (row.status === 'canceled')
+        return json(res, 409, {
+          alias: 'receipts.not_rejectable',
+          message: 'receipt cannot be rejected in its current state',
+          type: 'error',
+        })
+
+      const tx = row.cashback_transaction
+      let cashback_reversal = 'none'
+      if (tx) {
+        if (tx.status === 'pending') {
+          tx.status = 'rejected'
+          cashback_reversal = 'rejected'
+        } else {
+          tx.status = 'reversed'
+          const mirrored = transactions.find((t) => t.id === tx.id)
+          if (mirrored) mirrored.status = 'reversed'
+          cashback_reversal = 'clawed_back'
+        }
+      }
+
+      row.status = 'canceled'
+      row.rejected_by_operator = true
+      row.error_code = 'receipts.rejected_by_operator'
+      row.cancel_reason = b.reason || 'Отклонён оператором'
+      row.updated_at = new Date(now).toISOString()
+
+      const balance = transactions
+        .filter((t) => t.user_id === row.user_id && (t.status === 'posted' || t.status === 'reversed'))
+        .reduce((acc, t) => {
+          const credits = ['welcome_bonus', 'friend_invitation', 'receipt_scan', 'survey_completion']
+          const sign = credits.includes(t.type) ? 1 : -1
+          return acc + (t.status === 'posted' ? sign * t.amount : 0)
+        }, 0)
+
+      return json(res, 200, {
+        receipt: row,
+        cashback_reversal,
+        transaction: tx,
+        balance: {
+          available: balance,
+          pending: transactions
+            .filter((t) => t.user_id === row.user_id && t.status === 'pending')
+            .reduce((a, t) => a + t.amount, 0),
+        },
+      })
+    }
+    const receiptDetail = p.match(/^\/internal\/receipts\/(\d+)$/)
+    if (receiptDetail && m === 'GET') {
+      const row = receipts.find((r) => r.id === Number(receiptDetail[1]))
+      return row
+        ? json(res, 200, { receipt: row, items: receiptItems[row.id] ?? [] })
+        : json(res, 404, { alias: 'receipts.not_found', message: 'receipt not found', type: 'error' })
+    }
+    if (m === 'GET' && p === '/internal/transactions') {
+      const q = url.searchParams
+      let items = transactions.slice()
+      if (q.get('status')) items = items.filter((t) => t.status === q.get('status'))
+      if (q.get('type')) items = items.filter((t) => t.type === q.get('type'))
+      if (q.get('user_id')) items = items.filter((t) => t.user_id === Number(q.get('user_id')))
+      const before = Number(q.get('before_id') || 0)
+      if (before) items = items.filter((t) => t.id < before)
+      const limit = Number(q.get('limit') || 25)
+      const summary = transactionSummary(items)
+      return json(res, 200, {
+        items: items.slice(0, limit),
+        has_more: items.length > limit,
+        totals: summary.totals,
+        summary,
+      })
+    }
+    const txDetail = p.match(/^\/internal\/transactions\/(\d+)$/)
+    if (txDetail && m === 'GET') {
+      const row = transactions.find((t) => t.id === Number(txDetail[1]))
+      return row
+        ? json(res, 200, { transaction: row })
+        : json(res, 404, { alias: 'transactions.not_found', message: 'transaction not found', type: 'error' })
+    }
     if (m === 'GET' && p === '/internal/users') {
       const q = url.searchParams
       let items = users.slice()
@@ -341,6 +708,20 @@ http
       return u
         ? json(res, 200, u)
         : json(res, 404, { alias: 'users.not_found', message: 'user not found', type: 'error' })
+    }
+    const userStatus = p.match(/^\/internal\/users\/(\d+)\/status$/)
+    if (userStatus && m === 'PATCH') {
+      const b = await read(req)
+      const u = users.find((x) => x.id === Number(userStatus[1]))
+      if (!u) return json(res, 404, { alias: 'users.not_found', message: 'user not found', type: 'error' })
+      if (!['active', 'blocked', 'deleted'].includes(b.status))
+        return json(res, 400, { alias: 'users.invalid_status', message: 'bad status', type: 'error' })
+      if (u.status === 'deleted')
+        return json(res, 409, { alias: 'users.invalid_transition', message: 'deleted is terminal', type: 'error' })
+      const sessions_revoked = b.status === 'active' ? 0 : Math.ceil(Math.random() * 3)
+      u.status = b.status
+      u.updated_at = new Date(now).toISOString()
+      return json(res, 200, { user: u, sessions_revoked })
     }
     if (m === 'GET' && p === '/internal/versions') return json(res, 200, { items: versions, totals: versions.length })
     if (m === 'POST' && p === '/internal/versions') {
