@@ -9,6 +9,7 @@ Internal operator dashboard for the Pulso cashback app. React 19 + Vite + TypeSc
 ## Agent Skills
 
 Use all skills in `.agents/skills/` proactively for relevant work:
+
 - `gravity-ui` — Gravity UI component usage and patterns
 - `ux-laws` — UX heuristics for layout and flow decisions
 - `yandex-ui` — Yandex UI design system guidance
@@ -32,25 +33,30 @@ npm run dev:mock       # Vite with /internal/* proxied to mock
 ## Architecture
 
 ### API Layer (`src/api/`)
+
 - Typed client with bearer auth and single-flight token refresh
 - One module per API area: `auth.ts`, `users.ts`, `notifications.ts`, `versions.ts`, `receipts.ts`
 - `client.ts` exports `api` (get/post/patch/delete helpers), `ApiError`, session helpers (`loadSession`, `saveSession`, `onSessionExpired`)
 - Session stored in `localStorage` under `pulso-admin.session`
 
 ### Auth (`src/auth/`)
+
 - `AuthContext` provides session state (loading/authenticated/anonymous)
 - Wraps API client with auto-refresh on 401
 
 ### App Shell (`src/app/`)
+
 - `AppShell.tsx` — sidebar + main content area layout
 - `Sidebar.tsx` — collapsible rail navigation
 - `nav.ts` — navigation config
 - Theme toggle between light/dark via `AppTheme.tsx`
 
 ### Pages (`src/pages/`)
+
 One folder per section. Each page is a route in `App.tsx`.
 
 ### Components (`src/components/`)
+
 - `PageHeader.tsx` — page title + actions
 - `ConfirmDialog.tsx` — confirmation modal
 - `States.tsx` — loading/error/empty states
@@ -59,24 +65,26 @@ One folder per section. Each page is a route in `App.tsx`.
 - `AudienceLabel.tsx` — notification audience badge
 
 ### Lib (`src/lib/`)
+
 - `format.ts` — formatting (сум, Tashkent time, plurals)
 - `constants.ts` — notification type labels matching backend `dto.NotificationType`
 - `errors.ts` — error text constants
 
 ### Styling
+
 - Gravity UI tokens overridden in `src/theme.css`
 - Yandex ID / Yandex 360 aesthetic: grey workspace, white content sheet, near-black primary
 - App-level tokens use `--app-*` prefix; Gravity tokens use `--g-*`
 
 ## API Endpoints Wired
 
-| Section | Endpoints |
-|---------|-----------|
-| Auth | `POST /internal/auth/login`, `GET /internal/auth`, `POST /internal/auth/refresh`, `POST /internal/auth/logout`, `POST /internal/auth/password` |
-| Notifications | `GET/POST /internal/notifications`, `GET/PATCH/DELETE /internal/notifications/{id}`, `POST /internal/push/send` |
-| Users | `GET /internal/users`, `GET /internal/users/{id}`, `PATCH /internal/users/{id}/status` |
-| Versions | `GET/POST /internal/versions`, `DELETE /internal/versions/{platform}` |
-| Cashback | `POST /internal/receipts/promote-pending` |
+| Section       | Endpoints                                                                                                                                      |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Auth          | `POST /internal/auth/login`, `GET /internal/auth`, `POST /internal/auth/refresh`, `POST /internal/auth/logout`, `POST /internal/auth/password` |
+| Notifications | `GET/POST /internal/notifications`, `GET/PATCH/DELETE /internal/notifications/{id}`, `POST /internal/push/send`                                |
+| Users         | `GET /internal/users`, `GET /internal/users/{id}`, `PATCH /internal/users/{id}/status`                                                         |
+| Versions      | `GET/POST /internal/versions`, `DELETE /internal/versions/{platform}`                                                                          |
+| Cashback      | `POST /internal/receipts/promote-pending`                                                                                                      |
 
 All other sections (Overview, Transactions, Promo, Upsell, Switch, Promo 5+1) show "Скоро" (coming soon).
 

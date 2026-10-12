@@ -20,6 +20,18 @@ npm run format         # prettier --write (config in .prettierrc.json)
 npm run format:check
 ```
 
+То же самое через `make` (обёртка над npm-скриптами):
+
+```sh
+make help              # список целей
+make check             # lint + format:check + typecheck — ровно то, что гоняет CI
+make lint              # только oxlint
+make format-check      # только prettier --check
+make format            # prettier --write
+make lint-fix          # oxlint --fix
+make build             # сборка в dist/
+```
+
 ## What's wired to the API
 
 | Section                     | Endpoints                                                                                                                                      |
