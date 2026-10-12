@@ -97,39 +97,23 @@ async function parseBody(res: Response): Promise<unknown> {
   }
 }
 
-let refreshInFlight: Promise<boolean> | null = null
-
-async function refreshSession(): Promise<boolean> {
-  if (refreshInFlight) return refreshInFlight
-  refreshInFlight = (async () => {
-    const current = loadSession()
-    if (!current?.refresh_token) return false
-    try {
-      const res = await fetch(buildUrl('/internal/auth/refresh'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: current.refresh_token }),
-      })
-      if (!res.ok) return false
-      const next = (await parseBody(res)) as LoginResponse
-      if (!next?.access_token) return false
-      saveSession(next)
-      return true
-    } catch {
-      return false
-    } finally {
-      refreshInFlight = null
-    }
-  })()
-  return refreshInFlight
+// Everything shared by the JSON requests above and the multipart one
+// below: the same session header, the same single-flight refresh, the same
+// ApiError. `buildBody` is what differs per content type.
+interface SendOptions {
+  buildBody: () => BodyInit | undefined
+  contentType?: string
+  query?: Query
+  auth?: boolean
+  signal?: AbortSignal
 }
 
-export async function request<T>(method: string, path: string, opts: RequestOptions = {}): Promise<T> {
-  const { body, query, auth = true, signal } = opts
+async function send<T>(method: string, path: string, opts: SendOptions): Promise<T> {
+  const { buildBody, contentType, query, auth = true, signal } = opts
 
   const doFetch = async () => {
     const headers: Record<string, string> = { Accept: 'application/json' }
-    if (body !== undefined) headers['Content-Type'] = 'application/json'
+    if (contentType) headers['Content-Type'] = contentType
     if (auth) {
       const s = loadSession()
       if (s?.access_token) headers.Authorization = `Bearer ${s.access_token}`
@@ -137,7 +121,7 @@ export async function request<T>(method: string, path: string, opts: RequestOpti
     return fetch(buildUrl(path, query), {
       method,
       headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: buildBody(),
       signal,
     })
   }
@@ -168,9 +152,52 @@ export async function request<T>(method: string, path: string, opts: RequestOpti
   return parsed as T
 }
 
+let refreshInFlight: Promise<boolean> | null = null
+
+async function refreshSession(): Promise<boolean> {
+  if (refreshInFlight) return refreshInFlight
+  refreshInFlight = (async () => {
+    const current = loadSession()
+    if (!current?.refresh_token) return false
+    try {
+      const res = await fetch(buildUrl('/internal/auth/refresh'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: current.refresh_token }),
+      })
+      if (!res.ok) return false
+      const next = (await parseBody(res)) as LoginResponse
+      if (!next?.access_token) return false
+      saveSession(next)
+      return true
+    } catch {
+      return false
+    } finally {
+      refreshInFlight = null
+    }
+  })()
+  return refreshInFlight
+}
+
+export async function request<T>(method: string, path: string, opts: RequestOptions = {}): Promise<T> {
+  const { body, query, signal } = opts
+  return send<T>(method, path, {
+    query,
+    signal,
+    contentType: body === undefined ? undefined : 'application/json',
+    buildBody: () => (body === undefined ? undefined : JSON.stringify(body)),
+  })
+}
+
 export const api = {
   get: <T>(path: string, query?: Query, signal?: AbortSignal) => request<T>('GET', path, { query, signal }),
   post: <T>(path: string, body?: unknown, query?: Query) => request<T>('POST', path, { body, query }),
   patch: <T>(path: string, body?: unknown) => request<T>('PATCH', path, { body }),
   delete: <T>(path: string) => request<T>('DELETE', path),
+  /**
+   * Multipart POST. No Content-Type is set by hand: the browser has to add
+   * the multipart boundary itself, and overriding it produces a body the
+   * server cannot parse.
+   */
+  upload: <T>(path: string, form: FormData) => send<T>('POST', path, { buildBody: () => form }),
 }

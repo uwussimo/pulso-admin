@@ -193,6 +193,9 @@ export interface AdminUsersListResponse {
 }
 
 export interface UsersListParams {
+  /** One box: matches phone digits, full name, or an exact id. */
+  search?: string
+  /** Narrower, phone-only filter kept for callers that already know it is a number. */
   phone?: string
   status?: UserStatus
   limit?: number
@@ -361,4 +364,12 @@ export interface TransactionsListParams {
   user_id?: number
   limit?: number
   before_id?: number
+}
+
+export interface UploadResponse {
+  /** Absolute CDN URL; this is what goes into the markdown body. */
+  public_url: string
+  size_bytes: number
+  content_type: string
+  original_name: string
 }

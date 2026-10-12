@@ -24,9 +24,9 @@ function useDebounced<T>(value: T, ms: number): T {
 export function UsersPage() {
   const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
-  const phone = params.get('phone') ?? ''
+  const search = params.get('q') ?? ''
   const status = (params.get('status') as UserStatus | null) ?? ''
-  const debouncedPhone = useDebounced(phone, 350)
+  const debouncedSearch = useDebounced(search, 350)
 
   function setParam(key: string, value: string | undefined) {
     const next = new URLSearchParams(params)
@@ -36,11 +36,11 @@ export function UsersPage() {
   }
 
   const query = useInfiniteQuery({
-    queryKey: ['users', 'list', { phone: debouncedPhone, status }],
+    queryKey: ['users', 'list', { search: debouncedSearch, status }],
     queryFn: ({ pageParam, signal }) =>
       usersApi.list(
         {
-          phone: debouncedPhone || undefined,
+          search: debouncedSearch || undefined,
           status: status || undefined,
           limit: PAGE,
           before_id: pageParam || undefined,
@@ -53,7 +53,7 @@ export function UsersPage() {
 
   const items = useMemo(() => query.data?.pages.flatMap((p) => p.items) ?? [], [query.data])
   const totals = query.data?.pages[0]?.totals
-  const filtered = Boolean(debouncedPhone || status)
+  const filtered = Boolean(debouncedSearch || status)
 
   const columns: TableColumnConfig<AdminUser>[] = [
     {
@@ -138,7 +138,7 @@ export function UsersPage() {
     <>
       <PageHeader
         title="Пользователи"
-        description="Найдите человека по телефону, когда он пишет в поддержку: баланс, чеки, KYC и рефералы на одном экране."
+        description="Найдите человека по телефону, имени или ID: баланс, чеки, KYC и рефералы на одном экране."
       />
 
       <div className="panel">
@@ -146,15 +146,14 @@ export function UsersPage() {
           <TextInput
             className="toolbar__search"
             size="l"
-            type="tel"
-            value={phone}
-            onUpdate={(v) => setParam('phone', v)}
-            placeholder="Телефон, можно часть номера"
+            value={search}
+            onUpdate={(v) => setParam('q', v)}
+            placeholder="Телефон, имя или ID"
             startContent={
               <Icon data={Magnifier} size={16} style={{ marginInlineStart: 8, color: 'var(--g-color-text-hint)' }} />
             }
             hasClear
-            controlProps={{ inputMode: 'tel', autoComplete: 'off' }}
+            controlProps={{ autoComplete: 'off' }}
           />
           <Select
             size="l"
@@ -176,7 +175,7 @@ export function UsersPage() {
             title={filtered ? 'Никого не нашли' : 'Пользователей ещё нет'}
             description={
               filtered
-                ? 'Проверьте номер: ищем по любой части цифр, без кода страны тоже подойдёт.'
+                ? 'Ищем по части номера (код страны можно не писать), по имени или по точному ID.'
                 : 'Как только кто-то зарегистрируется в приложении, он появится здесь.'
             }
           />

@@ -38,6 +38,9 @@ build: typecheck ## Продакшен-сборка в dist/
 dev: ## Vite dev-сервер на :5173
 	$(NPM) run dev
 
+run: ## Запустить приложение
+	$(NPM) run dev
+
 dev-mock: ## Vite dev-сервер с прокси на mock API
 	$(NPM) run dev:mock
 

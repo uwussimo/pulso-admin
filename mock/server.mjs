@@ -441,6 +441,21 @@ const transactionSummary = (rows) => {
   }
 }
 
+// The mock does not store bytes: it hands back a deterministic
+// data-URI-looking URL so the markdown the panel builds renders an image
+// during local verification without needing a bucket.
+const uploadMock = (req) =>
+  new Promise((resolve) => {
+    let size = 0
+    let name = 'upload.png'
+    req.on('data', (c) => {
+      size += c.length
+      const m = /filename="([^"]+)"/.exec(c.toString('latin1'))
+      if (m) name = m[1]
+    })
+    req.on('end', () => resolve({ name, size }))
+  })
+
 const json = (res, code, body) => {
   res.writeHead(code, { 'Content-Type': 'application/json' })
   res.end(body === undefined ? '' : JSON.stringify(body))
@@ -693,8 +708,20 @@ http
     if (m === 'GET' && p === '/internal/users') {
       const q = url.searchParams
       let items = users.slice()
-      const digits = (q.get('phone') || '').replace(/\D/g, '')
-      if (digits) items = items.filter((u) => u.phone.replace(/\D/g, '').includes(digits))
+      const term = (q.get('search') || '').trim()
+      const digits = term.replace(/\D/g, '')
+      if (term) {
+        items = items.filter((u) => {
+          const phone = u.phone.replace(/\D/g, '')
+          const byPhone = digits ? phone.includes(digits) : false
+          const byName = u.full_name.toLowerCase().includes(term.toLowerCase())
+          const byId = digits && Number(digits) === u.id
+          return byPhone || byName || byId
+        })
+      } else {
+        const phoneDigits = (q.get('phone') || '').replace(/\D/g, '')
+        if (phoneDigits) items = items.filter((u) => u.phone.replace(/\D/g, '').includes(phoneDigits))
+      }
       if (q.get('status')) items = items.filter((u) => u.status === q.get('status'))
       else items = items.filter((u) => u.status !== 'deleted')
       const before = Number(q.get('before_id') || 0)
@@ -722,6 +749,17 @@ http
       u.status = b.status
       u.updated_at = new Date(now).toISOString()
       return json(res, 200, { user: u, sessions_revoked })
+    }
+    if (m === 'POST' && p === '/internal/upload') {
+      const f = await uploadMock(req)
+      if (!f.size) return json(res, 400, { alias: 'upload.empty', message: 'file is empty', type: 'error' })
+      const ext = (f.name.match(/\.[a-z0-9]+$/i) || ['.png'])[0]
+      return json(res, 201, {
+        public_url: `https://placehold.co/1200x675/png?text=${encodeURIComponent(f.name)}`,
+        size_bytes: f.size,
+        content_type: ext === '.png' ? 'image/png' : `image/${ext.slice(1)}`,
+        original_name: f.name,
+      })
     }
     if (m === 'GET' && p === '/internal/versions') return json(res, 200, { items: versions, totals: versions.length })
     if (m === 'POST' && p === '/internal/versions') {
