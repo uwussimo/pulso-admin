@@ -9,16 +9,13 @@ import { NotificationDetailPage } from '../pages/notifications/NotificationDetai
 import { NotificationCreatePage } from '../pages/notifications/NotificationCreatePage'
 import { VersionsPage } from '../pages/versions/VersionsPage'
 import { CashbackPage } from '../pages/cashback/CashbackPage'
+import { ReceiptsPage } from '../pages/receipts/ReceiptsPage'
+import { ReceiptDetailPage } from '../pages/receipts/ReceiptDetailPage'
+import { TransactionsPage } from '../pages/transactions/TransactionsPage'
 import { SettingsPage } from '../pages/settings/SettingsPage'
 import { UsersPage } from '../pages/users/UsersPage'
 import { UserDetailPage } from '../pages/users/UserDetailPage'
-import {
-  Promo51SoonPage,
-  PromoSoonPage,
-  SwitchSoonPage,
-  TransactionsSoonPage,
-  UpsellSoonPage,
-} from '../pages/soon/SoonPages'
+import { Promo51SoonPage, PromoSoonPage, SwitchSoonPage, UpsellSoonPage } from '../pages/soon/SoonPages'
 
 function FullscreenLoader() {
   return (
@@ -49,7 +46,9 @@ export function App() {
         }
       >
         <Route index element={<OverviewPage />} />
-        <Route path="transactions" element={<TransactionsSoonPage />} />
+        <Route path="transactions" element={<TransactionsPage />} />
+        <Route path="receipts" element={<ReceiptsPage />} />
+        <Route path="receipts/:id" element={<ReceiptDetailPage />} />
         <Route path="users" element={<UsersPage />} />
         <Route path="users/:id" element={<UserDetailPage />} />
         <Route path="notifications" element={<NotificationsPage />} />

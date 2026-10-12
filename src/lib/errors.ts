@@ -6,6 +6,8 @@ const ALIAS_MESSAGES: Record<string, string> = {
   'devices.url_invalid': 'Такой экран приложения открыть нельзя. Выберите экран из списка.',
   'version.stale_write': 'На сервере уже сохранена эта или более новая версия.',
   'version.not_found': 'Для этой платформы ещё нет настроек версии.',
+  'receipts.not_rejectable': 'Чек уже отклонён. Другой оператор успел сделать это раньше — обновите страницу.',
+  'receipts.reason_too_long': 'Причина слишком длинная. Сократите до 256 символов.',
 }
 
 /** Human-readable error text for toasts and inline alerts. */

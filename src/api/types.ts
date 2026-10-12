@@ -198,3 +198,167 @@ export interface UsersListParams {
   limit?: number
   before_id?: number
 }
+
+export interface SetUserStatusResponse {
+  user: AdminUser
+  /** Live sessions killed by the transition; non-zero only when the move took the account off the air. */
+  sessions_revoked: number
+}
+
+export type ReceiptStatus = 'pending' | 'approved' | 'canceled'
+
+/** Mirrors dto.CashbackReversal. */
+export type CashbackReversal = 'none' | 'rejected' | 'clawed_back'
+
+export type TransactionStatus = 'pending' | 'posted' | 'rejected' | 'reversed'
+
+export type TransactionType =
+  'welcome_bonus' | 'friend_invitation' | 'receipt_scan' | 'survey_completion' | 'card_withdrawal'
+
+export interface AdminCashbackTransaction {
+  id: number
+  /** Tiyns. */
+  amount: number
+  status: TransactionStatus
+}
+
+export interface AdminReceipt {
+  id: number
+  user_id: number
+  user_phone: string
+  user_name: string
+  status: ReceiptStatus
+  url?: string
+  fiscal_module?: string
+  fiscal_sign?: string
+  company_tin?: string
+  company_name?: string
+  /** Tiyns. */
+  total: number
+  /** Tiyns. */
+  cashback: number
+  cancel_reason?: string
+  error_code?: string
+  /** True when the cancellation came from an operator, not the daemon. */
+  rejected_by_operator: boolean
+  scanned_at: string
+  created_at: string
+  updated_at: string
+  fiscalized_at?: string
+  item_count: number
+  medical_item_count: number
+  /** The transactions row this receipt paid for; absent when there was none. */
+  cashback_transaction?: AdminCashbackTransaction
+}
+
+export interface AdminReceiptItem {
+  id: number
+  name: string
+  count_hundredths: number
+  /** Tiyns. */
+  price: number
+  ikpu_code?: string
+  mark_code?: string
+  bar_code?: string
+  /** 0 means the product is outside the medical catalogue and earns no cashback. */
+  nomenclature_id: number
+  /** Tiyns. */
+  cashback: number
+  status: 'non_medical' | 'cashbacked' | 'unspecified'
+}
+
+export interface ReceiptsSummary {
+  totals: number
+  pending: number
+  approved: number
+  canceled: number
+  rejected_by_operator: number
+  /** Tiyns, approved receipts only. */
+  total_amount: number
+  /** Tiyns, approved receipts only. */
+  cashback_total: number
+}
+
+export interface AdminReceiptsListResponse {
+  items: AdminReceipt[]
+  totals: number
+  has_more: boolean
+  summary: ReceiptsSummary
+}
+
+export interface ReceiptsListParams {
+  status?: ReceiptStatus
+  user_id?: number
+  company?: string
+  limit?: number
+  before_id?: number
+}
+
+export interface AdminGetReceiptResponse {
+  receipt: AdminReceipt
+  items: AdminReceiptItem[]
+}
+
+export interface AdminUserBalance {
+  /** Tiyns. */
+  available: number
+  /** Tiyns. */
+  pending: number
+}
+
+export interface AdminRejectReceiptResponse {
+  receipt: AdminReceipt
+  /**
+   * What the rejection did to the money: `rejected` never counted,
+   * `clawed_back` was already in the balance and has now been taken out.
+   */
+  cashback_reversal: CashbackReversal
+  transaction?: AdminCashbackTransaction
+  balance?: AdminUserBalance
+}
+
+export interface AdminTransaction {
+  id: number
+  user_id: number
+  user_phone: string
+  user_name: string
+  type: TransactionType | 'unspecified'
+  /** Tiyns. */
+  amount: number
+  reference?: string
+  description?: string
+  status: TransactionStatus
+  /** True for the soft-deleted row a receipt rejection created. */
+  reversed: boolean
+  created_at: string
+  posted_at?: string
+}
+
+export interface TransactionsSummary {
+  totals: number
+  pending: number
+  posted: number
+  rejected: number
+  reversed: number
+  /** Tiyns. */
+  posted_credits: number
+  /** Tiyns. */
+  posted_debits: number
+  /** Tiyns. */
+  pending_total: number
+}
+
+export interface AdminTransactionsListResponse {
+  items: AdminTransaction[]
+  totals: number
+  has_more: boolean
+  summary: TransactionsSummary
+}
+
+export interface TransactionsListParams {
+  status?: TransactionStatus
+  type?: TransactionType
+  user_id?: number
+  limit?: number
+  before_id?: number
+}

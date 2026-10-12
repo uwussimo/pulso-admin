@@ -1,4 +1,14 @@
-import type { Audience, Locale, NotificationType, Platform, UserStatus } from '../api/types'
+import type {
+  Audience,
+  CashbackReversal,
+  Locale,
+  NotificationType,
+  Platform,
+  ReceiptStatus,
+  TransactionStatus,
+  TransactionType,
+  UserStatus,
+} from '../api/types'
 
 export const LOCALES: { key: Locale; label: string; short: string }[] = [
   { key: 'ru', label: 'Русский', short: 'RU' },
@@ -76,3 +86,81 @@ export const USER_STATUSES: { value: UserStatus; label: string; theme: 'success'
 export function userStatusMeta(s: UserStatus) {
   return USER_STATUSES.find((x) => x.value === s) ?? { value: s, label: s, theme: 'unknown' as const }
 }
+
+export type Theme = 'success' | 'danger' | 'warning' | 'info' | 'unknown'
+
+export const RECEIPT_STATUSES: { value: ReceiptStatus; label: string; theme: Theme }[] = [
+  { value: 'pending', label: 'В обработке', theme: 'info' },
+  { value: 'approved', label: 'Одобрен', theme: 'success' },
+  { value: 'canceled', label: 'Отклонён', theme: 'danger' },
+]
+
+export function receiptStatusMeta(s: ReceiptStatus) {
+  return RECEIPT_STATUSES.find((x) => x.value === s) ?? { value: s, label: s, theme: 'unknown' as const }
+}
+
+export const TRANSACTION_STATUSES: { value: TransactionStatus; label: string; theme: Theme }[] = [
+  { value: 'pending', label: 'В обработке', theme: 'info' },
+  { value: 'posted', label: 'Проведён', theme: 'success' },
+  { value: 'rejected', label: 'Отклонён', theme: 'warning' },
+  { value: 'reversed', label: 'Сторно', theme: 'danger' },
+]
+
+export function transactionStatusMeta(s: TransactionStatus) {
+  return TRANSACTION_STATUSES.find((x) => x.value === s) ?? { value: s, label: s, theme: 'unknown' as const }
+}
+
+/** Names come from the backend's dto.TransactionType constants. */
+export const TRANSACTION_TYPES: { value: TransactionType; label: string }[] = [
+  { value: 'welcome_bonus', label: 'Приветственный бонус' },
+  { value: 'friend_invitation', label: 'За приглашение друга' },
+  { value: 'receipt_scan', label: 'Кешбэк за чек' },
+  { value: 'survey_completion', label: 'Опрос' },
+  { value: 'card_withdrawal', label: 'Вывод на карту' },
+]
+
+export function transactionTypeLabel(t?: string): string {
+  if (!t || t === 'unspecified') return '—'
+  return TRANSACTION_TYPES.find((x) => x.value === t)?.label ?? t
+}
+
+/** What a rejection did to the money, in words an operator can act on. */
+export const REVERSAL_META: Record<CashbackReversal, { label: string; description: string; theme: Theme }> = {
+  none: {
+    label: 'Деньги не трогали',
+    description: 'У чека не было начисления, которое можно отозвать.',
+    theme: 'unknown',
+  },
+  rejected: {
+    label: 'Снято до начисления',
+    description: 'Кешбэк ещё не попадал в баланс — движение отменено, баланс не менялся.',
+    theme: 'warning',
+  },
+  clawed_back: {
+    label: 'Возвращено с баланса',
+    description: 'Кешбэк уже был доступен и сейчас вычтен из баланса пользователя.',
+    theme: 'danger',
+  },
+}
+
+const REVERSAL_FALLBACK = {
+  label: 'Неизвестный результат',
+  description: 'Сервер вернул непредусмотренный тип возврата. Проверьте чек вручную.',
+  theme: 'unknown' as Theme,
+}
+
+/**
+ * A new backend value must not throw inside the success handler: that
+ * would skip the cache invalidation and leave the screen showing a
+ * rejected receipt as still active, with no error to explain it.
+ */
+export function reversalMeta(value: string) {
+  return REVERSAL_META[value as CashbackReversal] ?? REVERSAL_FALLBACK
+}
+
+export const REJECTION_REASONS: { value: string; label: string }[] = [
+  { value: 'Чек поддельный или дублирующий', label: 'Чек поддельный или дублирующий' },
+  { value: 'Товары не относятся к перечню', label: 'Товары не относятся к перечню' },
+  { value: 'Чек не соответствует сумме покупки', label: 'Чек не соответствует сумме покупки' },
+  { value: 'Злоупотребление кешбэком', label: 'Злоупотребление кешбэком' },
+]
