@@ -11,6 +11,7 @@ import { ErrorState, LoadingState } from '../../components/States'
 import { LOCALES, appRouteLabel, notificationTypeLabel } from '../../lib/constants'
 import { errorText } from '../../lib/errors'
 import { formatDateTime, formatNumber } from '../../lib/format'
+import { renderMarkdown } from '../../lib/markdown'
 import { EditNotificationDialog } from './EditNotificationDialog'
 import { pickLocale } from './locale'
 
@@ -113,9 +114,7 @@ export function NotificationDetailPage() {
                           {t || <Text color="hint">без заголовка</Text>}
                         </Text>
                         {body ? (
-                          <Text variant="body-2" as="div" style={{ whiteSpace: 'pre-wrap' }}>
-                            {body}
-                          </Text>
+                          <div className="prose" dangerouslySetInnerHTML={{ __html: renderMarkdown(body) }} />
                         ) : null}
                       </>
                     ) : (

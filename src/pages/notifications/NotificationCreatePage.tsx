@@ -29,6 +29,7 @@ import type {
 import { ConfirmDialog, ConfirmLine } from '../../components/ConfirmDialog'
 import { Field } from '../../components/Field'
 import { PageHeader } from '../../components/PageHeader'
+import { UserPicker } from '../../components/UserPicker'
 import {
   APP_ROUTES,
   BROADCAST_CONFIRM_PHRASE,
@@ -41,6 +42,7 @@ import {
 } from '../../lib/constants'
 import { errorText } from '../../lib/errors'
 import { formatDuration, formatNumber, plural } from '../../lib/format'
+import { markdownToPlainText } from '../../lib/markdown'
 import { LocaleFields } from './LocaleFields'
 import { compactLocaleMap, pickLocale } from './locale'
 
@@ -52,16 +54,6 @@ const AUDIENCE_OPTIONS: { value: AudienceKind; label: string; hint: string }[] =
   { value: 'all', label: 'Всем', hint: 'Каждый пользователь приложения. Потребуется отдельное подтверждение.' },
   { value: 'tokens', label: 'Push-токены (для теста)', hint: 'Отправить на конкретные устройства, например своё.' },
 ]
-
-function parseIds(raw: string): number[] {
-  const out = new Set<number>()
-  for (const part of raw.split(/[\s,;]+/)) {
-    if (!part) continue
-    const n = Number(part)
-    if (Number.isInteger(n) && n > 0) out.add(n)
-  }
-  return [...out]
-}
 
 function parseTokens(raw: string): string[] {
   return [
@@ -98,7 +90,7 @@ export function NotificationCreatePage() {
 
   const [audienceKind, setAudienceKind] = useState<AudienceKind>('users')
   const [platform, setPlatform] = useState<Platform>('ios')
-  const [idsRaw, setIdsRaw] = useState('')
+  const [ids, setIds] = useState<number[]>([])
   const [tokensRaw, setTokensRaw] = useState('')
   const [title, setTitle] = useState<LocaleMap>({})
   const [description, setDescription] = useState<LocaleMap>({})
@@ -111,7 +103,6 @@ export function NotificationCreatePage() {
   const [formError, setFormError] = useState<string | null>(null)
   const [result, setResult] = useState<CreateNotificationResponse | { push: SendSummary; pushOnly: true } | null>(null)
 
-  const ids = useMemo(() => parseIds(idsRaw), [idsRaw])
   const tokens = useMemo(() => parseTokens(tokensRaw), [tokensRaw])
   const cleanTitle = useMemo(() => compactLocaleMap(title), [title])
   const cleanDescription = useMemo(() => compactLocaleMap(description), [description])
@@ -212,7 +203,7 @@ export function NotificationCreatePage() {
       case 'platform':
         return `Всем пользователям на ${platformLabel(platform)}`
       case 'users':
-        return plural(ids.length, ['пользователю', 'пользователям', 'пользователям'])
+        return plural(ids.length, ['получатель выбран', 'получателя выбрано', 'получателей выбрано'])
       case 'tokens':
         return plural(tokens.length, ['устройству', 'устройствам', 'устройствам'])
     }
@@ -284,7 +275,10 @@ export function NotificationCreatePage() {
   }
 
   const previewTitle = pickLocale(cleanTitle, previewLocale)
-  const previewBody = pickLocale(cleanDescription, previewLocale)
+  // This is the push card, so it shows the plain-text projection the
+  // backend derives from the body — not the Markdown source and not the
+  // rendered article, which the editor's own preview already covers.
+  const previewPushBody = markdownToPlainText(pickLocale(cleanDescription, previewLocale))
   const previewIsFallback = Boolean(previewTitle) && !cleanTitle[previewLocale]
 
   return (
@@ -334,21 +328,10 @@ export function NotificationCreatePage() {
 
               {audienceKind === 'users' ? (
                 <Field
-                  label="ID пользователей"
-                  hint={
-                    ids.length
-                      ? `Распознано: ${plural(ids.length, ['пользователь', 'пользователя', 'пользователей'])}`
-                      : 'Например: 42, 77, 1050'
-                  }
+                  label="Получатели"
+                  help="Найдите людей по телефону, имени или ID. Нажмите на строку, чтобы добавить."
                 >
-                  <TextArea
-                    size="l"
-                    minRows={2}
-                    maxRows={6}
-                    value={idsRaw}
-                    onUpdate={setIdsRaw}
-                    placeholder="42, 77, 1050"
-                  />
+                  <UserPicker value={ids} onChange={setIds} disabled={send.isPending} />
                 </Field>
               ) : null}
 
@@ -449,7 +432,7 @@ export function NotificationCreatePage() {
           </Flex>
         </div>
 
-        <aside style={{ flex: '0 1 360px', position: 'sticky', top: 0 }}>
+        <aside style={{ flex: '0 1 360px', position: 'sticky', top: 'var(--g-spacing-3)' }}>
           <Flex direction="column" gap={3}>
             <Flex justifyContent="space-between" alignItems="center">
               <Text variant="subheader-2">Превью</Text>
@@ -471,7 +454,7 @@ export function NotificationCreatePage() {
                     {previewTitle || <Text color="hint">Заголовок</Text>}
                   </Text>
                   <Text variant="body-1" color="secondary" ellipsisLines={4}>
-                    {previewBody || <Text color="hint">Текст уведомления</Text>}
+                    {previewPushBody || <Text color="hint">Текст уведомления</Text>}
                   </Text>
                 </div>
               </div>

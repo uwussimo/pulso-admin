@@ -2,6 +2,7 @@ import {
   Button,
   Checkbox,
   Icon,
+  Label,
   Select,
   Table,
   Text,
@@ -23,6 +24,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../components/States'
 import { AUDIENCES, NOTIFICATION_TYPES, appRouteLabel, notificationTypeLabel } from '../../lib/constants'
 import { errorText } from '../../lib/errors'
 import { formatDateTime, formatNumber } from '../../lib/format'
+import { hasImage, markdownToPlainText } from '../../lib/markdown'
 import { pickLocale } from './locale'
 import { EditNotificationDialog } from './EditNotificationDialog'
 
@@ -100,7 +102,8 @@ export function NotificationsPage() {
       primary: true,
       template: (n) => {
         const title = pickLocale(n.title)
-        const desc = pickLocale(n.description)
+        const desc = markdownToPlainText(pickLocale(n.description))
+        const withImage = hasImage(pickLocale(n.description))
         return (
           <div className="cell-title" style={{ maxWidth: 380 }}>
             <Text variant="subheader-1" ellipsis>
@@ -110,6 +113,11 @@ export function NotificationsPage() {
               <Text variant="body-1" color="secondary" ellipsis>
                 {desc}
               </Text>
+            ) : null}
+            {withImage ? (
+              <Label theme="info" size="s">
+                есть картинки
+              </Label>
             ) : null}
           </div>
         )

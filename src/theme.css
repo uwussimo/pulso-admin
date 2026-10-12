@@ -105,8 +105,17 @@ body {
 .shell {
   display: flex;
   height: 100vh;
-  min-height: 560px;
+  height: 100dvh;
   background: var(--app-workspace-bg);
+}
+
+/* Desktop shell owns the viewport: the sidebar and the sheet are the only
+   scrollers. If the document itself can scroll, the whole shell — sidebar
+   included — slides out of view and sticky columns detach from the sheet. */
+@media (min-width: 901px) {
+  .shell {
+    overflow: hidden;
+  }
 }
 
 .shell__aside {
@@ -732,4 +741,203 @@ a.tile:hover {
   .form__row {
     grid-template-columns: 1fr;
   }
+}
+
+/* ---- markdown body editor ---- */
+
+.md-editor {
+  /* Anchors the absolutely positioned file input. Without a positioned
+     ancestor it resolves against the viewport and stretches the document,
+     which makes the whole app shell scroll instead of the sheet. */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--g-spacing-2);
+}
+
+.md-editor__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--g-spacing-2);
+  flex-wrap: wrap;
+}
+
+.md-editor__file {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.md-editor__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--g-spacing-3);
+  border-radius: var(--g-border-radius-m);
+  border: 1px solid var(--g-color-base-generic);
+  background: var(--g-color-base-float);
+  color: var(--g-color-text-primary);
+  font-family: var(--g-font-family-monospace);
+  font-size: 13px;
+  line-height: 1.55;
+  resize: vertical;
+  white-space: pre-wrap;
+}
+
+.md-editor__input:focus {
+  outline: 2px solid var(--g-color-line-brand);
+  outline-offset: -1px;
+  border-color: transparent;
+}
+
+.md-editor__preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--g-spacing-2);
+  padding: var(--g-spacing-3);
+  border-radius: var(--g-border-radius-m);
+  background: var(--g-color-base-float);
+  border: 1px solid var(--g-color-base-generic);
+}
+
+/* The rendered article. Deliberately unstyled enough to read like the
+   in-app article screen rather than like the admin chrome. */
+.prose {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--g-color-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.prose > *:first-child {
+  margin-top: 0;
+}
+
+.prose > *:last-child {
+  margin-bottom: 0;
+}
+
+.prose p {
+  margin: 0 0 var(--g-spacing-3);
+}
+
+.prose h1,
+.prose h2,
+.prose h3 {
+  margin: var(--g-spacing-4) 0 var(--g-spacing-2);
+  line-height: 1.3;
+}
+
+.prose img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: var(--g-spacing-3) 0;
+  border-radius: var(--g-border-radius-m);
+}
+
+.prose ul,
+.prose ol {
+  margin: 0 0 var(--g-spacing-3);
+  padding-left: var(--g-spacing-5);
+}
+
+.prose blockquote {
+  margin: 0 0 var(--g-spacing-3);
+  padding-left: var(--g-spacing-3);
+  border-left: 3px solid var(--g-color-base-generic);
+  color: var(--g-color-text-secondary);
+}
+
+.prose code {
+  padding: 1px 5px;
+  border-radius: var(--g-border-radius-s);
+  background: var(--g-color-base-generic);
+  font-family: var(--g-font-family-monospace);
+  font-size: 0.9em;
+}
+
+.prose a {
+  color: var(--g-color-text-link);
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--g-spacing-3);
+}
+
+.prose th,
+.prose td {
+  padding: var(--g-spacing-1) var(--g-spacing-2);
+  border: 1px solid var(--g-color-base-generic);
+  text-align: left;
+}
+
+/* ---- recipient picker ---- */
+
+.user-picker {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--g-spacing-2);
+}
+
+.user-picker__chips {
+  gap: var(--g-spacing-1);
+}
+
+.user-picker__chip-name {
+  font-weight: 500;
+}
+
+.user-picker__results {
+  border: 1px solid var(--g-color-base-generic);
+  border-radius: var(--g-border-radius-m);
+  background: var(--g-color-base-float);
+  max-height: 280px;
+  overflow-y: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.user-picker__row {
+  display: flex;
+  align-items: center;
+  gap: var(--g-spacing-2);
+  width: 100%;
+  padding: var(--g-spacing-2) var(--g-spacing-3);
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.user-picker__row_action {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.user-picker__row_action:hover:not(:disabled) {
+  background: var(--g-color-base-generic);
+}
+
+.user-picker__row_action:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.user-picker__row-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
 }
