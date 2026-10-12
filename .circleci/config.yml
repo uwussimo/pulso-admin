@@ -1,0 +1,65 @@
+version: 2.1
+orbs:
+  aws-ecr: circleci/aws-ecr@9.0.2
+  node: circleci/node@5.2.0
+  discord: teka23/discord@0.0.1
+
+# main -> prod ECR as "1.<pipeline>-main"; argocd-image-updater in dorim-group/gitops
+# (environments/prod/apps-set.yml) rolls out the newest "^N.N-main$" tag.
+workflows:
+  build_and_deploy:
+    jobs:
+      - lint
+      - build-and-push-docker-image:
+          filters:
+            branches:
+              only:
+                - main
+          context:
+            - github-<< pipeline.git.branch >>
+            - aws-<< pipeline.git.branch >>
+          repo: pulso-admin
+          env: << pipeline.git.branch >>
+          requires:
+            - lint
+
+jobs:
+  lint:
+    executor:
+      name: node/default
+      tag: '24.18'
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: npm ci
+      - run:
+          name: Run lint
+          command: npm run lint
+      - run:
+          name: Check formatting
+          command: npm run format:check
+      - run:
+          name: Typecheck
+          command: npm run typecheck
+
+  build-and-push-docker-image:
+    executor:
+      name: aws-ecr/default
+    parameters:
+      repo:
+        type: string
+        default: pulso-admin
+      env:
+        type: string
+        default: main
+    steps:
+      - aws-ecr/build-and-push-image:
+          repo: << parameters.repo >>
+          tag: 'latest,1.<< pipeline.number >>-<< parameters.env >>'
+          dockerfile: Dockerfile
+          create-repo: true
+      - discord/status:
+          fail_only: true
+          failure_mentions: ${FRONTEND_DISCORD_USERS}
+          only_for_branches: main

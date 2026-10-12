@@ -62,7 +62,7 @@ Leave `VITE_API_BASE` empty for this setup. Local check: `npm run build && npx w
 docker build -t pulso-admin . && docker run --rm -p 8080:8080 pulso-admin
 ```
 
-`.github/workflows/deploy-prod.yml` runs on every push to `main`: lint, format check and typecheck, then pushes `1.<run>-main` and `latest` to the prod ECR repo `pulso-admin`. argocd-image-updater in `dorim-group/gitops` rolls out the newest `N.N-main` tag. Repo secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` (in the `production` environment).
+`.circleci/config.yml` lints every branch; on `main` it then pushes `1.<pipeline>-main` and `latest` to the prod ECR repo `pulso-admin` (contexts `github-main`, `aws-main`). argocd-image-updater in `dorim-group/gitops` rolls out the newest `N.N-main` tag.
 
 ## Mock API for local development
 
