@@ -54,6 +54,16 @@ The project deploys as a Cloudflare Worker with static assets (`wrangler.jsonc`)
 
 Leave `VITE_API_BASE` empty for this setup. Local check: `npm run build && npx wrangler dev`.
 
+## Docker / Kubernetes (prod)
+
+`Dockerfile` builds the bundle and serves it with nginx on port `8080` (`nginx/default.conf.template`): SPA fallback, long cache for `/assets/`, `/healthz` for probes, and `/internal/*` proxied to `API_ORIGIN` (default `https://api.pulso.dorim.com`, no trailing slash) the same way `worker/index.js` does.
+
+```sh
+docker build -t pulso-admin . && docker run --rm -p 8080:8080 pulso-admin
+```
+
+`.github/workflows/deploy-prod.yml` runs on every push to `main`: lint, format check and typecheck, then pushes `1.<run>-main` and `latest` to the prod ECR repo `pulso-admin`. argocd-image-updater in `dorim-group/gitops` rolls out the newest `N.N-main` tag. Repo secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` (in the `production` environment).
+
 ## Mock API for local development
 
 `mock/server.mjs` is a dependency-free stand-in for the operator API with a few seeded notifications and versions. Run it in one terminal and point the dev server at it in another:

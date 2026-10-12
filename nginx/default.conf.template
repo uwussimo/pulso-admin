@@ -1,0 +1,37 @@
+# Rendered by the nginx image's envsubst step at startup; only ${API_ORIGIN} is substituted.
+# Mirrors worker/index.js: /internal/* goes to the operator API so the browser stays same-origin.
+server {
+    listen 8080;
+    server_name _;
+    root /usr/share/nginx/html;
+
+    location = /healthz {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok";
+    }
+
+    location /internal/ {
+        proxy_pass ${API_ORIGIN};
+        proxy_ssl_server_name on;
+        proxy_http_version 1.1;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+        proxy_hide_header Cache-Control;
+        add_header Cache-Control "no-store" always;
+        client_max_body_size 10m;
+    }
+
+    # Vite emits content-hashed files here.
+    location /assets/ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    # Client-side routes resolve to the SPA shell.
+    location / {
+        add_header Cache-Control "no-cache";
+        try_files $uri $uri/ /index.html;
+    }
+}
