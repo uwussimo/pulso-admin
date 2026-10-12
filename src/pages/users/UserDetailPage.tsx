@@ -1,20 +1,55 @@
-import { Alert, Flex, Label, Link as UiLink, Text } from '@gravity-ui/uikit'
-import { useQuery } from '@tanstack/react-query'
+import { Alert, Button, Flex, Icon, Label, Link as UiLink, Text, useToaster } from '@gravity-ui/uikit'
+import { Ban, CircleCheckFill, LockOpen } from '@gravity-ui/icons'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import type { UserStatus } from '../../api/types'
 import { usersApi } from '../../api/users'
+import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { PageHeader } from '../../components/PageHeader'
 import { ErrorState, LoadingState } from '../../components/States'
 import { userStatusMeta } from '../../lib/constants'
+import { errorText } from '../../lib/errors'
 import { formatDateTime, formatNumber, formatPhone, formatSum, tiynsToSum } from '../../lib/format'
+
+type PendingStatus = 'blocked' | 'active'
 
 export function UserDetailPage() {
   const { id: idParam } = useParams()
   const id = Number(idParam)
+  const toaster = useToaster()
+  const queryClient = useQueryClient()
+  const [pending, setPending] = useState<PendingStatus | null>(null)
 
   const query = useQuery({
     queryKey: ['users', 'detail', id],
     queryFn: ({ signal }) => usersApi.get(id, signal),
     enabled: Number.isInteger(id) && id > 0,
+  })
+
+  const changeStatus = useMutation({
+    mutationFn: (status: UserStatus) => usersApi.setStatus(id, status),
+    onSuccess: (res, status) => {
+      setPending(null)
+      toaster.add({
+        name: 'user-status',
+        theme: 'success',
+        title: status === 'blocked' ? 'Пользователь заблокирован' : 'Пользователь разблокирован',
+        content:
+          status === 'blocked' && res.sessions_revoked > 0
+            ? `Закрыто сессий: ${res.sessions_revoked}. Приложение выйдет из аккаунта при следующем запросе.`
+            : undefined,
+      })
+      // The list carries the same status badge, so both caches go stale.
+      void queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+    onError: (e) =>
+      toaster.add({
+        name: 'user-status-error',
+        theme: 'danger',
+        title: 'Не удалось изменить статус',
+        content: errorText(e),
+      }),
   })
 
   if (!Number.isInteger(id) || id <= 0) {
@@ -44,6 +79,7 @@ export function UserDetailPage() {
 
   const u = query.data
   const status = userStatusMeta(u.status)
+  const deleted = u.status === 'deleted'
 
   return (
     <>
@@ -55,7 +91,33 @@ export function UserDetailPage() {
             {formatPhone(u.phone)} · в приложении с {formatDateTime(u.created_at)}
           </>
         }
+        actions={
+          deleted ? null : u.status === 'blocked' ? (
+            <Button size="l" onClick={() => setPending('active')} loading={changeStatus.isPending}>
+              <Icon data={LockOpen} size={16} />
+              Разблокировать
+            </Button>
+          ) : (
+            <Button
+              size="l"
+              view="outlined-danger"
+              onClick={() => setPending('blocked')}
+              loading={changeStatus.isPending}
+            >
+              <Icon data={Ban} size={16} />
+              Заблокировать
+            </Button>
+          )
+        }
       />
+
+      {u.status === 'blocked' ? (
+        <Alert
+          theme="warning"
+          title="Аккаунт заблокирован"
+          message="Пользователь не может войти в приложение. Существующие сессии закрыты — приложение выйдет из аккаунта при следующем запросе."
+        />
+      ) : null}
 
       <Flex gap={4} wrap alignItems="flex-start">
         <div className="form" style={{ flex: '1 1 420px', minWidth: 0 }}>
@@ -75,7 +137,15 @@ export function UserDetailPage() {
                 ) : null}
               </span>
               <Text className="kv__key">KYC (MyID)</Text>
-              <Text color={u.is_verified ? 'positive' : 'secondary'}>{u.is_verified ? 'Пройден' : 'Не пройден'}</Text>
+              <Text color={u.is_verified ? 'positive' : 'secondary'}>
+                {u.is_verified ? (
+                  <>
+                    <Icon data={CircleCheckFill} size={14} /> Пройден
+                  </>
+                ) : (
+                  'Не пройден'
+                )}
+              </Text>
               <Text className="kv__key">Телефон</Text>
               <Text className="num">{formatPhone(u.phone)}</Text>
               <Text className="kv__key">ID</Text>
@@ -144,6 +214,41 @@ export function UserDetailPage() {
           </div>
         </div>
       </Flex>
+
+      <ConfirmDialog
+        open={pending === 'blocked'}
+        title="Заблокировать пользователя?"
+        confirmText="Заблокировать"
+        danger
+        loading={changeStatus.isPending}
+        onClose={() => setPending(null)}
+        onConfirm={() => changeStatus.mutate('blocked')}
+      >
+        <Text as="p">
+          {u.full_name || formatPhone(u.phone)} не сможет войти в приложение, а открытое приложение выйдет из аккаунта
+          при следующем запросе. Деньги на балансе и история сохранятся — блокировку можно снять.
+        </Text>
+        {u.is_admin ? (
+          <Alert
+            theme="warning"
+            message="Это оператор: после блокировки он потеряет доступ и к админке, и к приложению."
+          />
+        ) : null}
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        open={pending === 'active'}
+        title="Разблокировать пользователя?"
+        confirmText="Разблокировать"
+        loading={changeStatus.isPending}
+        onClose={() => setPending(null)}
+        onConfirm={() => changeStatus.mutate('active')}
+      >
+        <Text as="p">
+          {u.full_name || formatPhone(u.phone)} снова сможет войти в приложение. Раньше закрытые сессии не восстановятся
+          — пользователь войдёт заново.
+        </Text>
+      </ConfirmDialog>
     </>
   )
 }
