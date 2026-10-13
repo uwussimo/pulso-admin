@@ -86,7 +86,7 @@ One folder per section. Each page is a route in `App.tsx`.
 | Versions      | `GET/POST /internal/versions`, `DELETE /internal/versions/{platform}`                                                                          |
 | Cashback      | `POST /internal/receipts/promote-pending`                                                                                                      |
 
-All other sections (Overview, Transactions, Promo, Upsell, Switch, Promo 5+1) show "Скоро" (coming soon).
+All other sections (Апселл, Смена продукта, Акции 5+1) show "Скоро" (coming soon).
 
 ## Mock Credentials
 
