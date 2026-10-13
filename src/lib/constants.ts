@@ -164,3 +164,17 @@ export const REJECTION_REASONS: { value: string; label: string }[] = [
   { value: 'Чек не соответствует сумме покупки', label: 'Чек не соответствует сумме покупки' },
   { value: 'Злоупотребление кешбэком', label: 'Злоупотребление кешбэком' },
 ]
+
+/**
+ * Promo status is two backend fields, not one: `status` is the operator's
+ * control (100 live, 200 paused — 400 is soft-deleted and never rendered here),
+ * and `is_live` is server-derived from it plus `ends_at` — false once the
+ * product is paused OR its deadline has passed. A product that is live but past
+ * its deadline is not «Действует», it is «Завершён», so all three states are
+ * reachable from the table's Switch plus the `ends_at` column.
+ */
+export const PROMO_STATUS_LABELS = {
+  live: 'Действует',
+  off: 'Выключен',
+  finished: 'Завершён',
+} as const

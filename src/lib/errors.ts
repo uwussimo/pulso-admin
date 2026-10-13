@@ -8,6 +8,15 @@ const ALIAS_MESSAGES: Record<string, string> = {
   'version.not_found': 'Для этой платформы ещё нет настроек версии.',
   'receipts.not_rejectable': 'Чек уже отклонён. Другой оператор успел сделать это раньше — обновите страницу.',
   'receipts.reason_too_long': 'Причина слишком длинная. Сократите до 256 символов.',
+  'promo.admin.not_found': 'Промо-товар не найден',
+  'promo.admin.invalid_bonus': 'Бонус должен быть целым числом от 0',
+  'promo.admin.invalid_end_date': 'Дата окончания не может быть в прошлом',
+  'promo.admin.invalid_price': 'Цена должна быть целым числом от 0',
+  'promo.admin.duplicate_nomenclature': 'Этот товар уже есть в промо',
+  'promo.admin.invalid_packages': 'Выберите хотя бы один ИКПУ-код',
+  'promo.admin.invalid_status': 'Статус должен быть «Действует» или «Выключен»',
+  'nomin.invalid_id': 'Некорректный id препарата',
+  'nomin.upstream_unavailable': 'Каталог препаратов недоступен, попробуйте позже',
 }
 
 /** Human-readable error text for toasts and inline alerts. */

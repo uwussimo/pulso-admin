@@ -40,11 +40,11 @@ export const NAV_MAIN: NavItem[] = [
   { to: '/users', label: 'Пользователи', icon: Person, iconActive: PersonFill },
   { to: '/versions', label: 'Версии приложения', icon: CircleArrowUp, iconActive: CircleArrowUpFill },
   { to: '/cashback', label: 'Перевод кешбэка', icon: CircleDollar, iconActive: CircleDollarFill },
+  { to: '/promo', label: 'Промо-товары', icon: Star, iconActive: StarFill },
 ]
 
 /** Sections that wait for the backend. Grouped and dimmed so they don't compete for attention. */
 export const NAV_SOON: NavItem[] = [
-  { to: '/promo', label: 'Промо-товары', icon: Star, iconActive: StarFill, soon: true },
   { to: '/upsell', label: 'Апселл', icon: CirclePlus, iconActive: CirclePlusFill, soon: true },
   { to: '/switch', label: 'Смена продукта', icon: ForwardStep, iconActive: ForwardStepFill, soon: true },
   { to: '/promo-5-1', label: 'Акции 5+1', icon: Sparkles, iconActive: SparklesFill, soon: true },

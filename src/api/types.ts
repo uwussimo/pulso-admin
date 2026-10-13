@@ -366,6 +366,161 @@ export interface TransactionsListParams {
   before_id?: number
 }
 
+export interface PromoPackage {
+  id?: number
+  ikpu_code: string
+  package_code?: number
+  package_name?: string
+  is_default?: boolean
+  is_similar?: boolean
+  has_marks?: boolean
+  position?: number
+}
+
+/**
+ * The catalogue's view of a promoted drug, as the operator list returns it.
+ * Null when the catalogue could not answer — the panel then renders a
+ * placeholder rather than a blank it cannot tell from a missing name.
+ */
+export interface PromoNomenclature {
+  id: number
+  name: string
+  full_name: string
+  image_url: string
+  ikpu_count: number
+  maker: { id: number; name: string }
+}
+
+/** Whole sums, like every other amount the panel renders. 0 means unset. */
+export interface PromoProduct {
+  id: number
+  nomenclature_id: number
+  name: string
+  image_url: string
+  maker_name: string
+  ikpu_count: number
+  /**
+   * Backend `promo_products.status`: 100 live, 200 paused, 400 soft-deleted.
+   * 200 is the operator's pause switch, bound to the table's Switch — it hides
+   * the product from the mobile without deleting it, so the row, its packages
+   * and its effect history all survive it.
+   */
+  status: number
+  /** False once status is not 100 OR once ends_at has passed. Server-derived. */
+  is_live: boolean
+  is_new: boolean
+  bonus_amount: number
+  max_price: number
+  price_note: string
+  applies_to: string
+  ends_at: string | null
+  position: number
+  created_at: string
+  updated_at: string
+  packages: PromoPackage[]
+  effect: PromoEffect | null
+  /** Catalogue display fields. Null when the catalogue could not answer. */
+  nomenclature: PromoNomenclature | null
+}
+
+/** Scanned-receipt count only — NOT total pharmacy sales. */
+export interface PromoEffect {
+  purchases_count: number
+  /** Whole sums. */
+  bonus_paid: number
+  receipts_count: number
+}
+
+export interface PromoSummary {
+  totals: number
+  live_count: number
+  purchases_count: number
+  /** Whole sums. */
+  bonus_paid: number
+}
+
+export interface PromoListParams {
+  query?: string
+  limit?: number
+  before_id?: number
+}
+
+export interface PromoListResponse {
+  items: PromoProduct[]
+  totals: number
+  has_more: boolean
+  /** Over the whole filtered set, not the loaded page. */
+  summary: PromoSummary
+}
+
+export type PromoGetResponse = PromoProduct
+
+export interface CreatePromoRequest {
+  nomenclature_id: number
+  bonus_amount: number
+  max_price: number
+  price_note?: string
+  ends_at?: string
+  is_new: boolean
+  applies_to?: string
+  position?: number
+  packages: PromoPackage[]
+}
+
+export interface UpdatePromoRequest {
+  bonus_amount?: number
+  max_price?: number
+  price_note?: string
+  ends_at?: string
+  is_new?: boolean
+  applies_to?: string
+  position?: number
+  packages?: PromoPackage[]
+}
+
+export interface CatalogPackage {
+  ikpu_code: string
+  package_code?: number
+  package_name?: string
+  is_default?: boolean
+  is_similar?: boolean
+  has_marks?: boolean
+  position?: number
+}
+
+export interface CatalogMaker {
+  id?: number
+  name: string
+}
+
+/** A drug from the nomenclature catalog. The panel picks from it; it never writes here. */
+export interface CatalogDrug {
+  id: number
+  name: string
+  full_name: string
+  form?: string
+  number?: string
+  maker?: CatalogMaker
+  image_url?: string
+  /** Whole sums; pre-fills «Цена в аптеках». */
+  reference_retail_price_with_vat?: number
+  inn?: string
+  packages: CatalogPackage[]
+}
+
+export interface NomenclatureSearchParams {
+  query?: string
+  limit?: number
+  offset?: number
+}
+
+export interface NomenclatureSearchResponse {
+  items: CatalogDrug[]
+  count: number
+}
+
+export type NomenclatureGetResponse = CatalogDrug
+
 export interface UploadResponse {
   /** Absolute CDN URL; this is what goes into the markdown body. */
   public_url: string

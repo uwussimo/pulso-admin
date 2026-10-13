@@ -15,7 +15,8 @@ import { TransactionsPage } from '../pages/transactions/TransactionsPage'
 import { SettingsPage } from '../pages/settings/SettingsPage'
 import { UsersPage } from '../pages/users/UsersPage'
 import { UserDetailPage } from '../pages/users/UserDetailPage'
-import { Promo51SoonPage, PromoSoonPage, SwitchSoonPage, UpsellSoonPage } from '../pages/soon/SoonPages'
+import { Promo51SoonPage, SwitchSoonPage, UpsellSoonPage } from '../pages/soon/SoonPages'
+import { PromoPage } from '../pages/promo/PromoPage'
 
 function FullscreenLoader() {
   return (
@@ -54,7 +55,7 @@ export function App() {
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="notifications/new" element={<NotificationCreatePage />} />
         <Route path="notifications/:id" element={<NotificationDetailPage />} />
-        <Route path="promo" element={<PromoSoonPage />} />
+        <Route path="promo" element={<PromoPage />} />
         <Route path="upsell" element={<UpsellSoonPage />} />
         <Route path="switch" element={<SwitchSoonPage />} />
         <Route path="promo-5-1" element={<Promo51SoonPage />} />

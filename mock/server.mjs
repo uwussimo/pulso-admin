@@ -331,6 +331,141 @@ const receiptItems = {
   ],
 }
 
+// ---- promo products + nomenclature catalog (IT-10508) ----
+
+const catalog = [
+  {
+    id: 415,
+    name: 'Амоксициллин',
+    full_name: 'Амоксициллин 500 мг № 20 таблеток',
+    maker: { id: 7, name: 'Sano Pharm' },
+    image_url: 'https://placehold.co/96x96/png?text=Амокси',
+    reference_retail_price_with_vat: 38500,
+    inn: '123456789012',
+    packages: [
+      { ikpu_code: '0000000004', package_code: 1, package_name: 'таблетки 500 мг, № 20', is_default: true },
+      { ikpu_code: '0000000005', package_code: 2, package_name: 'капсулы 250 мг, № 20', is_default: false },
+      { ikpu_code: '0000000006', package_code: 3, package_name: 'суспензия 400 мг/5 мл', is_default: false },
+    ],
+  },
+  {
+    id: 416,
+    name: 'Ибупрофен',
+    full_name: 'Ибупрофен 200 мг № 30 таблеток',
+    maker: { id: 9, name: 'Pharmstandart' },
+    image_url: 'https://placehold.co/96x96/png?text=Ибупро',
+    reference_retail_price_with_vat: 12400,
+    inn: '770865120004',
+    packages: [
+      { ikpu_code: '0000000011', package_code: 1, package_name: 'таблетки 200 мг, № 30', is_default: true },
+      { ikpu_code: '0000000012', package_code: 2, package_name: 'таблетки 400 мг, № 24', is_default: false },
+    ],
+  },
+  {
+    id: 417,
+    name: 'Омепразол',
+    full_name: 'Омепразол 20 мг № 28 капсул',
+    maker: { id: 11, name: 'Ozon Pharma' },
+    image_url: 'https://placehold.co/96x96/png?text=Омепра',
+    reference_retail_price_with_vat: 21700,
+    inn: '770865120011',
+    packages: [
+      { ikpu_code: '0000000021', package_code: 1, package_name: 'капсулы 20 мг, № 28', is_default: true },
+      { ikpu_code: '0000000022', package_code: 2, package_name: 'капсулы 40 мг, № 14', is_default: false },
+    ],
+  },
+  {
+    id: 418,
+    name: 'Витамин D3',
+    full_name: 'Холекальциферол 500 МЕ № 60 капель',
+    maker: { id: 13, name: 'Эвалар' },
+    image_url: 'https://placehold.co/96x96/png?text=ВитD',
+    reference_retail_price_with_vat: 9400,
+    inn: '770865120028',
+    packages: [{ ikpu_code: '0000000031', package_code: 1, package_name: 'капли 500 МЕ, № 60', is_default: true }],
+  },
+]
+
+// is_live is the same predicate the real service computes: status 100, not
+// soft-deleted, and ends_at has not passed.
+const isLive = (p) => p.status === 100 && (!p.ends_at || new Date(p.ends_at).getTime() >= now)
+
+let promoProducts = [
+  {
+    id: 1,
+    nomenclature_id: 415,
+    name: 'Амоксициллин',
+    image_url: 'https://placehold.co/96x96/png?text=Амокси',
+    maker_name: 'Sano Pharm',
+    ikpu_count: 3,
+    status: 100,
+    is_new: true,
+    bonus_amount: 2000,
+    max_price: 40000,
+    price_note: 'по акции производителя',
+    applies_to: 'Ташкент и Самарканд',
+    ends_at: new Date(now + 90 * 24 * h).toISOString(),
+    position: 1,
+    created_at: new Date(now - 20 * 24 * h).toISOString(),
+    updated_at: new Date(now - 2 * 24 * h).toISOString(),
+    packages: catalog[0].packages.map((p, i) => ({ ...p, id: i + 1, position: i })),
+    effect: { purchases_count: 184, bonus_paid: 368000, receipts_count: 96 },
+  },
+  {
+    // Past ends_at → is_live false, renders «Завершён».
+    id: 2,
+    nomenclature_id: 416,
+    name: 'Ибупрофен',
+    image_url: 'https://placehold.co/96x96/png?text=Ибупро',
+    maker_name: 'Pharmstandart',
+    ikpu_count: 2,
+    status: 100,
+    is_new: false,
+    bonus_amount: 800,
+    max_price: 0,
+    price_note: '',
+    applies_to: 'по всей республике',
+    ends_at: new Date(now - 5 * 24 * h).toISOString(),
+    position: 5,
+    created_at: new Date(now - 60 * 24 * h).toISOString(),
+    updated_at: new Date(now - 6 * 24 * h).toISOString(),
+    packages: catalog[1].packages.map((p, i) => ({ ...p, id: i + 4, position: i })),
+    effect: { purchases_count: 57, bonus_paid: 45600, receipts_count: 31 },
+  },
+  {
+    // ends_at null → «бессрочно», but paused → «Выключен»: the state the
+    // operator's Switch produces, reachable offline without touching anything.
+    id: 3,
+    nomenclature_id: 417,
+    name: 'Омепразол',
+    image_url: 'https://placehold.co/96x96/png?text=Омепра',
+    maker_name: 'Ozon Pharma',
+    ikpu_count: 2,
+    status: 200,
+    is_new: false,
+    bonus_amount: 1200,
+    max_price: 25000,
+    price_note: '',
+    applies_to: 'Ташкент',
+    ends_at: null,
+    position: 3,
+    created_at: new Date(now - 10 * 24 * h).toISOString(),
+    updated_at: new Date(now - 10 * 24 * h).toISOString(),
+    packages: catalog[2].packages.map((p, i) => ({ ...p, id: i + 6, position: i })),
+    effect: null,
+  },
+]
+
+// The tiles read these numbers, never the loaded page.
+const promoSummary = (rows) => ({
+  totals: rows.length,
+  live_count: rows.filter(isLive).length,
+  purchases_count: rows.reduce((a, p) => a + (p.effect?.purchases_count || 0), 0),
+  bonus_paid: rows.reduce((a, p) => a + (p.effect?.bonus_paid || 0), 0),
+})
+
+const withLiveness = (p) => ({ ...p, is_live: isLive(p) })
+
 let transactions = [
   {
     id: 9002,
@@ -783,6 +918,170 @@ http
       versions = versions.filter((v) => v.platform !== del[1])
       return json(res, 204)
     }
+
+    // ---- promo products ----
+
+    const promoStatusId = p.match(/^\/internal\/promo\/(\d+)\/status$/)
+    if (promoStatusId && m === 'PATCH') {
+      const row = promoProducts.find((x) => x.id === Number(promoStatusId[1]))
+      if (!row)
+        return json(res, 404, { alias: 'promo.admin.not_found', message: 'promo product not found', type: 'error' })
+      const b = await read(req)
+      // 400 is not settable here — soft delete stays its own, final verb.
+      if (b.status !== 100 && b.status !== 200)
+        return json(res, 400, {
+          alias: 'promo.admin.invalid_status',
+          message: 'status must be 100 or 200',
+          type: 'error',
+        })
+      row.status = b.status
+      row.updated_at = new Date(now).toISOString()
+      return json(res, 200, withLiveness(row))
+    }
+
+    const promoId = p.match(/^\/internal\/promo\/(\d+)$/)
+    if (promoId) {
+      const row = promoProducts.find((x) => x.id === Number(promoId[1]))
+      if (!row)
+        return json(res, 404, { alias: 'promo.admin.not_found', message: 'promo product not found', type: 'error' })
+      if (m === 'GET') return json(res, 200, withLiveness(row))
+      if (m === 'PUT') {
+        const b = await read(req)
+        // PUT is a partial update: only the keys present in the body are
+        // validated, and only they are written.
+        if (b.bonus_amount !== undefined && (!Number.isInteger(b.bonus_amount) || b.bonus_amount < 0))
+          return json(res, 400, {
+            alias: 'promo.admin.invalid_bonus',
+            message: 'bonus must be a non-negative integer',
+            type: 'error',
+          })
+        if (b.max_price !== undefined && (!Number.isInteger(b.max_price) || b.max_price < 0))
+          return json(res, 400, {
+            alias: 'promo.admin.invalid_price',
+            message: 'price must be a non-negative integer',
+            type: 'error',
+          })
+        if (b.ends_at && new Date(b.ends_at).getTime() < now)
+          return json(res, 400, {
+            alias: 'promo.admin.invalid_end_date',
+            message: 'ends_at is in the past',
+            type: 'error',
+          })
+        Object.assign(row, b, { updated_at: new Date(now).toISOString() })
+        return json(res, 200, withLiveness(row))
+      }
+      if (m === 'DELETE') {
+        promoProducts = promoProducts.filter((x) => x.id !== row.id)
+        return json(res, 204)
+      }
+    }
+    if (m === 'GET' && p === '/internal/promo') {
+      const q = url.searchParams
+      let items = promoProducts.slice()
+      const term = (q.get('query') || '').toLowerCase()
+      if (term)
+        items = items.filter(
+          (x) => x.name.toLowerCase().includes(term) || (x.maker_name || '').toLowerCase().includes(term),
+        )
+      const before = Number(q.get('before_id') || 0)
+      if (before) items = items.filter((x) => x.id < before)
+      const limit = Number(q.get('limit') || 25)
+      const summary = promoSummary(items)
+      return json(res, 200, {
+        items: items.slice(0, limit).map(withLiveness),
+        totals: summary.totals,
+        has_more: items.length > limit,
+        summary,
+      })
+    }
+    if (m === 'POST' && p === '/internal/promo') {
+      const b = await read(req)
+      const drug = catalog.find((d) => d.id === Number(b.nomenclature_id))
+      // The 400/409 statuses below are the only ones that leak a raw message
+      // when an alias is missing, so each carries one.
+      if (!b.nomenclature_id || Number.isNaN(Number(b.nomenclature_id)))
+        return json(res, 400, { alias: 'nomin.invalid_id', message: 'nomenclature_id is required', type: 'error' })
+      if (!drug)
+        return json(res, 404, { alias: 'nomin.invalid_id', message: 'drug not found in catalog', type: 'error' })
+      if (!Number.isInteger(b.bonus_amount) || b.bonus_amount < 0)
+        return json(res, 400, {
+          alias: 'promo.admin.invalid_bonus',
+          message: 'bonus must be a non-negative integer',
+          type: 'error',
+        })
+      if (!Number.isInteger(b.max_price) || b.max_price < 0)
+        return json(res, 400, {
+          alias: 'promo.admin.invalid_price',
+          message: 'price must be a non-negative integer',
+          type: 'error',
+        })
+      if (b.ends_at && new Date(b.ends_at).getTime() < now)
+        return json(res, 400, {
+          alias: 'promo.admin.invalid_end_date',
+          message: 'ends_at is in the past',
+          type: 'error',
+        })
+      if (promoProducts.some((x) => x.nomenclature_id === Number(b.nomenclature_id)))
+        return json(res, 409, {
+          alias: 'promo.admin.duplicate_nomenclature',
+          message: 'already in promo',
+          type: 'error',
+        })
+      if (!Array.isArray(b.packages) || b.packages.length === 0)
+        return json(res, 400, {
+          alias: 'promo.admin.invalid_packages',
+          message: 'at least one ikpu code is required',
+          type: 'error',
+        })
+      const row = {
+        id: nextId++,
+        nomenclature_id: drug.id,
+        name: drug.name,
+        image_url: drug.image_url || '',
+        maker_name: drug.maker?.name || '',
+        ikpu_count: b.packages.length,
+        status: 100,
+        is_new: Boolean(b.is_new),
+        bonus_amount: b.bonus_amount,
+        max_price: b.max_price,
+        price_note: b.price_note || '',
+        applies_to: b.applies_to || '',
+        ends_at: b.ends_at || null,
+        position: b.position ?? 0,
+        created_at: new Date(now).toISOString(),
+        updated_at: new Date(now).toISOString(),
+        packages: b.packages,
+        effect: null,
+      }
+      // A created product is live immediately — there is no enable step.
+      promoProducts.push(row)
+      return json(res, 201, withLiveness(row))
+    }
+
+    // ---- nomenclature catalog ----
+
+    const nomId = p.match(/^\/internal\/nomenclatures\/(\d+)$/)
+    if (nomId && m === 'GET') {
+      const drug = catalog.find((d) => d.id === Number(nomId[1]))
+      if (!drug) return json(res, 404, { alias: 'nomin.invalid_id', message: 'drug not found', type: 'error' })
+      return json(res, 200, drug)
+    }
+    if (m === 'GET' && p === '/internal/nomenclatures') {
+      const q = url.searchParams
+      let items = catalog.slice()
+      const term = (q.get('query') || '').toLowerCase()
+      if (term)
+        items = items.filter(
+          (d) =>
+            d.name.toLowerCase().includes(term) ||
+            d.full_name.toLowerCase().includes(term) ||
+            (d.maker?.name || '').toLowerCase().includes(term),
+        )
+      const offset = Number(q.get('offset') || 0)
+      const limit = Number(q.get('limit') || 20)
+      return json(res, 200, { items: items.slice(offset, offset + limit), count: items.length })
+    }
+
     json(res, 404, { message: 'no route', type: 'error' })
   })
   .listen(PORT, () => console.log('mock on', PORT))
