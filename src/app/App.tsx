@@ -15,6 +15,10 @@ import { TransactionsPage } from '../pages/transactions/TransactionsPage'
 import { SettingsPage } from '../pages/settings/SettingsPage'
 import { UsersPage } from '../pages/users/UsersPage'
 import { UserDetailPage } from '../pages/users/UserDetailPage'
+import { SurveysPage } from '../pages/surveys/SurveysPage'
+import { SurveyDetailPage } from '../pages/surveys/SurveyDetailPage'
+import { SurveyEditorPage } from '../pages/surveys/editor/SurveyEditorPage'
+import { SurveyResponsesPage } from '../pages/surveys/SurveyResponsesPage'
 import { Promo51SoonPage, SwitchSoonPage, UpsellSoonPage } from '../pages/soon/SoonPages'
 import { PromoPage } from '../pages/promo/PromoPage'
 
@@ -55,6 +59,11 @@ export function App() {
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="notifications/new" element={<NotificationCreatePage />} />
         <Route path="notifications/:id" element={<NotificationDetailPage />} />
+        <Route path="surveys" element={<SurveysPage />} />
+        <Route path="surveys/new" element={<SurveyEditorPage />} />
+        <Route path="surveys/:id" element={<SurveyDetailPage />} />
+        <Route path="surveys/:id/edit" element={<SurveyEditorPage />} />
+        <Route path="surveys/:id/responses" element={<SurveyResponsesPage />} />
         <Route path="promo" element={<PromoPage />} />
         <Route path="upsell" element={<UpsellSoonPage />} />
         <Route path="switch" element={<SwitchSoonPage />} />

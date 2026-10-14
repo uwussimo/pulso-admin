@@ -10,7 +10,7 @@ cp .env.example .env   # optional; defaults work for development
 npm run dev            # http://localhost:5173
 ```
 
-In development Vite proxies `/internal/*` to `VITE_API_PROXY_TARGET` (defaults to `https://api.pulso.dorim.com`), so no CORS setup is needed. For a production build set `VITE_API_BASE` to the API origin or serve the bundle behind the same host.
+In development Vite proxies `/internal/*` and `/v1/*` to `VITE_API_PROXY_TARGET` (defaults to `https://api.pulso.dorim.com`), so no CORS setup is needed. For a production build set `VITE_API_BASE` to the API origin or serve the bundle behind the same host.
 
 ```sh
 npm run build          # typecheck + bundle to dist/
@@ -34,13 +34,14 @@ make build             # сборка в dist/
 
 ## What's wired to the API
 
-| Section                     | Endpoints                                                                                                                                      |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Вход / выход / смена пароля | `POST /internal/auth/login`, `GET /internal/auth`, `POST /internal/auth/refresh`, `POST /internal/auth/logout`, `POST /internal/auth/password` |
-| Уведомления                 | `GET/POST /internal/notifications`, `GET/PATCH/DELETE /internal/notifications/{id}`, `POST /internal/push/send`                                |
-| Пользователи                | `GET /internal/users`, `GET /internal/users/{id}`, `PATCH /internal/users/{id}/status`                                                         |
-| Версии приложения           | `GET/POST /internal/versions`, `DELETE /internal/versions/{platform}`                                                                          |
-| Перевод кешбэка             | `POST /internal/receipts/promote-pending`                                                                                                      |
+| Section                     | Endpoints                                                                                                                                                                                                                 |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Вход / выход / смена пароля | `POST /internal/auth/login`, `GET /internal/auth`, `POST /internal/auth/refresh`, `POST /internal/auth/logout`, `POST /internal/auth/password`                                                                            |
+| Уведомления                 | `GET/POST /internal/notifications`, `GET/PATCH/DELETE /internal/notifications/{id}`, `POST /internal/push/send`                                                                                                           |
+| Опросы                      | `GET/POST /internal/surveys`, `GET/PUT/DELETE /internal/surveys/{id}`, `PATCH /internal/surveys/{id}/status`, `GET /internal/surveys/{id}/responses[/{sid}]`, `GET /internal/surveys/{id}/stats`, `POST /internal/upload` |
+| Пользователи                | `GET /internal/users`, `GET /internal/users/{id}`, `PATCH /internal/users/{id}/status`                                                                                                                                    |
+| Версии приложения           | `GET/POST /internal/versions`, `DELETE /internal/versions/{platform}`                                                                                                                                                     |
+| Перевод кешбэка             | `POST /internal/receipts/promote-pending`                                                                                                                                                                                 |
 
 Everything else (Обзор metrics, Транзакции, Промо, Апселл, Смена продукта, Акции 5+1, журнал действий, операторы) is shown as «Скоро» with a description and no numbers.
 
@@ -54,12 +55,30 @@ Everything else (Обзор metrics, Транзакции, Промо, Апсе�
 
 `Удалён` — это мягкое удаление, вернуть из него нельзя; в панели этот статус только показывается.
 
+## Публичная страница опроса `/s/:id`
+
+The mobile app opens surveys in a WebView at `<admin host>/s/<id>#token=<mobile access JWT>&lang=ru|uz|uzCyrl[&theme=dark]`. The page is rendered by `src/public/*` outside the admin shell: it never reads or writes the admin session, keeps the token in memory only, and calls the mobile API (`GET /v1/surveys/{id}`, `POST /v1/surveys/{id}/submit`, `POST /v1/upload`) with `Authorization: Bearer <token>` through the same `/v1/*` proxy. The form schema, condition grammar and answer validation live in `src/surveys/schema.ts` and mirror the backend byte-for-byte; the same `SurveyRunner` renders the live preview inside the editor.
+
+Messages the page posts to the app via `window.ReactNativeWebView.postMessage(JSON.stringify(msg))` (`src/public/bridge.ts`):
+
+| `type`                 | Payload                                                       | When                                                  |
+| ---------------------- | ------------------------------------------------------------- | ----------------------------------------------------- |
+| `survey_ready`         | `survey_id`                                                   | Survey loaded                                         |
+| `survey_completed`     | `survey_id, submission_id, credited, reward_amount`           | Right after a successful submit — refresh the balance |
+| `survey_close`         | `survey_id, reason: done\|already_completed\|blocked\|cancel` | User tapped «Вернуться в приложение»                  |
+| `survey_open_url`      | `url`                                                         | A PDF/image slide should open outside the WebView     |
+| `survey_token_expired` | `survey_id`                                                   | API answered 401 — reopen the page with a fresh token |
+
+Without a bridge (desktop browser) the return button navigates to `VITE_PULSO_DEEP_LINK` (default `pulso://polls`).
+
 ## Layout
 
 - `src/api` — typed client with bearer auth and single-flight refresh, one module per API area.
 - `src/auth` — session context (login, logout, expiry).
 - `src/app` — shell, sidebar navigation, routes, theme toggle.
-- `src/pages` — one folder per section.
+- `src/pages` — one folder per section (`surveys/editor` is the question builder, `surveys/responses` the stats).
+- `src/surveys` — form schema, condition engine, validation, respondent strings and the `SurveyRunner` renderer shared by the editor preview and the public page.
+- `src/public` — the `/s/:id` respondent page: fragment token, thin mobile-API client, WebView bridge.
 - `src/components` — page header, confirm dialog, states, field wrapper.
 - `src/lib` — formatting (сум, Tashkent time, plurals), constants, error text.
 - `.agents/skills/gravity-ui` — the Gravity UI agent skill (`npx skills add gravity-ui/skills`).
@@ -72,7 +91,7 @@ Notification type labels (Начисление, Статус, Напоминан
 The project deploys as a Cloudflare Worker with static assets (`wrangler.jsonc`). Build command `npm run build`, deploy command `npx wrangler deploy`.
 
 - `assets.not_found_handling: single-page-application` serves `index.html` for client-side routes.
-- `worker/index.js` runs only for `/internal/*` and proxies to the operator API, so the browser stays same-origin and no CORS is needed. Change the upstream with the `API_ORIGIN` variable in `wrangler.jsonc` or the dashboard; it defaults to `https://api.pulso.dorim.com`.
+- `worker/index.js` runs only for `/internal/*` and `/v1/*` and proxies to the API, so the browser stays same-origin and no CORS is needed. Change the upstream with the `API_ORIGIN` variable in `wrangler.jsonc` or the dashboard; it defaults to `https://api.pulso.dorim.com`.
 
 Leave `VITE_API_BASE` empty for this setup. Local check: `npm run build && npx wrangler dev`.
 
@@ -88,7 +107,7 @@ docker build -t pulso-admin . && docker run --rm -p 8080:8080 pulso-admin
 
 ## Mock API for local development
 
-`mock/server.mjs` is a dependency-free stand-in for the operator API with a few seeded notifications and versions. Run it in one terminal and point the dev server at it in another:
+`mock/server.mjs` is a dependency-free stand-in for the operator API (plus the mobile `/v1/surveys` slice) with seeded notifications, users, versions and four surveys, one per status. Run it in one terminal and point the dev server at it in another:
 
 ```sh
 npm run mock       # http://localhost:8787
@@ -96,3 +115,5 @@ npm run dev:mock   # Vite with /internal/* proxied to the mock
 ```
 
 Sign in with phone `+998901234567` and password `password12` (mock only).
+
+Public survey page against the mock: `http://localhost:5173/s/3#token=mobile-test&lang=ru` (fresh user), `#token=mobile-done` (already completed), `/s/1#token=mobile-test` (draft → not found), no fragment → «Откройте опрос из приложения».

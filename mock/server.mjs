@@ -1,4 +1,4 @@
-// Minimal mock of the service-pulso internal API for visual verification only.
+// Minimal mock of the service-pulso internal API (and the mobile /v1/surveys slice) for visual verification only.
 import http from 'node:http'
 
 const PORT = 8787
@@ -591,6 +591,497 @@ const uploadMock = (req) =>
     req.on('end', () => resolve({ name, size }))
   })
 
+// ---- surveys ----
+const PDF_URL = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+const img = (seed) => `https://picsum.photos/seed/${seed}/1200/800`
+const fullSchema = {
+  version: 1,
+  fields: [
+    {
+      id: 'q_visit',
+      key: 'visit_freq',
+      type: 'single_choice',
+      label: {
+        ru: 'Как часто вы заходите в аптеку?',
+        uz: 'Dorixonaga qanchalik tez-tez borasiz?',
+        uzCyrl: 'Дорихонага қанчалик тез-тез борасиз?',
+      },
+      required: true,
+      options: [
+        { id: 'o1', value: 'weekly', label: { ru: 'Раз в неделю', uz: 'Haftada bir', uzCyrl: 'Ҳафтада бир' } },
+        { id: 'o2', value: 'monthly', label: { ru: 'Раз в месяц', uz: 'Oyda bir', uzCyrl: 'Ойда бир' } },
+        { id: 'o3', value: 'rarely', label: { ru: 'Реже', uz: 'Kamroq', uzCyrl: 'Камроқ' } },
+      ],
+    },
+    {
+      id: 'q_cats',
+      key: 'categories',
+      type: 'multi_choice',
+      label: {
+        ru: 'Что покупаете чаще всего?',
+        uz: 'Koʻpincha nima sotib olasiz?',
+        uzCyrl: 'Кўпинча нима сотиб оласиз?',
+      },
+      required: true,
+      min: 1,
+      max: 3,
+      options: [
+        { id: 'c1', value: 'vitamins', label: { ru: 'Витамины', uz: 'Vitaminlar', uzCyrl: 'Витаминлар' } },
+        {
+          id: 'c2',
+          value: 'painkillers',
+          label: { ru: 'Обезболивающие', uz: 'Ogʻriq qoldiruvchi', uzCyrl: 'Оғриқ қолдирувчи' },
+        },
+        { id: 'c3', value: 'cosmetics', label: { ru: 'Косметика', uz: 'Kosmetika', uzCyrl: 'Косметика' } },
+        {
+          id: 'c4',
+          value: 'kids',
+          label: { ru: 'Детские товары', uz: 'Bolalar mahsulotlari', uzCyrl: 'Болалар маҳсулотлари' },
+        },
+      ],
+    },
+    {
+      id: 'q_app',
+      key: 'uses_app',
+      type: 'yes_no',
+      label: {
+        ru: 'Пользуетесь ли вы кешбэком Pulso?',
+        uz: 'Pulso keshbekidan foydalanasizmi?',
+        uzCyrl: 'Pulso кешбекидан фойдаланасизми?',
+      },
+      required: true,
+    },
+    {
+      id: 'q_why',
+      key: 'why_not',
+      type: 'textarea',
+      label: { ru: 'Почему нет?', uz: 'Nega yoʻq?', uzCyrl: 'Нега йўқ?' },
+      help: { ru: 'Пара слов — нам поможет', uz: 'Bir-ikki soʻz yetarli', uzCyrl: 'Бир-икки сўз етарли' },
+      required: false,
+      maxLength: 500,
+      visibleWhen: { type: 'equals', fieldId: 'q_app', value: false },
+    },
+    {
+      id: 'q_rate',
+      key: 'rating',
+      type: 'rating',
+      label: { ru: 'Оцените сервис', uz: 'Xizmatni baholang', uzCyrl: 'Хизматни баҳоланг' },
+      required: true,
+      max: 5,
+    },
+    {
+      id: 'q_nps',
+      key: 'nps',
+      type: 'nps',
+      label: {
+        ru: 'Порекомендуете Pulso друзьям?',
+        uz: 'Pulso ni doʻstlaringizga tavsiya qilasizmi?',
+        uzCyrl: 'Pulso ни дўстларингизга тавсия қиласизми?',
+      },
+      required: true,
+    },
+    {
+      id: 'q_spend',
+      key: 'spend',
+      type: 'number',
+      label: {
+        ru: 'Сколько тратите в месяц, тыс. сум?',
+        uz: 'Oyiga qancha sarflaysiz, ming soʻm?',
+        uzCyrl: 'Ойига қанча сарфлайсиз, минг сўм?',
+      },
+      required: false,
+      min: 0,
+      max: 5000,
+    },
+    {
+      id: 'q_name',
+      key: 'name',
+      type: 'text',
+      label: {
+        ru: 'Как к вам обращаться?',
+        uz: 'Sizga qanday murojaat qilish mumkin?',
+        uzCyrl: 'Сизга қандай мурожаат қилиш мумкин?',
+      },
+      required: false,
+      maxLength: 60,
+    },
+    {
+      id: 'q_date',
+      key: 'last_visit',
+      type: 'date',
+      label: {
+        ru: 'Когда были в аптеке в последний раз?',
+        uz: 'Oxirgi marta dorixonada qachon boʻldingiz?',
+        uzCyrl: 'Охирги марта дорихонада қачон бўлдингиз?',
+      },
+      required: false,
+    },
+    {
+      id: 'q_slide',
+      key: 'promo_slides',
+      type: 'slide',
+      label: { ru: 'Посмотрите новинки', uz: 'Yangiliklarni koʻring', uzCyrl: 'Янгиликларни кўринг' },
+      required: false,
+      slides: [
+        { id: 's1', url: img('pulso1'), name: 'Витамины', mime: 'image/jpeg' },
+        { id: 's2', url: img('pulso2'), name: 'Косметика', mime: 'image/jpeg' },
+        { id: 's3', url: PDF_URL, name: 'Каталог.pdf', mime: 'application/pdf' },
+      ],
+    },
+    {
+      id: 'q_photo',
+      key: 'receipt_photo',
+      type: 'image_upload',
+      label: { ru: 'Прикрепите фото чека', uz: 'Chek rasmini biriktiring', uzCyrl: 'Чек расмини бириктиринг' },
+      required: false,
+      maxFiles: 2,
+    },
+  ],
+}
+const smallSchema = {
+  version: 1,
+  fields: [
+    { id: 'a1', key: 'like', type: 'yes_no', label: { ru: 'Понравилась новая аптека?' }, required: true },
+    { id: 'a2', key: 'score', type: 'rating', label: { ru: 'Оцените от 1 до 5' }, required: true, max: 5 },
+  ],
+}
+let surveys = [
+  {
+    id: 1,
+    title: { ru: 'Черновик: про доставку', uz: 'Qoralama: yetkazib berish haqida' },
+    description: { ru: 'Ещё не готов.' },
+    reward_amount: 3000,
+    status: 'draft',
+    starts_at: undefined,
+    ends_at: undefined,
+    schema: smallSchema,
+    created_at: new Date(now - 5 * h).toISOString(),
+    updated_at: new Date(now - 2 * h).toISOString(),
+    created_by: 1,
+  },
+  {
+    id: 2,
+    title: { ru: 'Запланирован: витамины осенью', uz: 'Rejalashtirilgan: kuzda vitaminlar' },
+    description: {},
+    reward_amount: 2000,
+    status: 'pending',
+    starts_at: new Date(now + 48 * h).toISOString(),
+    ends_at: new Date(now + 240 * h).toISOString(),
+    schema: smallSchema,
+    created_at: new Date(now - 30 * h).toISOString(),
+    updated_at: new Date(now - 20 * h).toISOString(),
+    created_by: 1,
+  },
+  {
+    id: 3,
+    title: { ru: 'Как вам аптеки Pulso?', uz: 'Pulso dorixonalari qanday?', uzCyrl: 'Pulso дорихоналари қандай?' },
+    description: {
+      ru: 'Ответьте на 10 вопросов и получите 5 000 сум на баланс.',
+      uz: '10 savolga javob bering va balansga 5 000 soʻm oling.',
+      uzCyrl: '10 саволга жавоб беринг ва балансга 5 000 сўм олинг.',
+    },
+    cover_image_url: img('pulsocover'),
+    reward_amount: 5000,
+    status: 'active',
+    starts_at: undefined,
+    ends_at: new Date(now + 400 * h).toISOString(),
+    schema: fullSchema,
+    created_at: new Date(now - 100 * h).toISOString(),
+    updated_at: new Date(now - 50 * h).toISOString(),
+    created_by: 1,
+  },
+  {
+    id: 4,
+    title: { ru: 'Завершён: летняя акция' },
+    description: {},
+    reward_amount: 1000,
+    status: 'closed',
+    starts_at: undefined,
+    ends_at: undefined,
+    closed_at: new Date(now - 300 * h).toISOString(),
+    schema: smallSchema,
+    created_at: new Date(now - 900 * h).toISOString(),
+    updated_at: new Date(now - 300 * h).toISOString(),
+    created_by: 1,
+  },
+]
+let nextSurveyId = 5
+let nextSubmissionId = 7
+const submissions = [
+  {
+    id: 1,
+    survey_id: 3,
+    user_id: 1052,
+    token: 'mobile-done',
+    answers: {
+      q_visit: 'weekly',
+      q_cats: ['vitamins', 'kids'],
+      q_app: true,
+      q_rate: 5,
+      q_nps: 10,
+      q_spend: 300,
+      q_name: 'Мадина',
+      q_date: '2026-10-01',
+      q_slide: 'viewed',
+    },
+    created_at: new Date(now - 40 * h).toISOString(),
+  },
+  {
+    id: 2,
+    survey_id: 3,
+    user_id: 1051,
+    answers: {
+      q_visit: 'monthly',
+      q_cats: ['painkillers'],
+      q_app: false,
+      q_why: 'Не знал, что есть кешбэк',
+      q_rate: 3,
+      q_nps: 6,
+      q_slide: 'viewed',
+    },
+    created_at: new Date(now - 30 * h).toISOString(),
+  },
+  {
+    id: 3,
+    survey_id: 3,
+    user_id: 1049,
+    answers: {
+      q_visit: 'weekly',
+      q_cats: ['cosmetics', 'vitamins'],
+      q_app: true,
+      q_rate: 4,
+      q_nps: 9,
+      q_spend: 450,
+      q_slide: 'viewed',
+      q_photo: [img('receipt1')],
+    },
+    created_at: new Date(now - 20 * h).toISOString(),
+  },
+  {
+    id: 4,
+    survey_id: 3,
+    user_id: 1050,
+    answers: {
+      q_visit: 'rarely',
+      q_cats: ['kids'],
+      q_app: false,
+      q_why: 'Сложно сканировать чеки',
+      q_rate: 2,
+      q_nps: 3,
+      q_slide: 'viewed',
+    },
+    created_at: new Date(now - 10 * h).toISOString(),
+  },
+  {
+    id: 5,
+    survey_id: 3,
+    user_id: 1048,
+    answers: {
+      q_visit: 'monthly',
+      q_cats: ['vitamins'],
+      q_app: true,
+      q_rate: 4,
+      q_nps: 8,
+      q_name: 'Азиз',
+      q_slide: 'viewed',
+    },
+    created_at: new Date(now - 6 * h).toISOString(),
+  },
+  {
+    id: 6,
+    survey_id: 4,
+    user_id: 1052,
+    answers: { a1: true, a2: 5 },
+    created_at: new Date(now - 500 * h).toISOString(),
+  },
+]
+const isSurveyLive = (s) => {
+  const t = Date.now()
+  const startOk =
+    s.status === 'active' || (s.status === 'pending' && s.starts_at && new Date(s.starts_at).getTime() <= t)
+  const endOk = !s.ends_at || new Date(s.ends_at).getTime() > t
+  return Boolean(startOk && endOk)
+}
+const subsOf = (id) => submissions.filter((x) => x.survey_id === id)
+const adminSurvey = (s, withSchema) => ({
+  id: s.id,
+  title: s.title,
+  description: s.description,
+  cover_image_url: s.cover_image_url,
+  reward_amount: s.reward_amount,
+  status: s.status,
+  is_live: isSurveyLive(s),
+  starts_at: s.starts_at,
+  ends_at: s.ends_at,
+  questions_count: s.schema.fields.length,
+  submissions_count: subsOf(s.id).length,
+  reward_total: subsOf(s.id).length * s.reward_amount,
+  created_at: s.created_at,
+  updated_at: s.updated_at,
+  closed_at: s.closed_at,
+  ...(withSchema ? { schema: s.schema } : {}),
+})
+const submissionJSON = (x, withAnswers) => {
+  const u = users.find((u) => u.id === x.user_id)
+  const s = surveys.find((s) => s.id === x.survey_id)
+  return {
+    id: x.id,
+    survey_id: x.survey_id,
+    user_id: x.user_id,
+    user_phone: u?.phone,
+    user_name: u?.full_name || undefined,
+    reward_amount: s?.reward_amount ?? 0,
+    credited: (s?.reward_amount ?? 0) > 0,
+    transaction_id: (s?.reward_amount ?? 0) > 0 ? 9000 + x.id : undefined,
+    created_at: x.created_at,
+    ...(withAnswers ? { answers: x.answers } : {}),
+  }
+}
+const err = (res, code, alias, message) => json(res, code, { alias, code, message, type: 'error' })
+const TRANSITIONS = {
+  draft: ['pending', 'active'],
+  pending: ['active', 'draft', 'closed'],
+  active: ['closed'],
+  closed: [],
+}
+function evalCond(c, answers) {
+  const v = answers[c.fieldId]
+  const empty = v === undefined || v === null || v === '' || (Array.isArray(v) && v.length === 0)
+  switch (c.type) {
+    case 'and':
+      return c.rules.length > 0 && c.rules.every((r) => evalCond(r, answers))
+    case 'or':
+      return c.rules.some((r) => evalCond(r, answers))
+    case 'answered':
+      return !empty
+    case 'equals':
+      return (
+        !empty &&
+        (Array.isArray(v)
+          ? v.map(String).includes(String(c.value))
+          : typeof v === 'boolean'
+            ? v === c.value
+            : String(v) === String(c.value))
+      )
+    case 'not_equals':
+      return (
+        !empty &&
+        !(Array.isArray(v)
+          ? v.map(String).includes(String(c.value))
+          : typeof v === 'boolean'
+            ? v === c.value
+            : String(v) === String(c.value))
+      )
+    case 'in':
+      return (
+        !empty &&
+        (Array.isArray(v)
+          ? v.some((x) => c.values.map(String).includes(String(x)))
+          : c.values.map(String).includes(String(v)))
+      )
+    default: {
+      const n = Number(v)
+      if (empty || Number.isNaN(n)) return false
+      return c.type === 'gt'
+        ? n > c.value
+        : c.type === 'gte'
+          ? n >= c.value
+          : c.type === 'lt'
+            ? n < c.value
+            : n <= c.value
+    }
+  }
+}
+function validateAnswers(schema, raw) {
+  const out = {}
+  const seen = {}
+  for (const f of schema.fields) {
+    const visible = !f.visibleWhen || evalCond(f.visibleWhen, seen)
+    if (!visible) continue
+    let v = raw[f.id]
+    if (f.type === 'slide') v = 'viewed'
+    const empty = v === undefined || v === null || v === '' || (Array.isArray(v) && v.length === 0)
+    if (empty) {
+      if (f.required && f.type !== 'slide') return { error: `answers.${f.id}: required` }
+      continue
+    }
+    if (f.type === 'single_choice' && !f.options.some((o) => o.value === v))
+      return { error: `answers.${f.id}: unknown option` }
+    if (f.type === 'multi_choice') {
+      if (!Array.isArray(v) || v.some((x) => !f.options.some((o) => o.value === x)))
+        return { error: `answers.${f.id}: unknown option` }
+      v = [...new Set(v)].sort()
+    }
+    if (f.type === 'yes_no' && typeof v !== 'boolean') return { error: `answers.${f.id}: boolean expected` }
+    if (f.type === 'rating' && !(Number.isInteger(v) && v >= 1 && v <= f.max))
+      return { error: `answers.${f.id}: out of range` }
+    if (f.type === 'nps' && !(Number.isInteger(v) && v >= 0 && v <= 10))
+      return { error: `answers.${f.id}: out of range` }
+    out[f.id] = v
+    seen[f.id] = v
+  }
+  return { answers: out }
+}
+function statsFor(s) {
+  const subs = subsOf(s.id)
+  const questions = s.schema.fields.map((f) => {
+    const vals = subs
+      .map((x) => x.answers[f.id])
+      .filter((v) => v !== undefined && v !== null && v !== '' && !(Array.isArray(v) && v.length === 0))
+    const q = { field_id: f.id, key: f.key, type: f.type, answered: vals.length }
+    if (f.type === 'single_choice' || f.type === 'yes_no') {
+      const m = new Map()
+      for (const v of vals) m.set(String(v), (m.get(String(v)) ?? 0) + 1)
+      q.options = [...m].map(([value, count]) => ({ value, count }))
+    }
+    if (f.type === 'multi_choice') {
+      const m = new Map()
+      for (const arr of vals) for (const v of arr) m.set(String(v), (m.get(String(v)) ?? 0) + 1)
+      q.options = [...m].map(([value, count]) => ({ value, count }))
+    }
+    if (f.type === 'rating' || f.type === 'nps' || f.type === 'number') {
+      const nums = vals.map(Number)
+      if (nums.length) q.avg = nums.reduce((a, b) => a + b, 0) / nums.length
+      const m = new Map()
+      for (const n of nums) m.set(String(n), (m.get(String(n)) ?? 0) + 1)
+      q.distribution = [...m].map(([value, count]) => ({ value, count }))
+      if (f.type === 'nps' && nums.length) {
+        const promoters = nums.filter((n) => n >= 9).length
+        const detractors = nums.filter((n) => n <= 6).length
+        q.nps_score = ((promoters - detractors) / nums.length) * 100
+      }
+    }
+    return q
+  })
+  return { survey_id: s.id, submissions: subs.length, reward_total: subs.length * s.reward_amount, questions }
+}
+const readRaw = (req) =>
+  new Promise((r) => {
+    const chunks = []
+    req.on('data', (c) => chunks.push(c))
+    req.on('end', () => r(Buffer.concat(chunks)))
+  })
+async function handleUpload(req, res) {
+  const buf = await readRaw(req)
+  const head = buf.toString('latin1', 0, Math.min(buf.length, 4000))
+  const m = /filename="([^"]+)"/.exec(head)
+  const name = m ? Buffer.from(m[1], 'latin1').toString('utf8') : 'file'
+  const ext = (name.split('.').pop() || '').toLowerCase()
+  const isPdf = ext === 'pdf'
+  return json(res, 201, {
+    public_url: isPdf ? PDF_URL : img(`u${Date.now() % 100000}`),
+    size_bytes: buf.length,
+    content_type: isPdf
+      ? 'application/pdf'
+      : ext === 'png'
+        ? 'image/png'
+        : ext === 'webp'
+          ? 'image/webp'
+          : 'image/jpeg',
+    original_name: name,
+  })
+}
+
 const json = (res, code, body) => {
   res.writeHead(code, { 'Content-Type': 'application/json' })
   res.end(body === undefined ? '' : JSON.stringify(body))
@@ -633,12 +1124,195 @@ http
         type: 'error',
       })
     }
+
+    // ---- mobile API (public /s/:id page). Tokens: mobile-test (new user), mobile-done (already completed). ----
+    if (p.startsWith('/v1/')) {
+      const token = (auth || '').replace('Bearer ', '')
+      if (!['mobile-test', 'mobile-done', 'mobile-other'].includes(token))
+        return err(res, 401, 'auth.invalid_token', 'invalid token')
+      const userId = token === 'mobile-done' ? 1052 : token === 'mobile-other' ? 2002 : 2001
+      if (m === 'POST' && p === '/v1/upload') return handleUpload(req, res)
+      const det = p.match(/^\/v1\/surveys\/(\d+)$/)
+      if (det && m === 'GET') {
+        const s = surveys.find((x) => x.id === Number(det[1]))
+        if (!s || s.status === 'draft') return err(res, 404, 'surveys.not_found', 'survey not found')
+        const mine = subsOf(s.id).find((x) => x.token === token || x.user_id === userId)
+        return json(res, 200, {
+          survey: {
+            id: s.id,
+            title: s.title,
+            description: s.description,
+            cover_image_url: s.cover_image_url,
+            reward_amount: s.reward_amount,
+            currency: 'UZS',
+            questions_count: s.schema.fields.length,
+            starts_at: s.starts_at,
+            ends_at: s.ends_at,
+            is_active: isSurveyLive(s),
+            schema: s.schema,
+          },
+          user_state: mine
+            ? { status: 'completed', submission_id: mine.id, completed_at: mine.created_at }
+            : { status: 'new' },
+        })
+      }
+      const sub = p.match(/^\/v1\/surveys\/(\d+)\/submit$/)
+      if (sub && m === 'POST') {
+        const s = surveys.find((x) => x.id === Number(sub[1]))
+        if (!s || s.status === 'draft') return err(res, 404, 'surveys.not_found', 'survey not found')
+        const b = await read(req)
+        const existing = subsOf(s.id).find((x) => x.token === token || x.user_id === userId)
+        if (existing) {
+          const same =
+            JSON.stringify(validateAnswers(s.schema, b.answers || {}).answers) === JSON.stringify(existing.answers)
+          if (!same) return err(res, 409, 'surveys.already_completed', 'already completed')
+          return json(res, 200, {
+            submission_id: existing.id,
+            reward_amount: s.reward_amount,
+            credited: false,
+            already_completed: true,
+            completed_at: existing.created_at,
+          })
+        }
+        if (!isSurveyLive(s)) return err(res, 409, 'surveys.not_active', 'survey is not active')
+        const v = validateAnswers(s.schema, b.answers || {})
+        if (v.error) return err(res, 400, 'surveys.invalid_answers', v.error)
+        await new Promise((r) => setTimeout(r, 1000))
+        const row = {
+          id: nextSubmissionId++,
+          survey_id: s.id,
+          user_id: userId,
+          token,
+          answers: v.answers,
+          created_at: new Date().toISOString(),
+        }
+        submissions.push(row)
+        return json(res, 200, {
+          submission_id: row.id,
+          reward_amount: s.reward_amount,
+          credited: s.reward_amount > 0,
+          already_completed: false,
+          completed_at: row.created_at,
+        })
+      }
+      return err(res, 404, 'not_found', 'no route')
+    }
     if (!auth || !auth.startsWith('Bearer '))
       return json(res, 401, { alias: 'auth.unauthorized', message: 'unauthorized', type: 'error' })
     if (m === 'GET' && p === '/internal/auth')
       return json(res, 200, { id: 1, phone: '+998901234567', full_name: 'Мадина Каримова', is_admin: true })
     if (m === 'POST' && p === '/internal/auth/logout') return json(res, 204)
     if (m === 'POST' && p === '/internal/auth/password') return json(res, 204)
+
+    // ---- surveys admin ----
+    if (m === 'POST' && p === '/internal/upload') return handleUpload(req, res)
+    if (m === 'GET' && p === '/internal/surveys') {
+      const q = url.searchParams
+      let items = surveys.slice().sort((a, b) => b.id - a.id)
+      if (q.get('status')) items = items.filter((x) => x.status === q.get('status'))
+      if (q.get('search')) {
+        const needle = q.get('search').toLowerCase()
+        items = items.filter((x) => JSON.stringify(x.title).toLowerCase().includes(needle))
+      }
+      const before = Number(q.get('before_id') || 0)
+      if (before) items = items.filter((x) => x.id < before)
+      const limit = Number(q.get('limit') || 20)
+      return json(res, 200, {
+        items: items.slice(0, limit).map((x) => adminSurvey(x, false)),
+        has_more: items.length > limit,
+        totals: items.length,
+      })
+    }
+    if (m === 'POST' && p === '/internal/surveys') {
+      const b = await read(req)
+      if (!b.title?.ru) return err(res, 400, 'surveys.title_required', 'title.ru required')
+      const s = {
+        id: nextSurveyId++,
+        title: b.title,
+        description: b.description ?? {},
+        cover_image_url: b.cover_image_url,
+        reward_amount: b.reward_amount ?? 0,
+        status: 'draft',
+        starts_at: b.starts_at ?? undefined,
+        ends_at: b.ends_at ?? undefined,
+        schema: b.schema ?? { version: 1, fields: [] },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        created_by: 1,
+      }
+      surveys.push(s)
+      return json(res, 201, adminSurvey(s, true))
+    }
+    const sv = p.match(/^\/internal\/surveys\/(\d+)(\/status|\/responses|\/stats|\/responses\/(\d+))?$/)
+    if (sv) {
+      const s = surveys.find((x) => x.id === Number(sv[1]))
+      if (!s) return err(res, 404, 'surveys.not_found', 'survey not found')
+      const tail = sv[2] || ''
+      if (tail === '' && m === 'GET') return json(res, 200, adminSurvey(s, true))
+      if (tail === '' && m === 'PUT') {
+        const b = await read(req)
+        if (s.status === 'closed') return err(res, 409, 'surveys.locked', 'closed survey is read-only')
+        if (subsOf(s.id).length > 0) {
+          if (JSON.stringify(b.schema) !== JSON.stringify(s.schema) || b.reward_amount !== s.reward_amount)
+            return err(res, 409, 'surveys.locked', 'schema and reward are locked')
+        }
+        if (!b.title?.ru) return err(res, 400, 'surveys.title_required', 'title.ru required')
+        Object.assign(s, {
+          title: b.title,
+          description: b.description ?? {},
+          cover_image_url: b.cover_image_url,
+          reward_amount: b.reward_amount ?? 0,
+          starts_at: b.starts_at ?? undefined,
+          ends_at: b.ends_at ?? undefined,
+          schema: b.schema,
+          updated_at: new Date().toISOString(),
+        })
+        return json(res, 200, adminSurvey(s, true))
+      }
+      if (tail === '' && m === 'DELETE') {
+        if (s.status === 'active') return err(res, 409, 'surveys.invalid_status_transition', 'close the survey first')
+        surveys = surveys.filter((x) => x.id !== s.id)
+        return json(res, 204)
+      }
+      if (tail === '/status' && m === 'PATCH') {
+        const b = await read(req)
+        const to = b.status
+        if (!['draft', 'pending', 'active', 'closed'].includes(to))
+          return err(res, 400, 'surveys.invalid_status', 'unknown status')
+        if (to === s.status) return json(res, 200, adminSurvey(s, true))
+        if (!TRANSITIONS[s.status].includes(to))
+          return err(res, 409, 'surveys.invalid_status_transition', `${s.status} -> ${to}`)
+        if (to === 'pending' && (!s.starts_at || new Date(s.starts_at).getTime() <= Date.now()))
+          return err(res, 400, 'surveys.invalid_window', 'starts_at must be in the future')
+        if (to === 'draft' && subsOf(s.id).length) return err(res, 409, 'surveys.locked', 'has submissions')
+        if ((to === 'active' || to === 'pending') && !s.schema.fields.some((f) => f.type !== 'slide'))
+          return err(res, 400, 'surveys.invalid_schema', 'fields: at least one question')
+        s.status = to
+        if (to === 'closed') s.closed_at = new Date().toISOString()
+        s.updated_at = new Date().toISOString()
+        return json(res, 200, adminSurvey(s, true))
+      }
+      if (tail === '/responses' && m === 'GET') {
+        const q = url.searchParams
+        let items = subsOf(s.id)
+          .slice()
+          .sort((a, b) => b.id - a.id)
+        const before = Number(q.get('before_id') || 0)
+        if (before) items = items.filter((x) => x.id < before)
+        const limit = Number(q.get('limit') || 20)
+        return json(res, 200, {
+          items: items.slice(0, limit).map((x) => submissionJSON(x, false)),
+          has_more: items.length > limit,
+          totals: items.length,
+        })
+      }
+      if (sv[3] && m === 'GET') {
+        const x = subsOf(s.id).find((y) => y.id === Number(sv[3]))
+        if (!x) return err(res, 404, 'surveys.submission_not_found', 'submission not found')
+        return json(res, 200, submissionJSON(x, true))
+      }
+      if (tail === '/stats' && m === 'GET') return json(res, 200, statsFor(s))
+    }
     if (m === 'GET' && p === '/internal/notifications') {
       let items = notifications.slice()
       const q = url.searchParams

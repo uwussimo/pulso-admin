@@ -1000,3 +1000,136 @@ a.tile:hover {
   min-width: 0;
   flex: 1;
 }
+
+/* ---------- Surveys ---------- */
+
+.qlist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--g-spacing-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.qlist__item {
+  display: flex;
+  gap: var(--g-spacing-3);
+  align-items: flex-start;
+}
+
+.qlist__num {
+  flex-shrink: 0;
+  width: 24px;
+  text-align: right;
+}
+
+.question-row {
+  display: flex;
+  align-items: center;
+  gap: var(--g-spacing-3);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--g-spacing-2) var(--g-spacing-3);
+  border: 1px solid transparent;
+  border-radius: var(--g-border-radius-l);
+  background: var(--g-color-base-generic);
+  box-sizing: border-box;
+}
+
+.question-row__text {
+  cursor: pointer;
+  outline: none;
+}
+
+.question-row__text:focus-visible {
+  border-radius: var(--g-border-radius-s);
+  box-shadow: 0 0 0 2px var(--g-color-line-focus);
+}
+
+.question-row:hover {
+  background: var(--g-color-base-generic-hover);
+}
+
+.question-row_selected,
+.question-row_selected:hover {
+  border-color: var(--g-color-line-brand);
+  background: var(--g-color-base-selection);
+}
+
+.question-row__num {
+  flex-shrink: 0;
+  width: 24px;
+  text-align: right;
+}
+
+.question-row__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.question-row__actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 2px;
+}
+
+.question-editor {
+  padding: var(--g-spacing-4);
+  border: 1px solid var(--g-color-line-generic);
+  border-radius: var(--g-border-radius-l);
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--g-spacing-2);
+}
+
+.choices__row {
+  display: grid;
+  grid-template-columns: 1fr 160px auto;
+  gap: var(--g-spacing-2);
+  align-items: center;
+}
+
+.phone-preview_frame {
+  width: 360px;
+  max-width: 100%;
+  height: 640px;
+  padding: 0;
+  overflow: auto;
+  border-radius: 28px;
+  border: 1px solid var(--g-color-line-generic);
+  background: var(--g-color-base-float);
+}
+
+.phone-preview_frame .runner {
+  min-height: 100%;
+}
+
+.stat-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--g-spacing-2);
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) 2fr auto;
+  gap: var(--g-spacing-3);
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .choices__row {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-row {
+    grid-template-columns: 1fr auto;
+  }
+}

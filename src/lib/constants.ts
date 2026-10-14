@@ -1,3 +1,4 @@
+import type { LabelProps } from '@gravity-ui/uikit'
 import type {
   Audience,
   CashbackReversal,
@@ -5,6 +6,7 @@ import type {
   NotificationType,
   Platform,
   ReceiptStatus,
+  SurveyStatus,
   TransactionStatus,
   TransactionType,
   UserStatus,
@@ -178,3 +180,42 @@ export const PROMO_STATUS_LABELS = {
   off: 'Выключен',
   finished: 'Завершён',
 } as const
+
+export const SURVEY_STATUSES: { value: SurveyStatus; label: string; theme: LabelProps['theme'] }[] = [
+  { value: 'draft', label: 'Черновик', theme: 'normal' },
+  { value: 'pending', label: 'Запланирован', theme: 'warning' },
+  { value: 'active', label: 'Активен', theme: 'success' },
+  { value: 'closed', label: 'Завершён', theme: 'info' },
+]
+
+export function surveyStatusMeta(s: SurveyStatus) {
+  return SURVEY_STATUSES.find((x) => x.value === s) ?? { value: s, label: s, theme: 'unknown' as const }
+}
+
+export interface SurveyTransition {
+  to: SurveyStatus
+  label: string
+  danger?: boolean
+  /** Needs starts_at set in the future. */
+  needsStart?: boolean
+}
+
+/** Mirrors the backend transition matrix; anything else is 409 surveys.invalid_status_transition. */
+export const SURVEY_TRANSITIONS: Record<SurveyStatus, SurveyTransition[]> = {
+  draft: [
+    { to: 'active', label: 'Запустить' },
+    { to: 'pending', label: 'Запланировать', needsStart: true },
+  ],
+  pending: [
+    { to: 'active', label: 'Запустить сейчас' },
+    { to: 'draft', label: 'Снять с расписания' },
+    { to: 'closed', label: 'Завершить', danger: true },
+  ],
+  active: [{ to: 'closed', label: 'Завершить', danger: true }],
+  closed: [],
+}
+
+export const SURVEY_PUBLIC_PATH = '/s'
+
+/** Where the public survey page sends the user when there is no WebView bridge. */
+export const PULSO_DEEP_LINK = (import.meta.env.VITE_PULSO_DEEP_LINK as string | undefined) || 'pulso://polls'

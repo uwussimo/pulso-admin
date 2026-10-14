@@ -12,7 +12,7 @@ import {
 } from '@gravity-ui/uikit'
 import { Magnifier, Pencil, Plus, TrashBin } from '@gravity-ui/icons'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useToaster } from '@gravity-ui/uikit'
 import { notificationsApi } from '../../api/notifications'
@@ -25,20 +25,12 @@ import { AUDIENCES, NOTIFICATION_TYPES, appRouteLabel, notificationTypeLabel } f
 import { errorText } from '../../lib/errors'
 import { formatDateTime, formatNumber } from '../../lib/format'
 import { hasImage, markdownToPlainText } from '../../lib/markdown'
+import { useDebounced } from '../../lib/useDebounced'
 import { pickLocale } from './locale'
 import { EditNotificationDialog } from './EditNotificationDialog'
 
 const ActionsTable = withTableActions<AdminNotification>(Table)
 const PAGE = 25
-
-function useDebounced<T>(value: T, ms: number): T {
-  const [v, setV] = useState(value)
-  useEffect(() => {
-    const t = setTimeout(() => setV(value), ms)
-    return () => clearTimeout(t)
-  }, [value, ms])
-  return v
-}
 
 export function NotificationsPage() {
   const navigate = useNavigate()
