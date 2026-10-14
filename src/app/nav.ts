@@ -10,6 +10,7 @@ import {
   ForwardStepFill,
   House,
   HouseFill,
+  ListCheck,
   Person,
   PersonFill,
   Receipt,
@@ -19,7 +20,7 @@ import {
   StarFill,
 } from '@gravity-ui/icons'
 import type { IconData } from '@gravity-ui/uikit'
-import { CircleDollarFill, ReceiptFill } from './icons'
+import { CircleDollarFill, ListCheckFill, ReceiptFill } from './icons'
 
 export interface NavItem {
   to: string
@@ -37,6 +38,7 @@ export const NAV_MAIN: NavItem[] = [
   { to: '/receipts', label: 'Чеки', icon: Receipt, iconActive: ReceiptFill },
   { to: '/transactions', label: 'Транзакции', icon: CircleDollar, iconActive: CircleDollarFill },
   { to: '/notifications', label: 'Уведомления', icon: Bell, iconActive: BellFill },
+  { to: '/surveys', label: 'Опросы', icon: ListCheck, iconActive: ListCheckFill },
   { to: '/users', label: 'Пользователи', icon: Person, iconActive: PersonFill },
   { to: '/versions', label: 'Версии приложения', icon: CircleArrowUp, iconActive: CircleArrowUpFill },
   { to: '/cashback', label: 'Перевод кешбэка', icon: CircleDollar, iconActive: CircleDollarFill },

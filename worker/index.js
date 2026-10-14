@@ -1,10 +1,11 @@
-// Cloudflare Worker in front of the static build: forwards /internal/* to the
-// operator API so the browser stays same-origin (like the Vite dev proxy) and
-// serves everything else from the uploaded assets.
+// Cloudflare Worker in front of the static build: forwards /internal/* (operator
+// API) and /v1/* (mobile API, used by the public survey page) so the browser
+// stays same-origin (like the Vite dev proxy) and serves everything else from
+// the uploaded assets.
 export default {
   async fetch(request, env) {
     const url = new URL(request.url)
-    if (!url.pathname.startsWith('/internal/')) {
+    if (!url.pathname.startsWith('/internal/') && !url.pathname.startsWith('/v1/')) {
       return env.ASSETS.fetch(request)
     }
 

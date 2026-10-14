@@ -17,6 +17,12 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: true,
         },
+        // The public survey page (/s/:id) calls the mobile API with the user's own token.
+        '/v1': {
+          target: apiTarget,
+          changeOrigin: true,
+          secure: true,
+        },
       },
     },
   }

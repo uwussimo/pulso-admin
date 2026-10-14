@@ -1,3 +1,5 @@
+import type { AnswerMap, QuestionType, SurveySchema } from '../surveys/schema'
+
 // Types mirror the operator API Swagger (service-pulso internal API v1).
 
 export interface ErrorEnvelope {
@@ -445,6 +447,118 @@ export interface PromoListParams {
   before_id?: number
 }
 
+// ---- Surveys (service-pulso /internal/surveys and /v1/surveys) ----
+// The form schema itself lives in src/surveys/schema.ts and is passed through verbatim.
+
+export type SurveyStatus = 'draft' | 'pending' | 'active' | 'closed'
+
+export interface SurveyListItem {
+  id: number
+  title: LocaleMap
+  description?: LocaleMap
+  cover_image_url?: string
+  /** Whole сум on the wire (the backend stores tiyns). */
+  reward_amount: number
+  status: SurveyStatus
+  /** True when the app currently shows the survey: active, or pending with starts_at passed, inside the window. */
+  is_live: boolean
+  starts_at?: string
+  ends_at?: string
+  questions_count: number
+  submissions_count: number
+  /** Whole сум paid out so far. */
+  reward_total: number
+  created_at: string
+  updated_at: string
+  closed_at?: string
+}
+
+export interface Survey extends SurveyListItem {
+  schema: SurveySchema
+}
+
+export interface SurveyListParams {
+  status?: SurveyStatus
+  search?: string
+  limit?: number
+  before_id?: number
+}
+
+export interface SurveyListResponse {
+  items: SurveyListItem[]
+  totals: number
+  has_more: boolean
+}
+
+/** POST and PUT body. PUT is a full replace; locked fields must equal the stored values. */
+export interface SurveyWriteRequest {
+  title: LocaleMap
+  description?: LocaleMap
+  cover_image_url?: string
+  reward_amount: number
+  starts_at?: string | null
+  ends_at?: string | null
+  schema: SurveySchema
+}
+
+export interface SurveyStatusRequest {
+  status: SurveyStatus
+}
+
+export interface SurveySubmission {
+  id: number
+  survey_id: number
+  user_id: number
+  user_phone?: string
+  user_name?: string
+  reward_amount: number
+  credited: boolean
+  transaction_id?: number
+  created_at: string
+}
+
+export interface SurveySubmissionDetail extends SurveySubmission {
+  answers: AnswerMap
+}
+
+export interface SurveyResponsesParams {
+  limit?: number
+  before_id?: number
+}
+
+export interface SurveyResponsesResponse {
+  items: SurveySubmission[]
+  totals: number
+  has_more: boolean
+}
+
+export interface OptionCount {
+  value: string
+  count: number
+}
+
+export interface QuestionStats {
+  field_id: string
+  key: string
+  type: QuestionType
+  answered: number
+  /** single_choice, multi_choice, yes_no ('true' / 'false'). Labels come from the schema. */
+  options?: OptionCount[]
+  /** rating, nps, number */
+  avg?: number
+  /** nps only: promoters(9–10) minus detractors(0–6), in percent */
+  nps_score?: number
+  /** rating, nps: value as string → count */
+  distribution?: OptionCount[]
+}
+
+export interface SurveyStats {
+  survey_id: number
+  submissions: number
+  reward_total: number
+  questions: QuestionStats[]
+}
+
 export interface PromoListResponse {
   items: PromoProduct[]
   totals: number
@@ -527,4 +641,41 @@ export interface UploadResponse {
   size_bytes: number
   content_type: string
   original_name: string
+}
+
+// Mobile API, consumed by the public /s/:id page with the user's own bearer token.
+
+export interface MobileSurvey {
+  id: number
+  title: LocaleMap
+  description?: LocaleMap
+  cover_image_url?: string
+  reward_amount: number
+  currency: string
+  questions_count: number
+  starts_at?: string
+  ends_at?: string
+  is_active: boolean
+  schema: SurveySchema
+}
+
+export interface MobileSurveyResponse {
+  survey: MobileSurvey
+  user_state: {
+    status: 'new' | 'completed'
+    submission_id?: number
+    completed_at?: string
+  }
+}
+
+export interface SubmitSurveyRequest {
+  answers: AnswerMap
+}
+
+export interface SubmitSurveyResponse {
+  submission_id: number
+  reward_amount: number
+  credited: boolean
+  already_completed: boolean
+  completed_at: string
 }

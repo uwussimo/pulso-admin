@@ -17,6 +17,21 @@ const ALIAS_MESSAGES: Record<string, string> = {
   'promo.admin.invalid_status': 'Статус должен быть «Действует» или «Выключен»',
   'nomin.invalid_id': 'Некорректный id препарата',
   'nomin.upstream_unavailable': 'Каталог препаратов недоступен, попробуйте позже',
+  'surveys.not_found': 'Опрос не найден. Возможно, он удалён.',
+  'surveys.submission_not_found': 'Ответ не найден.',
+  'surveys.not_active': 'Опрос сейчас не принимает ответы.',
+  'surveys.already_completed': 'Этот опрос уже пройден.',
+  'surveys.invalid_answers': 'Часть ответов не прошла проверку. Проверьте отмеченные вопросы.',
+  'surveys.invalid_schema': 'Сервер не принял структуру опроса. Проверьте вопросы: ключи, варианты и условия.',
+  'surveys.invalid_status': 'Неизвестный статус.',
+  'surveys.invalid_status_transition': 'Такой переход статуса невозможен. Обновите страницу — статус мог измениться.',
+  'surveys.invalid_reward': 'Награда не может быть отрицательной.',
+  'surveys.invalid_window': 'Проверьте даты: начало должно быть раньше окончания, а окончание — в будущем.',
+  'surveys.title_required': 'Нужно название опроса на русском.',
+  'surveys.locked': 'Вопросы и награду нельзя менять: по опросу уже есть ответы.',
+  'upload.file_required': 'Файл не выбран.',
+  'upload.empty': 'Файл пустой.',
+  'upload.name_invalid': 'Недопустимое имя файла.',
 }
 
 /** Human-readable error text for toasts and inline alerts. */
@@ -27,9 +42,17 @@ export function errorText(e: unknown, fallback = 'Что-то пошло не т
     if (e.status === 401) return 'Сессия истекла. Войдите заново.'
     if (e.status === 403) return 'Нет доступа. Возможно, аккаунт больше не является оператором.'
     if (e.status === 404) return 'Не найдено. Возможно, запись уже удалена.'
+    if (e.status === 413) return 'Файл слишком большой (максимум 25 МБ).'
     if (e.status >= 500) return 'Ошибка на сервере. Попробуйте позже.'
     return e.message || fallback
   }
   if (e instanceof Error && e.message) return e.message
   return fallback
+}
+
+/** `surveys.invalid_answers` carries the field in the message as `answers.<field_id>: <reason>`. */
+export function invalidAnswerField(e: unknown): string | null {
+  if (!isApiError(e) || e.alias !== 'surveys.invalid_answers') return null
+  const m = /^answers\.([^:\s]+)/.exec(e.message)
+  return m ? m[1] : null
 }

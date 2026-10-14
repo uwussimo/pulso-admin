@@ -12,6 +12,7 @@ import { App } from './app/App'
 import { AuthProvider } from './auth/AuthContext'
 import { AppThemeProvider, useAppTheme } from './app/AppTheme'
 import { SidebarStateProvider } from './app/SidebarState'
+import { PublicRoot } from './public/PublicRoot'
 
 configure({ lang: 'ru' })
 
@@ -38,14 +39,21 @@ function ThemedRoot() {
   )
 }
 
+// /s/:id is the respondent page the mobile app opens in a WebView: it must never touch the admin session.
+const isPublic = window.location.pathname.startsWith('/s/')
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AppThemeProvider>
-          <ThemedRoot />
-        </AppThemeProvider>
-      </BrowserRouter>
+      {isPublic ? (
+        <PublicRoot />
+      ) : (
+        <BrowserRouter>
+          <AppThemeProvider>
+            <ThemedRoot />
+          </AppThemeProvider>
+        </BrowserRouter>
+      )}
     </QueryClientProvider>
   </StrictMode>,
 )

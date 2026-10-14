@@ -98,3 +98,29 @@ export function formatPhone(phone?: string | null): string {
   if (!m) return phone
   return `+998 ${m[1]} ${m[2]} ${m[3]} ${m[4]}`
 }
+
+/** RFC3339 → "2026-10-09T11:08" in Tashkent time, for <input type="datetime-local">. */
+export function rfc3339ToTashkentLocalInput(iso?: string | null): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(d)
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '00'
+  return `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}`
+}
+
+/** "с 09.10, 11:08 до 20.10, 23:59" / "бессрочно". */
+export function formatDateRange(starts?: string | null, ends?: string | null): string {
+  if (!starts && !ends) return 'бессрочно'
+  if (starts && ends) return `${formatDateTime(starts)} — ${formatDateTime(ends)}`
+  if (starts) return `с ${formatDateTime(starts)}`
+  return `до ${formatDateTime(ends)}`
+}
