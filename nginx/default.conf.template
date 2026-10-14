@@ -1,5 +1,6 @@
 # Rendered by the nginx image's envsubst step at startup; only ${API_ORIGIN} is substituted.
-# Mirrors worker/index.js: /internal/* goes to the operator API so the browser stays same-origin.
+# Mirrors worker/index.js: /internal/* (operator API) and /v1/* (mobile API, called by the
+# public survey page /s/:id) go to the API so the browser stays same-origin.
 server {
     listen 8080;
     server_name _;
@@ -20,6 +21,21 @@ server {
         proxy_redirect off;
         proxy_hide_header Cache-Control;
         add_header Cache-Control "no-store" always;
+        client_max_body_size 10m;
+    }
+
+    # Mobile API for the public survey page (/s/:id). Without this block /v1/* fell through
+    # to the SPA shell: 200 text/html, which the page parsed as a survey and crashed on.
+    location /v1/ {
+        proxy_pass ${API_ORIGIN};
+        proxy_ssl_server_name on;
+        proxy_http_version 1.1;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+        proxy_hide_header Cache-Control;
+        add_header Cache-Control "no-store" always;
+        # Photo answers upload through POST /v1/upload.
         client_max_body_size 10m;
     }
 
