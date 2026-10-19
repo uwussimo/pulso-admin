@@ -336,55 +336,91 @@ const receiptItems = {
 const catalog = [
   {
     id: 415,
-    name: 'Амоксициллин',
-    full_name: 'Амоксициллин 500 мг № 20 таблеток',
-    maker: { id: 7, name: 'Sano Pharm' },
-    image_url: 'https://placehold.co/96x96/png?text=Амокси',
+    name: 'Тромбопол',
+    full_name: 'Тромбопол табл. 75 мг блистер №60',
+    maker: { id: 845, name: 'Polpharma', country_name: 'Польша' },
+    image_url: 'https://placehold.co/96x96/png?text=Тромбо',
     reference_retail_price_with_vat: 38500,
     inn: '123456789012',
     packages: [
-      { ikpu_code: '0000000004', package_code: 1, package_name: 'таблетки 500 мг, № 20', is_default: true },
-      { ikpu_code: '0000000005', package_code: 2, package_name: 'капсулы 250 мг, № 20', is_default: false },
-      { ikpu_code: '0000000006', package_code: 3, package_name: 'суспензия 400 мг/5 мл', is_default: false },
+      {
+        ikpu_code: '03004098003012004',
+        package_code: 1111886,
+        package_name: 'dona (tabletka (75 mg))',
+        is_default: true,
+      },
+      {
+        ikpu_code: '03004098003012003',
+        package_code: 1111885,
+        package_name: 'dona (tabletka (100 mg))',
+        is_default: false,
+      },
     ],
   },
   {
     id: 416,
-    name: 'Ибупрофен',
-    full_name: 'Ибупрофен 200 мг № 30 таблеток',
-    maker: { id: 9, name: 'Pharmstandart' },
-    image_url: 'https://placehold.co/96x96/png?text=Ибупро',
-    reference_retail_price_with_vat: 12400,
+    name: 'Канефрон H',
+    full_name: 'Канефрон H р-р орал. фл. 100 мл №1',
+    maker: { id: 1040, name: 'Bionorica', country_name: 'Германия' },
+    image_url: 'https://placehold.co/96x96/png?text=Канеф',
+    reference_retail_price_with_vat: 124400,
     inn: '770865120004',
     packages: [
-      { ikpu_code: '0000000011', package_code: 1, package_name: 'таблетки 200 мг, № 30', is_default: true },
-      { ikpu_code: '0000000012', package_code: 2, package_name: 'таблетки 400 мг, № 24', is_default: false },
+      {
+        ikpu_code: '03004285021001003',
+        package_code: 1145109,
+        package_name: 'dona (flakon (100 ml))',
+        is_default: true,
+      },
     ],
   },
   {
     id: 417,
-    name: 'Омепразол',
-    full_name: 'Омепразол 20 мг № 28 капсул',
-    maker: { id: 11, name: 'Ozon Pharma' },
-    image_url: 'https://placehold.co/96x96/png?text=Омепра',
+    // The longest catalogue title of the seed set — the case that pushes an
+    // auto-layout table past its container when nothing bounds the name cell.
+    name: 'Бромгексин 8 Берлин-Хеми',
+    full_name: 'Бромгексин 8 Берлин-Хеми табл. 8 мг блистер №25',
+    maker: { id: 1041, name: 'Berlin-Chemie', country_name: 'Германия' },
+    image_url: 'https://placehold.co/96x96/png?text=Бромг',
     reference_retail_price_with_vat: 21700,
     inn: '770865120011',
     packages: [
-      { ikpu_code: '0000000021', package_code: 1, package_name: 'капсулы 20 мг, № 28', is_default: true },
-      { ikpu_code: '0000000022', package_code: 2, package_name: 'капсулы 40 мг, № 14', is_default: false },
+      {
+        ikpu_code: '03004554002020002',
+        package_code: 1126821,
+        package_name: 'dona (tabletka (8 mg))',
+        is_default: true,
+      },
+      {
+        ikpu_code: '03004554002020003',
+        package_code: 1126822,
+        package_name: 'dona (tabletka (4 mg))',
+        is_default: false,
+      },
     ],
   },
   {
     id: 418,
     name: 'Витамин D3',
     full_name: 'Холекальциферол 500 МЕ № 60 капель',
-    maker: { id: 13, name: 'Эвалар' },
+    maker: { id: 13, name: 'Эвалар', country_name: 'Россия' },
     image_url: 'https://placehold.co/96x96/png?text=ВитD',
     reference_retail_price_with_vat: 9400,
-    inn: '770865120028',
     packages: [{ ikpu_code: '0000000031', package_code: 1, package_name: 'капли 500 МЕ, № 60', is_default: true }],
   },
 ]
+
+// The real service nests the catalogue payload under `nomenclature` on every
+// promo product and the panel flattens it at the API boundary. The mock serves
+// the same shape, so a divergence shows up here instead of in production.
+const nomenclatureOf = (drug) => ({
+  id: drug.id,
+  name: drug.name,
+  full_name: drug.full_name,
+  image_url: drug.image_url || '',
+  ikpu_count: drug.packages.length,
+  maker: { ...drug.maker },
+})
 
 // is_live is the same predicate the real service computes: status 100, not
 // soft-deleted, and ends_at has not passed.
@@ -394,10 +430,7 @@ let promoProducts = [
   {
     id: 1,
     nomenclature_id: 415,
-    name: 'Амоксициллин',
-    image_url: 'https://placehold.co/96x96/png?text=Амокси',
-    maker_name: 'Sano Pharm',
-    ikpu_count: 3,
+    nomenclature: nomenclatureOf(catalog[0]),
     status: 100,
     is_new: true,
     bonus_amount: 2000,
@@ -415,10 +448,7 @@ let promoProducts = [
     // Past ends_at → is_live false, renders «Завершён».
     id: 2,
     nomenclature_id: 416,
-    name: 'Ибупрофен',
-    image_url: 'https://placehold.co/96x96/png?text=Ибупро',
-    maker_name: 'Pharmstandart',
-    ikpu_count: 2,
+    nomenclature: nomenclatureOf(catalog[1]),
     status: 100,
     is_new: false,
     bonus_amount: 800,
@@ -437,10 +467,7 @@ let promoProducts = [
     // operator's Switch produces, reachable offline without touching anything.
     id: 3,
     nomenclature_id: 417,
-    name: 'Омепразол',
-    image_url: 'https://placehold.co/96x96/png?text=Омепра',
-    maker_name: 'Ozon Pharma',
-    ikpu_count: 2,
+    nomenclature: nomenclatureOf(catalog[2]),
     status: 200,
     is_new: false,
     bonus_amount: 1200,
@@ -1655,7 +1682,10 @@ http
       const term = (q.get('query') || '').toLowerCase()
       if (term)
         items = items.filter(
-          (x) => x.name.toLowerCase().includes(term) || (x.maker_name || '').toLowerCase().includes(term),
+          (x) =>
+            (x.nomenclature?.name || '').toLowerCase().includes(term) ||
+            (x.nomenclature?.full_name || '').toLowerCase().includes(term) ||
+            (x.nomenclature?.maker?.name || '').toLowerCase().includes(term),
         )
       const before = Number(q.get('before_id') || 0)
       if (before) items = items.filter((x) => x.id < before)
@@ -1710,10 +1740,7 @@ http
       const row = {
         id: nextId++,
         nomenclature_id: drug.id,
-        name: drug.name,
-        image_url: drug.image_url || '',
-        maker_name: drug.maker?.name || '',
-        ikpu_count: b.packages.length,
+        nomenclature: { ...nomenclatureOf(drug), ikpu_count: b.packages.length },
         status: 100,
         is_new: Boolean(b.is_new),
         bonus_amount: b.bonus_amount,

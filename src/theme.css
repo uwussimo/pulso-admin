@@ -578,6 +578,15 @@ a.tile:hover {
   background: var(--g-color-base-generic);
 }
 
+/* A catalogue title runs long — «Бромгексин 8 Берлин-Хеми табл. 8 мг блистер
+   №25» is not unusual. The table is `table-layout: auto`, so an unbounded name
+   cell keeps widening its column until the last one is pushed out of the panel
+   entirely. This ceiling is what lets the title ellipsize instead of
+   displacing «Эффект»; the full name stays reachable on hover. */
+.table-wrap .product-cell {
+  max-width: 460px;
+}
+
 .catalog-row {
   display: flex;
   align-items: center;

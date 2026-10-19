@@ -5,6 +5,7 @@ import { useEffect, useId, useState } from 'react'
 import { nomenclatureApi } from '../../api/promo'
 import type { CatalogDrug } from '../../api/types'
 import { errorText } from '../../lib/errors'
+import { NomenclatureCell } from './NomenclatureCell'
 import { sums } from './promo.utils'
 
 interface Props {
@@ -108,19 +109,18 @@ export function CatalogPickerDialog({ open, onClose, onPicked }: Props) {
                     className="catalog-row"
                     onClick={() => {
                       onPicked(d)
-                      toaster.add({ name: 'catalog-picked', theme: 'info', title: d.name })
+                      toaster.add({ name: 'catalog-picked', theme: 'info', title: d.full_name || d.name })
                       setTerm('')
                     }}
                   >
-                    {d.image_url ? <img src={d.image_url} alt="" width={40} height={40} loading="lazy" /> : null}
-                    <span className="cell-title">
-                      <Text variant="body-2" as="span" ellipsis>
-                        {d.name}
-                      </Text>
-                      <Text variant="caption-2" color="secondary" as="span" ellipsis>
-                        {[d.maker?.name, d.full_name].filter(Boolean).join(' · ')}
-                      </Text>
-                    </span>
+                    <NomenclatureCell
+                      imageSize={40}
+                      titleVariant="body-2"
+                      imageUrl={d.image_url}
+                      fullName={d.full_name || d.name}
+                      makerName={d.maker?.name}
+                      makerCountry={d.maker?.country_name}
+                    />
                     {d.reference_retail_price_with_vat ? (
                       <Text variant="body-2" color="secondary" className="num">
                         ~ {sums(d.reference_retail_price_with_vat)}

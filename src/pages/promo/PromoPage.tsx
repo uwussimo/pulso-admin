@@ -22,6 +22,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../components/States'
 import { errorText } from '../../lib/errors'
 import { formatNumber } from '../../lib/format'
 import { CatalogPickerDialog } from './CatalogPickerDialog'
+import { NomenclatureCell } from './NomenclatureCell'
 import { PromoProductDialog } from './PromoProductDialog'
 import {
   EFFECT_CAVEAT,
@@ -200,20 +201,15 @@ export function PromoPage() {
   const columns: TableColumnConfig<PromoProduct>[] = [
     {
       id: 'product',
-      name: 'Товар',
+      name: 'Название / Производитель',
       primary: true,
       template: (p) => (
-        <div className="product-cell">
-          {p.image_url ? <img src={p.image_url} alt="" width={48} height={48} loading="lazy" /> : null}
-          <div className="cell-title">
-            <Text variant="subheader-1" ellipsis>
-              {p.name}
-            </Text>
-            <Text variant="caption-2" color="secondary" ellipsis>
-              {p.maker_name || '—'}
-            </Text>
-          </div>
-        </div>
+        <NomenclatureCell
+          imageUrl={p.image_url}
+          fullName={p.full_name}
+          makerName={p.maker_name}
+          makerCountry={p.maker_country}
+        />
       ),
     },
     {
@@ -411,7 +407,7 @@ export function PromoPage() {
         </Text>
         {removing ? (
           <>
-            <ConfirmLine label="Товар:" value={removing.name} />
+            <ConfirmLine label="Товар:" value={removing.full_name || removing.name} />
             <ConfirmLine
               label="Бонус:"
               value={`${sums(removing.bonus_amount)} за штуку, ${formatNumber(removing.ikpu_count)} ИКПУ-кодов`}
