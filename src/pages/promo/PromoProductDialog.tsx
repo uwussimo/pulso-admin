@@ -17,6 +17,7 @@ import type { CatalogDrug, PromoPackage, PromoProduct } from '../../api/types'
 import { Field } from '../../components/Field'
 import { errorText } from '../../lib/errors'
 import { formatNumber } from '../../lib/format'
+import { NomenclatureCell } from './NomenclatureCell'
 import { fromDateInput, startOfToday, sums, toDateInput } from './promo.utils'
 
 interface Props {
@@ -123,7 +124,7 @@ function PromoProductForm({ product, drug, onClose, onSaved }: FormProps) {
     setSelectedCodes((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]))
   }
 
-  const title = product?.name ?? drug?.name ?? ''
+  const title = product?.full_name ?? drug?.full_name ?? product?.name ?? drug?.name ?? ''
 
   return (
     <>
@@ -131,19 +132,12 @@ function PromoProductForm({ product, drug, onClose, onSaved }: FormProps) {
         <Flex direction="column" gap={4}>
           {error ? <Alert theme="danger" message={error} /> : null}
 
-          <div className="product-cell">
-            {(product?.image_url ?? drug?.image_url) ? (
-              <img src={product?.image_url ?? drug?.image_url} alt="" width={48} height={48} />
-            ) : null}
-            <div className="cell-title">
-              <Text variant="subheader-1" ellipsis>
-                {title}
-              </Text>
-              <Text variant="caption-2" color="secondary" ellipsis>
-                {product?.maker_name ?? drug?.maker?.name ?? ''}
-              </Text>
-            </div>
-          </div>
+          <NomenclatureCell
+            imageUrl={product?.image_url ?? drug?.image_url}
+            fullName={title}
+            makerName={product?.maker_name ?? drug?.maker?.name}
+            makerCountry={product?.maker_country ?? drug?.maker?.country_name}
+          />
           <Text variant="caption-2" color="hint">
             {editing
               ? 'Товар выбран из каталога и в панели не меняется.'

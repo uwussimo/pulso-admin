@@ -15,13 +15,18 @@ import type {
  * The wire nests the catalog fields under `nomenclature`; the table cell reads
  * them flat. Flattening happens here, at the boundary, so no page has to know
  * the catalogue can be absent.
+ *
+ * `full_name` and the maker's country are the identity the pharmacy catalogue
+ * shows, so they travel with the row instead of each cell re-deriving them.
  */
 function withDisplayFields(product: PromoProduct): PromoProduct {
   const n = product.nomenclature
   return {
     ...product,
     name: n?.name ?? '',
+    full_name: n?.full_name ?? n?.name ?? '',
     maker_name: n?.maker?.name ?? '',
+    maker_country: n?.maker?.country_name ?? '',
     image_url: n?.image_url ?? '',
     ikpu_count: n?.ikpu_count ?? product.packages.length,
   }

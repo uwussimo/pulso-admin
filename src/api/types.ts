@@ -387,19 +387,25 @@ export interface PromoPackage {
 export interface PromoNomenclature {
   id: number
   name: string
+  /** «Тромбопол табл. 75 мг блистер №60» — what the pharmacy catalogue shows. */
   full_name: string
   image_url: string
   ikpu_count: number
-  maker: { id: number; name: string }
+  maker: { id: number; name: string; country_name?: string }
 }
 
 /** Whole sums, like every other amount the panel renders. 0 means unset. */
 export interface PromoProduct {
   id: number
   nomenclature_id: number
+  /** Short name («Тромбопол») — used where a long title would not fit, e.g. aria-labels. */
   name: string
+  /** Catalogue title («Тромбопол табл. 75 мг блистер №60»); empty when the catalogue is absent. */
+  full_name: string
   image_url: string
   maker_name: string
+  /** Maker's country as the catalogue spells it («Польша»); empty when unknown. */
+  maker_country: string
   ikpu_count: number
   /**
    * Backend `promo_products.status`: 100 live, 200 paused, 400 soft-deleted.
@@ -605,6 +611,7 @@ export interface CatalogPackage {
 export interface CatalogMaker {
   id?: number
   name: string
+  country_name?: string
 }
 
 /** A drug from the nomenclature catalog. The panel picks from it; it never writes here. */
@@ -613,12 +620,13 @@ export interface CatalogDrug {
   name: string
   full_name: string
   form?: string
-  number?: string
+  /** Pack size («№60»). The catalogue sends it as a number, sometimes as a string. */
+  number?: number | string
   maker?: CatalogMaker
   image_url?: string
   /** Whole sums; pre-fills «Цена в аптеках». */
   reference_retail_price_with_vat?: number
-  inn?: string
+  inn?: { id: number; name: string }
   packages: CatalogPackage[]
 }
 

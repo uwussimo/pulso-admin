@@ -59,7 +59,21 @@ export function endsAtLabel(endsAt: string | null | undefined): string {
   if (!endsAt) return 'бессрочно'
   const d = new Date(endsAt)
   if (Number.isNaN(d.getTime())) return 'бессрочно'
-  return shortDateFmt.format(d).replace(/[  ]/g, ' ')
+  return shortDateFmt.format(d).replace(/[  ]/g, ' ')
+}
+
+/**
+ * The maker line the pharmacy catalogue prints under a drug: «Polpharma
+ * (Польша)». The country is in parentheses because it qualifies the maker, not
+ * because it is a second field — with one missing the other still reads, and a
+ * row with neither shows an em dash rather than an empty second line that looks
+ * like a loading row.
+ */
+export function makerLine(makerName?: string | null, makerCountry?: string | null): string {
+  const name = makerName?.trim() ?? ''
+  const country = makerCountry?.trim() ?? ''
+  if (name && country) return `${name} (${country})`
+  return name || country || '—'
 }
 
 /**
