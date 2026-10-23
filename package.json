@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "dev:mock": "VITE_API_PROXY_TARGET=http://localhost:8787 vite",
+    "dev:mock": "VITE_API_BASE= VITE_API_PROXY_TARGET=http://localhost:8787 vite",
     "mock": "node mock/server.mjs",
     "typecheck": "tsc -b",
     "format": "prettier --write .",

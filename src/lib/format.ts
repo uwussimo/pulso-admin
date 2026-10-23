@@ -124,3 +124,56 @@ export function formatDateRange(starts?: string | null, ends?: string | null): s
   if (starts) return `с ${formatDateTime(starts)}`
   return `до ${formatDateTime(ends)}`
 }
+
+const shortDateFmt = new Intl.DateTimeFormat('ru-RU', {
+  timeZone: TZ,
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+})
+
+/** "2026-10-15T06:08:00Z" → "15.10.2026" (Tashkent time). */
+export function formatShortDate(iso?: string | null): string {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
+  return shortDateFmt.format(d).replace(/[  ]/g, ' ')
+}
+
+/** "2026-10-15" for <input type="date">, from an RFC3339 timestamp. */
+export function toDateInput(iso: string | null | undefined): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(d)
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? ''
+  return `${get('year')}-${get('month')}-${get('day')}`
+}
+
+/**
+ * "2026-10-15" → an RFC3339 moment in Tashkent. `boundary` picks the edge of
+ * the picked day: 'end' covers the whole day (a deadline), 'start' opens it
+ * (a campaign that begins that morning).
+ */
+export function fromDateInput(value: string, boundary: 'start' | 'end' = 'end'): string | undefined {
+  if (!value) return undefined
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined
+  return boundary === 'start' ? `${value}T00:00:00+05:00` : `${value}T23:59:59+05:00`
+}
+
+/** Midnight today in Tashkent, for the "не может быть в прошлом" check. */
+export function startOfToday(): Date {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date())
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '01'
+  return new Date(`${get('year')}-${get('month')}-${get('day')}T00:00:00+05:00`)
+}
