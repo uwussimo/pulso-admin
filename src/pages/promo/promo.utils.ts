@@ -1,15 +1,11 @@
 import { PROMO_STATUS_LABELS } from '../../lib/constants'
+import { formatShortDate } from '../../lib/format'
 
 const sumFmt = new Intl.NumberFormat('ru-RU')
 
-const shortDateFmt = new Intl.DateTimeFormat('ru-RU', {
-  timeZone: 'Asia/Tashkent',
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-})
-
-const TZ = 'Asia/Tashkent'
+// The date helpers live in lib/format: they are Tashkent arithmetic, not
+// promo rules, and the goal-offer form needs the same three.
+export { fromDateInput, startOfToday, toDateInput } from '../../lib/format'
 
 /** Backend `promo_products.status` values the panel writes. 400 (deleted) is not settable. */
 export const PROMO_STATUS_LIVE = 100
@@ -59,7 +55,7 @@ export function endsAtLabel(endsAt: string | null | undefined): string {
   if (!endsAt) return 'бессрочно'
   const d = new Date(endsAt)
   if (Number.isNaN(d.getTime())) return 'бессрочно'
-  return shortDateFmt.format(d).replace(/[  ]/g, ' ')
+  return formatShortDate(endsAt)
 }
 
 /**
@@ -83,37 +79,3 @@ export function makerLine(makerName?: string | null, makerCountry?: string | nul
  */
 export const EFFECT_CAVEAT =
   'Эффект считается по чекам, которые пользователи отсканировали в приложении. Реальные продажи в аптеках могут быть выше.'
-
-/** Midnight today in Tashkent, for the "не может быть в прошлом" check. */
-export function startOfToday(): Date {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone: TZ,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(new Date())
-  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '01'
-  return new Date(`${get('year')}-${get('month')}-${get('day')}T00:00:00+05:00`)
-}
-
-/** "2026-10-15" for <input type="date">, from an RFC3339 timestamp. */
-export function toDateInput(iso: string | null | undefined): string {
-  if (!iso) return ''
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ''
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: TZ,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(d)
-  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? ''
-  return `${get('year')}-${get('month')}-${get('day')}`
-}
-
-/** End of the picked day, so a deadline covers the whole day in Tashkent. */
-export function fromDateInput(value: string): string | undefined {
-  if (!value) return undefined
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined
-  return `${value}T23:59:59+05:00`
-}

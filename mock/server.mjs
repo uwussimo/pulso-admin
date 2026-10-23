@@ -493,6 +493,129 @@ const promoSummary = (rows) => ({
 
 const withLiveness = (p) => ({ ...p, is_live: isLive(p) })
 
+// ---- goal offers / «экстра-выгода» (IT-10739) ----
+
+// The operator list carries no product name: the real service nests nothing
+// here, so the mock must not either — a mock that answers more than the real
+// service hides the gap until production.
+const offerContent = (ru, uz, uzCyrl) => {
+  const c = {}
+  if (ru) c.ru = ru
+  if (uz) c.uz = uz
+  if (uzCyrl) c.uzCyrl = uzCyrl
+  return c
+}
+
+// The operator copy. There is no instruction/button label: that content
+// comes from the backend's AI summary, keyed on the product. The rules are
+// one block of text, not a list, and the how-it-works steps are the app's
+// own copy.
+const offerText = (title, subtitle, rationale, rules = '') => ({
+  title,
+  subtitle,
+  rationale,
+  rules,
+})
+
+let extraBenefitOffers = [
+  {
+    id: 1,
+    status: 100,
+    nomenclature_id: 415,
+    ikpu_codes: catalog[0].packages.map((p) => p.ikpu_code),
+    goal_target: 5,
+    bonus_amount: 15000,
+    currency: 'UZS',
+    content: offerContent(
+      offerText(
+        'Запас на сезон простуды',
+        'Пять упаковок — фиксированный бонус сверх кешбэка',
+        'Простуда не ждёт, а лекарство всегда нужно. Копим запас — получаем фиксированный бонус.',
+        'Цель действует на чеки из любых аптек Узбекистана. Бонус начисляется автоматически после пятой упаковки.',
+      ),
+      offerText(
+        'Soviqa oldini olish zaxirasi',
+        'Besh dona — keksbekdan tashqari qo‘shimcha bonus',
+        '',
+        'Maqsad O‘zbekistondagi istalgan dorixonadan olingan cheklardan hisoblanadi.',
+      ),
+      offerText(
+        'Простуда учун захира',
+        'Беш дона — кешбекдан ташқари қўшимча бонус',
+        '',
+        'Мақсад Ўзбекистондаги исталган дарёхоналардан олинган чеклар ҳисобланади.',
+      ),
+    ),
+    starts_at: new Date(now - 10 * 24 * h).toISOString(),
+    ends_at: new Date(now + 20 * 24 * h).toISOString(),
+    position: 1,
+    created_at: new Date(now - 12 * 24 * h).toISOString(),
+    updated_at: new Date(now - 1 * 24 * h).toISOString(),
+  },
+  {
+    // Russian only — the app falls back to it, and the list says «RU» so the
+    // operator knows the Uzbek copy is missing.
+    id: 2,
+    status: 200,
+    nomenclature_id: 418,
+    ikpu_codes: catalog[3].packages.map((p) => p.ikpu_code),
+    goal_target: 3,
+    bonus_amount: 9000,
+    currency: 'UZS',
+    content: offerContent(
+      offerText(
+        'Витамин D на весь год',
+        'Три флакона — бонус сверх кешбэка',
+        'Зимой витамин D нужен всем, а летом его забывают купить.',
+        '',
+      ),
+    ),
+    starts_at: new Date(now - 5 * 24 * h).toISOString(),
+    ends_at: new Date(now + 60 * 24 * h).toISOString(),
+    position: 2,
+    created_at: new Date(now - 8 * 24 * h).toISOString(),
+    updated_at: new Date(now - 8 * 24 * h).toISOString(),
+  },
+  {
+    // ends_at in the past → «Завершён» even though status is live.
+    id: 3,
+    status: 100,
+    nomenclature_id: 416,
+    ikpu_codes: catalog[1].packages.map((p) => p.ikpu_code),
+    goal_target: 4,
+    bonus_amount: 12000,
+    currency: 'UZS',
+    content: offerContent(offerText('Канефрон — курс поддержки', 'Четыре упаковки — бонус', '')),
+    starts_at: new Date(now - 40 * 24 * h).toISOString(),
+    ends_at: new Date(now - 3 * 24 * h).toISOString(),
+    position: 3,
+    created_at: new Date(now - 45 * 24 * h).toISOString(),
+    updated_at: new Date(now - 3 * 24 * h).toISOString(),
+  },
+  {
+    // One code the catalogue does not carry — the form must show it, not
+    // reject it: a code simply never matches a receipt.
+    id: 4,
+    status: 100,
+    nomenclature_id: 417,
+    ikpu_codes: [...catalog[2].packages.map((p) => p.ikpu_code), '0000000099'],
+    goal_target: 6,
+    bonus_amount: 25000,
+    currency: 'UZS',
+    content: offerContent(
+      offerText('Шесть упаковок — одна в подарок', 'Фиксированный бонус за цель', ''),
+      offerText('Olti dona — sovg‘a sifatida bonus', ''),
+    ),
+    starts_at: new Date(now - 2 * 24 * h).toISOString(),
+    ends_at: new Date(now + 45 * 24 * h).toISOString(),
+    position: 4,
+    created_at: new Date(now - 2 * 24 * h).toISOString(),
+    updated_at: new Date(now - 2 * 24 * h).toISOString(),
+  },
+]
+
+let nextOfferId = 5
+
 let transactions = [
   {
     id: 9002,
@@ -1757,6 +1880,114 @@ http
       // A created product is live immediately — there is no enable step.
       promoProducts.push(row)
       return json(res, 201, withLiveness(row))
+    }
+
+    // ---- goal offers / «экстра-выгода» (IT-10739) ----
+
+    if (m === 'GET' && p === '/internal/extra-benefit/offers') {
+      const q = url.searchParams
+      const limit = Number(q.get('limit') || 50)
+      const offset = Number(q.get('offset') || 0)
+      // Ordered by the operator-controlled position, like the real service.
+      const rows = extraBenefitOffers.slice().sort((a, b) => a.position - b.position || a.id - b.id)
+      return json(res, 200, {
+        items: rows.slice(offset, offset + limit),
+        totals: rows.length,
+        limit,
+        offset,
+      })
+    }
+    if (m === 'POST' && p === '/internal/extra-benefit/offers') {
+      const b = await read(req)
+      const drug = catalog.find((d) => d.id === Number(b.nomenclature_id))
+      if (!b.nomenclature_id || Number.isNaN(Number(b.nomenclature_id)))
+        return err(res, 400, 'extra_benefit.offer.invalid', 'nomenclature_id is required')
+      if (!drug) return err(res, 404, 'extra_benefit.offer.not_found', 'drug not found in catalog')
+      if (!Array.isArray(b.ikpu_codes) || b.ikpu_codes.length === 0)
+        return err(res, 400, 'extra_benefit.offer.invalid', 'at least one ikpu code is required')
+      if (!Number.isInteger(b.goal_target) || b.goal_target < 1)
+        return err(res, 400, 'extra_benefit.offer.invalid', 'goal_target must be a positive integer')
+      if (!Number.isInteger(b.bonus_amount) || b.bonus_amount < 1)
+        return err(res, 400, 'extra_benefit.offer.invalid', 'bonus_amount must be a positive integer')
+      if (!b.starts_at || !b.ends_at)
+        return err(res, 400, 'extra_benefit.offer.invalid', 'starts_at and ends_at are required')
+      if (new Date(b.ends_at) <= new Date(b.starts_at))
+        return err(res, 400, 'extra_benefit.offer.invalid', 'ends_at must be after starts_at')
+      if (!b.content || !b.content.ru || !b.content.ru.title)
+        return err(res, 400, 'extra_benefit.offer.invalid', 'a russian title is required')
+      const row = {
+        id: nextOfferId++,
+        status: 100,
+        nomenclature_id: drug.id,
+        ikpu_codes: b.ikpu_codes,
+        goal_target: b.goal_target,
+        bonus_amount: b.bonus_amount,
+        currency: 'UZS',
+        content: b.content,
+        starts_at: b.starts_at,
+        ends_at: b.ends_at,
+        position: b.position ?? 0,
+        created_at: new Date(now).toISOString(),
+        updated_at: new Date(now).toISOString(),
+      }
+      extraBenefitOffers.push(row)
+      return json(res, 201, row)
+    }
+
+    const offerId = p.match(/^\/internal\/extra-benefit\/offers\/(\d+)$/)
+    if (offerId && m === 'GET') {
+      const row = extraBenefitOffers.find((x) => x.id === Number(offerId[1]))
+      if (!row) return err(res, 404, 'extra_benefit.admin.not_found', 'offer not found')
+      return json(res, 200, row)
+    }
+    if (offerId && m === 'PUT') {
+      const row = extraBenefitOffers.find((x) => x.id === Number(offerId[1]))
+      if (!row) return err(res, 404, 'extra_benefit.admin.not_found', 'offer not found')
+      const b = await read(req)
+      if (b.ikpu_codes !== undefined && (!Array.isArray(b.ikpu_codes) || b.ikpu_codes.length === 0))
+        return err(res, 400, 'extra_benefit.offer.invalid', 'at least one ikpu code is required')
+      if (b.goal_target !== undefined && (!Number.isInteger(b.goal_target) || b.goal_target < 1))
+        return err(res, 400, 'extra_benefit.offer.invalid', 'goal_target must be a positive integer')
+      if (b.bonus_amount !== undefined && (!Number.isInteger(b.bonus_amount) || b.bonus_amount < 1))
+        return err(res, 400, 'extra_benefit.offer.invalid', 'bonus_amount must be a positive integer')
+      const starts = b.starts_at ?? row.starts_at
+      const ends = b.ends_at ?? row.ends_at
+      if (new Date(ends) <= new Date(starts))
+        return err(res, 400, 'extra_benefit.offer.invalid', 'ends_at must be after starts_at')
+      if (b.content !== undefined && (!b.content.ru || !b.content.ru.title))
+        return err(res, 400, 'extra_benefit.offer.invalid', 'a russian title is required')
+      // PUT is partial: a field left out keeps its stored value.
+      Object.assign(row, {
+        nomenclature_id: b.nomenclature_id ?? row.nomenclature_id,
+        ikpu_codes: b.ikpu_codes ?? row.ikpu_codes,
+        goal_target: b.goal_target ?? row.goal_target,
+        bonus_amount: b.bonus_amount ?? row.bonus_amount,
+        content: b.content ?? row.content,
+        starts_at: starts,
+        ends_at: ends,
+        position: b.position ?? row.position,
+        updated_at: new Date(now).toISOString(),
+      })
+      return json(res, 200, row)
+    }
+    if (offerId && m === 'DELETE') {
+      const i = extraBenefitOffers.findIndex((x) => x.id === Number(offerId[1]))
+      if (i < 0) return err(res, 404, 'extra_benefit.admin.not_found', 'offer not found')
+      extraBenefitOffers.splice(i, 1)
+      res.writeHead(204)
+      return res.end()
+    }
+
+    const offerStatus = p.match(/^\/internal\/extra-benefit\/offers\/(\d+)\/status$/)
+    if (offerStatus && m === 'PATCH') {
+      const row = extraBenefitOffers.find((x) => x.id === Number(offerStatus[1]))
+      if (!row) return err(res, 404, 'extra_benefit.admin.not_found', 'offer not found')
+      const b = await read(req)
+      if (b.status !== 100 && b.status !== 200)
+        return err(res, 400, 'extra_benefit.offer.invalid_status', 'status must be 100 or 200')
+      row.status = b.status
+      row.updated_at = new Date(now).toISOString()
+      return json(res, 200, row)
     }
 
     // ---- nomenclature catalog ----

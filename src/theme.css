@@ -512,6 +512,15 @@ a.tile:hover {
   min-width: 0;
 }
 
+/* An offer title is the operator's own line, and it runs long like a
+   catalogue title does. The table is `table-layout: auto`, so an unbounded
+   cell keeps widening its column until the status switch — the one control
+   an operator reaches for — is pushed out of the panel. This ceiling lets
+   the title ellipsize instead; the full text stays on hover. */
+.table-wrap .offer-cell {
+  max-width: 280px;
+}
+
 .num {
   font-variant-numeric: tabular-nums;
 }

@@ -12,6 +12,8 @@ interface Props {
   open: boolean
   onClose: () => void
   onPicked: (drug: CatalogDrug) => void
+  /** What picking the product is for — the offer and the promo need different wording. */
+  description?: string
 }
 
 const SEARCH_LIMIT = 20
@@ -30,7 +32,7 @@ function useDebounced<T>(value: T, ms: number): T {
  * Dorim.Pharmacy, so a free-form name field would let an operator create a
  * promo for a drug that does not exist.
  */
-export function CatalogPickerDialog({ open, onClose, onPicked }: Props) {
+export function CatalogPickerDialog({ open, onClose, onPicked, description }: Props) {
   const toaster = useToaster()
   const titleId = useId()
   const [term, setTerm] = useState('')
@@ -61,7 +63,7 @@ export function CatalogPickerDialog({ open, onClose, onPicked }: Props) {
       <Dialog.Body>
         <Flex direction="column" gap={3}>
           <Text variant="body-2" color="secondary">
-            Найдите препарат и выберите его — промо создастся с его ИКПУ-кодами и справочной ценой.
+            {description ?? 'Найдите препарат и выберите его — промо создастся с его ИКПУ-кодами и справочной ценой.'}
           </Text>
 
           <TextInput

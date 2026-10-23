@@ -30,12 +30,15 @@ npm run mock           # http://localhost:8787 (mock API)
 npm run dev:mock       # Vite with /internal/* proxied to mock
 ```
 
+`.env` points `VITE_API_BASE` at the production API, so plain `npm run dev` talks to
+`api.pulso.dorim.com`. `dev:mock` clears it and proxies `/internal/*` to the mock instead.
+
 ## Architecture
 
 ### API Layer (`src/api/`)
 
 - Typed client with bearer auth and single-flight token refresh
-- One module per API area: `auth.ts`, `users.ts`, `notifications.ts`, `versions.ts`, `receipts.ts`
+- One module per API area: `auth.ts`, `users.ts`, `notifications.ts`, `versions.ts`, `receipts.ts`, `extrabenefit.ts`
 - `client.ts` exports `api` (get/post/patch/delete helpers), `ApiError`, session helpers (`loadSession`, `saveSession`, `onSessionExpired`)
 - Session stored in `localStorage` under `pulso-admin.session`
 
@@ -78,15 +81,24 @@ One folder per section. Each page is a route in `App.tsx`.
 
 ## API Endpoints Wired
 
-| Section       | Endpoints                                                                                                                                      |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Auth          | `POST /internal/auth/login`, `GET /internal/auth`, `POST /internal/auth/refresh`, `POST /internal/auth/logout`, `POST /internal/auth/password` |
-| Notifications | `GET/POST /internal/notifications`, `GET/PATCH/DELETE /internal/notifications/{id}`, `POST /internal/push/send`                                |
-| Users         | `GET /internal/users`, `GET /internal/users/{id}`, `PATCH /internal/users/{id}/status`                                                         |
-| Versions      | `GET/POST /internal/versions`, `DELETE /internal/versions/{platform}`                                                                          |
-| Cashback      | `POST /internal/receipts/promote-pending`                                                                                                      |
+| Section       | Endpoints                                                                                                                                           |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Auth          | `POST /internal/auth/login`, `GET /internal/auth`, `POST /internal/auth/refresh`, `POST /internal/auth/logout`, `POST /internal/auth/password`      |
+| Notifications | `GET/POST /internal/notifications`, `GET/PATCH/DELETE /internal/notifications/{id}`, `POST /internal/push/send`                                     |
+| Users         | `GET /internal/users`, `GET /internal/users/{id}`, `PATCH /internal/users/{id}/status`                                                              |
+| Versions      | `GET/POST /internal/versions`, `DELETE /internal/versions/{platform}`                                                                               |
+| Cashback      | `POST /internal/receipts/promote-pending`                                                                                                           |
+| Экстра-выгода | `GET/POST /internal/extra-benefit/offers`, `GET/PUT/DELETE /internal/extra-benefit/offers/{id}`, `PATCH /internal/extra-benefit/offers/{id}/status` |
 
-All other sections (Апселл, Смена продукта, Акции 5+1) show "Скоро" (coming soon).
+All other sections (Апселл, Смена продукта) show "Скоро" (coming soon).
+
+### Экстра-выгода (goal offers, IT-10739)
+
+- `src/pages/extrabenefit/` — list, editor and the multilingual copy form
+- The offer carries its own ИКПУ code list; codes the catalogue does not carry are typed in by hand and never rejected
+- The operator list nests no product name — the backend returns only `nomenclature_id`, so the product is resolved once, in the editor
+- `status` 100 is live, 200 paused; the badge also shows «Завершён» when the window has passed
+- The operator's fields mirror the app's card field-for-field: what the card renders as the app's own copy (the how-it-works steps, the button label — the latter comes from the backend's AI summary) is not operator-authored, and `rules` is one block of text because the app shows one card
 
 ## Mock Credentials
 

@@ -687,3 +687,85 @@ export interface SubmitSurveyResponse {
   already_completed: boolean
   completed_at: string
 }
+
+// ---- Extra benefit / goal offers (service-pulso /internal/extra-benefit) ----
+
+/**
+ * One locale's copy of a goal offer. Everything the app renders on the card
+ * and on the detail screen is authored here by the operator — nothing is
+ * generated, so every field is plain text.
+ *
+ * `rules` is one block of text, not a list: the app renders it as a single
+ * card, and a list invited the operator to write a numbering the app never
+ * shows. The how-it-works steps are the app's own copy.
+ *
+ * The backend's `instruction` (the «Посмотреть инструкцию» button label) is
+ * deliberately absent: that content comes from the backend's AI summary,
+ * keyed on the product, so the operator does not author it and the panel
+ * does not send it.
+ */
+export interface ExtraBenefitContent {
+  title: string
+  subtitle: string
+  rationale: string
+  rules: string
+}
+
+/** One document per locale, keyed by locale code — the notification domain's shape. */
+export type ExtraBenefitContentMap = Partial<Record<Locale, ExtraBenefitContent>>
+
+/**
+ * A goal offer: buy N packages of the offer's drugs inside the window and a
+ * fixed sum is paid on top of the ordinary 1%.
+ *
+ * The operator list carries no product name — the backend nests nothing here,
+ * and resolving every row through the catalogue would cost one request per
+ * row. The product is resolved once, in the editor.
+ */
+export interface ExtraBenefitOffer {
+  id: number
+  /** 100 live, 200 paused. 0 (deleted) never reaches the panel. */
+  status: number
+  /** The catalogue drug the card shows. */
+  nomenclature_id: number
+  /** The ИКПУ codes that count toward the goal. */
+  ikpu_codes: string[]
+  /** Packages per completed goal. */
+  goal_target: number
+  /** Whole sums, paid per completed goal. */
+  bonus_amount: number
+  currency: string
+  content: ExtraBenefitContentMap
+  starts_at: string
+  ends_at: string
+  position: number
+  created_at: string
+  updated_at: string
+}
+
+export interface ExtraBenefitListParams {
+  limit?: number
+  offset?: number
+}
+
+export interface ExtraBenefitListResponse {
+  items: ExtraBenefitOffer[]
+  /** Over the whole set, not the page. */
+  totals: number
+  limit: number
+  offset: number
+}
+
+export interface CreateExtraBenefitOfferRequest {
+  nomenclature_id: number
+  ikpu_codes: string[]
+  goal_target: number
+  bonus_amount: number
+  content: ExtraBenefitContentMap
+  starts_at: string
+  ends_at: string
+  position?: number
+}
+
+/** PUT is a partial update: a field left out keeps its stored value. */
+export type UpdateExtraBenefitOfferRequest = Partial<CreateExtraBenefitOfferRequest>
