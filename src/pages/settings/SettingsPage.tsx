@@ -14,21 +14,34 @@ export function SettingsPage() {
   const [next, setNext] = useState('')
   const [repeat, setRepeat] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [submitted, setSubmitted] = useState(false)
   const [busy, setBusy] = useState(false)
+
+  // Computed live but shown only after the first attempt, so typing is not interrupted.
+  const nextError =
+    next.length < 10
+      ? 'Минимум 10 символов'
+      : next.length > 72
+        ? 'Максимум 72 символа'
+        : current && current === next
+          ? 'Совпадает с текущим паролем'
+          : undefined
+  const repeatError = repeat !== next ? 'Пароли не совпадают' : undefined
+  const showNext = submitted ? nextError : undefined
+  const showRepeat = submitted || repeat ? repeatError : undefined
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
-    if (next.length < 10) return setError('Новый пароль: минимум 10 символов')
-    if (next.length > 72) return setError('Новый пароль: максимум 72 символа')
-    if (next !== repeat) return setError('Пароли не совпадают')
-    if (current && current === next) return setError('Новый пароль совпадает с текущим')
+    setSubmitted(true)
+    if (nextError || repeatError) return
     setBusy(true)
     try {
       await authApi.changePassword({ current_password: current || null, new_password: next })
       setCurrent('')
       setNext('')
       setRepeat('')
+      setSubmitted(false)
       toaster.add({
         name: 'password-changed',
         theme: 'success',
@@ -80,23 +93,24 @@ export function SettingsPage() {
                 controlProps={{ autoComplete: 'current-password' }}
               />
             </Field>
-            <Field label="Новый пароль" required hint="От 10 до 72 символов.">
+            <Field label="Новый пароль" required hint="От 10 до 72 символов." error={showNext}>
               <PasswordInput
                 size="l"
                 value={next}
                 onUpdate={setNext}
                 hideCopyButton
+                validationState={showNext ? 'invalid' : undefined}
                 controlProps={{ autoComplete: 'new-password' }}
               />
             </Field>
-            <Field label="Повторите новый пароль" required>
+            <Field label="Повторите новый пароль" required error={showRepeat}>
               <PasswordInput
                 size="l"
                 value={repeat}
                 onUpdate={setRepeat}
                 hideCopyButton
+                validationState={showRepeat ? 'invalid' : undefined}
                 controlProps={{ autoComplete: 'new-password' }}
-                validationState={repeat && repeat !== next ? 'invalid' : undefined}
               />
             </Field>
             <Alert

@@ -124,7 +124,6 @@ function EditorBody({ survey }: { survey: Survey | null }) {
 
       <Flex gap={6} alignItems="flex-start" wrap>
         <div className="form" style={{ flex: '1 1 560px', minWidth: 0 }}>
-          {formError ? <Alert theme="danger" message={formError} onClose={() => setFormError(null)} /> : null}
           {survey?.status === 'active' ? (
             <Alert theme="info" message="Опрос активен и виден пользователям. Изменения текста применяются сразу." />
           ) : null}
@@ -139,24 +138,27 @@ function EditorBody({ survey }: { survey: Survey | null }) {
           />
           <RewardPanel meta={state.meta} dispatch={dispatch} rewardLocked={locked} startLocked={startLocked} />
 
-          <Flex gap={2} alignItems="center">
-            <Button view="action" size="xl" onClick={() => save.mutate()} loading={save.isPending}>
-              {survey ? 'Сохранить' : 'Создать опрос'}
-            </Button>
-            <Button
-              view="flat"
-              size="xl"
-              onClick={() => (state.dirty ? setCancelOpen(true) : back())}
-              disabled={save.isPending}
-            >
-              Отмена
-            </Button>
-            {state.dirty ? (
-              <Text variant="body-1" color="hint">
-                есть несохранённые изменения
-              </Text>
-            ) : null}
-          </Flex>
+          <div className="form__actions">
+            {formError ? <Alert theme="danger" message={formError} onClose={() => setFormError(null)} /> : null}
+            <Flex gap={2} alignItems="center">
+              <Button view="action" size="xl" onClick={() => save.mutate()} loading={save.isPending}>
+                {survey ? 'Сохранить' : 'Создать опрос'}
+              </Button>
+              <Button
+                view="flat"
+                size="xl"
+                onClick={() => (state.dirty ? setCancelOpen(true) : back())}
+                disabled={save.isPending}
+              >
+                Отмена
+              </Button>
+              {state.dirty ? (
+                <Text variant="body-1" color="hint">
+                  есть несохранённые изменения
+                </Text>
+              ) : null}
+            </Flex>
+          </div>
         </div>
 
         <EditorPreview state={state} publishIssues={publishIssues} />

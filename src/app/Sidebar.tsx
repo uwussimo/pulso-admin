@@ -6,7 +6,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { formatPhone } from '../lib/format'
 import { useAppTheme } from './AppTheme'
-import { NAV_MAIN, NAV_SOON, type NavItem } from './nav'
+import { NAV_GROUPS, NAV_SOON, type NavItem } from './nav'
 
 interface SidebarProps {
   /** Icon-only rail. */
@@ -122,6 +122,16 @@ function AccountMenu({ compact, onNavigate }: { compact: boolean; onNavigate?: (
   )
 }
 
+/** Caption between nav chunks; a hairline in the icon rail, where there is no room for words. */
+function GroupLabel({ compact, children }: { compact: boolean; children: string }) {
+  if (compact) return <div className="nav__divider" aria-hidden />
+  return (
+    <Text variant="caption-2" className="nav__group" as="div">
+      {children.toUpperCase()}
+    </Text>
+  )
+}
+
 export function Sidebar({ compact = false, onToggleCompact, onNavigate }: SidebarProps) {
   const toggle = onToggleCompact ? (
     <Tooltip content={compact ? 'Развернуть меню' : 'Свернуть меню'} placement="right" openDelay={300}>
@@ -148,18 +158,17 @@ export function Sidebar({ compact = false, onToggleCompact, onNavigate }: Sideba
       </div>
 
       <nav aria-label="Разделы">
-        <div className="nav">
-          {NAV_MAIN.map((it) => (
-            <Item key={it.to} item={it} compact={compact} onNavigate={onNavigate} />
-          ))}
-        </div>
-        {compact ? (
-          <div className="nav__divider" />
-        ) : (
-          <Text variant="caption-2" className="nav__group" as="div">
-            СКОРО
-          </Text>
-        )}
+        {NAV_GROUPS.map((group, gi) => (
+          <div key={group.label ?? gi}>
+            {group.label ? <GroupLabel compact={compact}>{group.label}</GroupLabel> : null}
+            <div className="nav">
+              {group.items.map((it) => (
+                <Item key={it.to} item={it} compact={compact} onNavigate={onNavigate} />
+              ))}
+            </div>
+          </div>
+        ))}
+        <GroupLabel compact={compact}>Скоро</GroupLabel>
         <div className="nav">
           {NAV_SOON.map((it) => (
             <Item key={it.to} item={it} compact={compact} onNavigate={onNavigate} />
