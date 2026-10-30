@@ -10,9 +10,13 @@
     // Client-side routes resolve to the SPA shell.
     "not_found_handling": "single-page-application",
     // Only API calls go through the Worker; everything else is served straight from assets.
-    "run_worker_first": ["/internal/*", "/v1/*"],
+    "run_worker_first": ["/internal/*", "/v1/*", "/metrics/*"],
   },
   "vars": {
     "API_ORIGIN": "https://api.pulso.dorim.com",
+    // Mobile app analytics (read-only, Обзор → «Приложение»). The personal API
+    // key is a secret: `npx wrangler secret put POSTHOG_API_KEY`.
+    "POSTHOG_HOST": "https://us.posthog.com",
+    "POSTHOG_PROJECT_ID": "675346",
   },
 }

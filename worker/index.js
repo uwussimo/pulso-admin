@@ -1,10 +1,13 @@
 // Cloudflare Worker in front of the static build: forwards /internal/* (operator
 // API) and /v1/* (mobile API, used by the public survey page) so the browser
-// stays same-origin (like the Vite dev proxy) and serves everything else from
-// the uploaded assets.
+// stays same-origin (like the Vite dev proxy), answers /metrics/* itself from
+// PostHog (see ./metrics.js), and serves everything else from the uploaded assets.
+import { handleMetrics } from './metrics.js'
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url)
+    if (url.pathname.startsWith('/metrics/')) return handleMetrics(request, env)
     if (!url.pathname.startsWith('/internal/') && !url.pathname.startsWith('/v1/')) {
       return env.ASSETS.fetch(request)
     }

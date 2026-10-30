@@ -769,3 +769,20 @@ export interface CreateExtraBenefitOfferRequest {
 
 /** PUT is a partial update: a field left out keeps its stored value. */
 export type UpdateExtraBenefitOfferRequest = Partial<CreateExtraBenefitOfferRequest>
+
+/* ---------- Mobile app analytics (read from PostHog through /metrics/app) ---------- */
+
+export interface AppMetrics {
+  range_days: 7 | 30
+  generated_at: string
+  /** Distinct people who opened the app or viewed a screen in the last day / 7 days / 30 days. */
+  active: { day: number; week: number; month: number }
+  /** Devices PostHog knows: new in range, total, and how many signed in (identified). */
+  people: { new_in_range: number; total: number; identified: number }
+  in_range: { opens: number; installs: number; screen_views: number; errors: number; people_with_errors: number }
+  top_screens: { name: string; views: number; people: number }[]
+  /** Last 14 days, oldest first. */
+  daily_active: { day: string; people: number }[]
+  versions: { version: string; people: number }[]
+  platforms: { os: string; people: number }[]
+}

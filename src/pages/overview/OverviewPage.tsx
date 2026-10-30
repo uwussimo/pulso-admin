@@ -9,9 +9,9 @@ import { versionsApi } from '../../api/versions'
 import { PageHeader } from '../../components/PageHeader'
 import { formatNumber, formatSum, plural, tiynsToSum } from '../../lib/format'
 import { platformLabel } from '../../lib/constants'
+import { AppMetrics } from './AppMetrics'
 
 const SOON_METRICS: { title: string; text: string }[] = [
-  { title: 'Регистрации и активные пользователи', text: 'Сколько людей пришло и сколько возвращается.' },
   { title: 'Прошли KYC', text: 'Доля пользователей, подтвердивших личность через MyID.' },
   { title: 'Выплачено и выведено', text: 'Начисленный кешбэк против вывода на карты, лимит 500 000 сум в месяц.' },
   { title: 'Расход бюджета', text: 'Сколько маркетингового бюджета на базовый кешбэк уже потрачено.' },
@@ -48,7 +48,7 @@ export function OverviewPage() {
     <>
       <PageHeader
         title="Обзор"
-        description="Утренняя проверка: растём ли мы и не утекают ли деньги. Чеки и деньги считаются живьём, остальные метрики ждут API."
+        description="Утренняя проверка: растём ли мы и не утекают ли деньги. Чеки, деньги и активность в приложении считаются живьём, остальные метрики ждут API."
       />
 
       <section className="section">
@@ -103,6 +103,8 @@ export function OverviewPage() {
           </Link>
         </div>
       </section>
+
+      <AppMetrics />
 
       <section className="section">
         <Text variant="subheader-2">Работает сейчас</Text>

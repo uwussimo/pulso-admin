@@ -75,7 +75,9 @@ interface RequestOptions {
 }
 
 function buildUrl(path: string, query?: Query) {
-  const url = BASE + path
+  // /metrics/* is answered by our own Worker (or the Vite dev route), never by
+  // the operator API, so it stays same-origin even when VITE_API_BASE is set.
+  const url = (path.startsWith('/metrics/') ? '' : BASE) + path
   if (!query) return url
   const qs = new URLSearchParams()
   for (const [k, v] of Object.entries(query)) {
