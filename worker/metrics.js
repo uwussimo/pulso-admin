@@ -56,7 +56,7 @@ export async function handleMetrics(request, env) {
         `SELECT
            countIf(created_at >= now() - INTERVAL ${range} DAY),
            count(),
-           countIf(is_identified)
+           countIf(is_identified = 1)
          FROM persons`,
       ),
       hogql(
