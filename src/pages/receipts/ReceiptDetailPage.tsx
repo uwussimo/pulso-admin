@@ -159,11 +159,7 @@ export function ReceiptDetailPage() {
     <>
       <PageHeader
         title={r.company_name || `Чек #${r.id}`}
-        eyebrow={
-          <Link to="/receipts" style={{ color: 'inherit' }}>
-            Чеки
-          </Link>
-        }
+        eyebrow="Чеки"
         description={
           <>
             {formatPhone(r.user_phone)} · сканирован {formatDateTime(r.scanned_at)}

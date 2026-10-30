@@ -125,7 +125,7 @@ export function OverviewPage() {
             <Text variant="body-1" color="secondary">
               <Icon data={Smartphone} size={14} /> Версии приложения
             </Text>
-            <Text variant="header-1" className="tile__value">
+            <Text variant="header-2" className="tile__value">
               {versions.isPending
                 ? '…'
                 : versions.isError

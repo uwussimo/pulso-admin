@@ -12,7 +12,7 @@ import {
 } from '@gravity-ui/uikit'
 import { Magnifier, Pencil, Plus, TrashBin } from '@gravity-ui/icons'
 import { useInfiniteQuery, useMutation, useQueryClient, type InfiniteData } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { promoApi } from '../../api/promo'
 import type { CatalogDrug, PromoListResponse, PromoProduct, PromoSummary } from '../../api/types'
@@ -21,6 +21,7 @@ import { PageHeader } from '../../components/PageHeader'
 import { EmptyState, ErrorState, LoadingState } from '../../components/States'
 import { errorText } from '../../lib/errors'
 import { formatNumber } from '../../lib/format'
+import { useDebounced } from '../../lib/useDebounced'
 import { CatalogPickerDialog } from './CatalogPickerDialog'
 import { NomenclatureCell } from './NomenclatureCell'
 import { PromoProductDialog } from './PromoProductDialog'
@@ -36,15 +37,6 @@ import {
 
 const ActionsTable = withTableActions<PromoProduct>(Table)
 const PAGE = 25
-
-function useDebounced<T>(value: T, ms: number): T {
-  const [v, setV] = useState(value)
-  useEffect(() => {
-    const t = setTimeout(() => setV(value), ms)
-    return () => clearTimeout(t)
-  }, [value, ms])
-  return v
-}
 
 function SummaryTiles({ summary }: { summary?: PromoSummary }) {
   if (!summary) return null

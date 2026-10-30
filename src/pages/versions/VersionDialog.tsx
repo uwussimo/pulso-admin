@@ -80,19 +80,30 @@ function VersionForm({ initial, existingPlatforms, onClose, onSaved }: Omit<Prop
   const [notes, setNotes] = useState(initial?.release_notes ?? '')
   const [error, setError] = useState<string | null>(null)
   const [stale, setStale] = useState<StaleWriteErrorBody | null>(null)
+  const [submitted, setSubmitted] = useState(false)
+
+  // Each rule is attached to the field it concerns. Shown after the first
+  // attempt, so a half-typed "1." is not flagged while the operator types.
+  const v = version.trim()
+  const mv = minVersion.trim()
+  const versionError = !SEMVER.test(v)
+    ? 'Версия должна выглядеть как 1.2.3'
+    : initial && compareVersions(v, initial.version) <= 0
+      ? `Сервер принимает только версию выше ${initial.version}. Поднимите номер.`
+      : undefined
+  const minVersionError =
+    mv && !SEMVER.test(mv)
+      ? 'Должна выглядеть как 1.2.3'
+      : mv && !versionError && compareVersions(mv, v) > 0
+        ? 'Не может быть выше актуальной'
+        : undefined
+  const urlError = updateUrl && !/^https?:\/\//.test(updateUrl) ? 'Ссылка должна начинаться с https://' : undefined
+  const fieldErrors = Boolean(versionError || minVersionError || urlError)
 
   const save = useMutation({
     mutationFn: () => {
-      const v = version.trim()
-      const mv = minVersion.trim()
-      if (!SEMVER.test(v)) throw new Error('Версия должна выглядеть как 1.2.3')
-      if (mv && !SEMVER.test(mv)) throw new Error('Минимальная версия должна выглядеть как 1.2.3')
-      if (mv && compareVersions(mv, v) > 0) throw new Error('Минимальная версия не может быть выше актуальной')
-      if (initial && compareVersions(v, initial.version) <= 0) {
-        throw new Error(`Сервер принимает только версию выше ${initial.version}. Поднимите номер версии.`)
-      }
-      if (updateUrl && !/^https?:\/\//.test(updateUrl))
-        throw new Error('Ссылка на обновление должна начинаться с https://')
+      setSubmitted(true)
+      if (fieldErrors) throw new Error('Исправьте поля, отмеченные красным.')
       return versionsApi.upsert({
         platform,
         version: v,
@@ -144,6 +155,7 @@ function VersionForm({ initial, existingPlatforms, onClose, onSaved }: Omit<Prop
             <Field
               label="Актуальная версия"
               required
+              error={submitted ? versionError : undefined}
               hint={
                 initial
                   ? `Сейчас ${initial.version}. Подставили следующую; можно указать любую выше.`
@@ -155,18 +167,24 @@ function VersionForm({ initial, existingPlatforms, onClose, onSaved }: Omit<Prop
                 value={version}
                 onUpdate={setVersion}
                 placeholder="1.4.0"
+                validationState={submitted && versionError ? 'invalid' : undefined}
                 controlProps={{ inputMode: 'decimal' }}
               />
             </Field>
           </div>
 
           <div className="form__row">
-            <Field label="Минимальная поддерживаемая" hint="Ниже неё приложение попросит обновиться.">
+            <Field
+              label="Минимальная поддерживаемая"
+              hint="Ниже неё приложение попросит обновиться."
+              error={submitted ? minVersionError : undefined}
+            >
               <TextInput
                 size="l"
                 value={minVersion}
                 onUpdate={setMinVersion}
                 placeholder="1.2.0"
+                validationState={submitted && minVersionError ? 'invalid' : undefined}
                 controlProps={{ inputMode: 'decimal' }}
               />
             </Field>
@@ -190,8 +208,19 @@ function VersionForm({ initial, existingPlatforms, onClose, onSaved }: Omit<Prop
                 }
               />
             </Field>
-            <Field label="Ссылка на обновление" hint="Страница в App Store / Google Play.">
-              <TextInput size="l" type="url" value={updateUrl} onUpdate={setUpdateUrl} placeholder="https://…" />
+            <Field
+              label="Ссылка на обновление"
+              hint="Страница в App Store / Google Play."
+              error={submitted ? urlError : undefined}
+            >
+              <TextInput
+                size="l"
+                type="url"
+                value={updateUrl}
+                onUpdate={setUpdateUrl}
+                placeholder="https://…"
+                validationState={submitted && urlError ? 'invalid' : undefined}
+              />
             </Field>
           </div>
 
