@@ -19,8 +19,8 @@ import { SurveysPage } from '../pages/surveys/SurveysPage'
 import { SurveyDetailPage } from '../pages/surveys/SurveyDetailPage'
 import { SurveyEditorPage } from '../pages/surveys/editor/SurveyEditorPage'
 import { SurveyResponsesPage } from '../pages/surveys/SurveyResponsesPage'
-import { SwitchSoonPage, UpsellSoonPage } from '../pages/soon/SoonPages'
 import { PromoPage } from '../pages/promo/PromoPage'
+import { AnalyticsPage } from '../pages/analytics/AnalyticsPage'
 import { ExtraBenefitPage } from '../pages/extrabenefit/ExtraBenefitPage'
 
 function FullscreenLoader() {
@@ -52,6 +52,7 @@ export function App() {
         }
       >
         <Route index element={<OverviewPage />} />
+        <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="transactions" element={<TransactionsPage />} />
         <Route path="receipts" element={<ReceiptsPage />} />
         <Route path="receipts/:id" element={<ReceiptDetailPage />} />
@@ -67,8 +68,6 @@ export function App() {
         <Route path="surveys/:id/responses" element={<SurveyResponsesPage />} />
         <Route path="promo" element={<PromoPage />} />
         <Route path="extra-benefit" element={<ExtraBenefitPage />} />
-        <Route path="upsell" element={<UpsellSoonPage />} />
-        <Route path="switch" element={<SwitchSoonPage />} />
         <Route path="versions" element={<VersionsPage />} />
         <Route path="cashback" element={<CashbackPage />} />
         <Route path="settings" element={<SettingsPage />} />

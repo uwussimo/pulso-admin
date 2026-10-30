@@ -3,13 +3,10 @@ import {
   BellFill,
   CircleArrowRight,
   CircleArrowRightFill,
+  ChartColumn,
   CircleArrowUp,
   CircleArrowUpFill,
   CircleDollar,
-  CirclePlus,
-  CirclePlusFill,
-  ForwardStep,
-  ForwardStepFill,
   House,
   HouseFill,
   ListCheck,
@@ -22,7 +19,7 @@ import {
   StarFill,
 } from '@gravity-ui/icons'
 import type { IconData } from '@gravity-ui/uikit'
-import { CircleDollarFill, ListCheckFill, ReceiptFill } from './icons'
+import { ChartColumnFill, CircleDollarFill, ListCheckFill, ReceiptFill } from './icons'
 
 export interface NavItem {
   to: string
@@ -31,7 +28,6 @@ export interface NavItem {
   icon: IconData
   /** Solid glyph for the active item: Gravity's Fill twin, or a hand-drawn one from ./icons. */
   iconActive: IconData
-  soon?: boolean
 }
 
 export interface NavGroup {
@@ -45,7 +41,12 @@ export interface NavGroup {
  * as three short lists instead of one long one. Overview stays on top, alone.
  */
 export const NAV_GROUPS: NavGroup[] = [
-  { items: [{ to: '/', label: 'Обзор', icon: House, iconActive: HouseFill }] },
+  {
+    items: [
+      { to: '/', label: 'Обзор', icon: House, iconActive: HouseFill },
+      { to: '/analytics', label: 'Аналитика', icon: ChartColumn, iconActive: ChartColumnFill },
+    ],
+  },
   {
     label: 'Деньги',
     items: [
@@ -71,10 +72,4 @@ export const NAV_GROUPS: NavGroup[] = [
       { to: '/versions', label: 'Версии приложения', icon: CircleArrowUp, iconActive: CircleArrowUpFill },
     ],
   },
-]
-
-/** Sections that wait for the backend. Grouped and dimmed so they don't compete for attention. */
-export const NAV_SOON: NavItem[] = [
-  { to: '/upsell', label: 'Апселл', icon: CirclePlus, iconActive: CirclePlusFill, soon: true },
-  { to: '/switch', label: 'Смена продукта', icon: ForwardStep, iconActive: ForwardStepFill, soon: true },
 ]

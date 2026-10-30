@@ -1,4 +1,4 @@
-import { Alert, Button, Flex, Label, PasswordInput, Text, useToaster } from '@gravity-ui/uikit'
+import { Alert, Button, Flex, PasswordInput, Text, useToaster } from '@gravity-ui/uikit'
 import { useState, type FormEvent } from 'react'
 import { authApi } from '../../api/auth'
 import { useAuth } from '../../auth/AuthContext'
@@ -124,29 +124,6 @@ export function SettingsPage() {
             </Flex>
           </div>
         </form>
-      </section>
-
-      <section className="section">
-        <Text variant="subheader-2">
-          Команда{' '}
-          <Label theme="utility" size="xs">
-            Скоро
-          </Label>
-        </Text>
-        <div className="tiles">
-          <div className="tile tile_outlined">
-            <Text variant="subheader-1">Операторы</Text>
-            <Text variant="body-1" color="secondary">
-              Добавлять и отключать сотрудников, выдавать роли.
-            </Text>
-          </div>
-          <div className="tile tile_outlined">
-            <Text variant="subheader-1">Журнал действий</Text>
-            <Text variant="body-1" color="secondary">
-              Кто, когда и что изменил: рассылки, версии, решения по чекам.
-            </Text>
-          </div>
-        </div>
       </section>
     </>
   )

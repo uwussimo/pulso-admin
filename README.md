@@ -43,7 +43,7 @@ make build             # сборка в dist/
 | Версии приложения           | `GET/POST /internal/versions`, `DELETE /internal/versions/{platform}`                                                                                                                                                     |
 | Перевод кешбэка             | `POST /internal/receipts/promote-pending`                                                                                                                                                                                 |
 
-Everything else (Обзор metrics, Транзакции, Промо, Апселл, Смена продукта, Акции 5+1, журнал действий, операторы) is shown as «Скоро» with a description and no numbers.
+Аналитика reads the mobile app's PostHog project through the Worker (see «Mobile app analytics» below). There are no placeholder sections: what is not built is not in the navigation.
 
 ## Блокировка пользователя
 
@@ -85,6 +85,13 @@ Without a bridge (desktop browser) the return button navigates to `VITE_PULSO_DE
 - `.agents/skills/ux-laws` — UX heuristics skill used for layout and flow decisions (`npx skills add uwussimo/ux-laws`).
 
 Notification type labels (Начисление, Статус, Напоминание, Промо, Системное) mirror the backend's `dto.NotificationType` constants and live in `src/lib/constants.ts`.
+
+## Mobile app analytics on Обзор
+
+The «Приложение» block reads the mobile app's PostHog project (US Cloud, project 675346) through `/metrics/app`, served by `worker/metrics.js`. The browser never talks to PostHog: the handler checks the caller's operator session against `/internal/auth`, runs a fixed set of HogQL queries with a personal API key, and returns one JSON. Without a key the block says «не подключена» and shows no numbers.
+
+- Locally: put a personal API key with the `query:read` scope into `.env` as `POSTHOG_API_KEY` (no `VITE_` prefix, so it never enters the bundle). The Vite dev server serves the same handler.
+- Production: `npx wrangler secret put POSTHOG_API_KEY`. `POSTHOG_PROJECT_ID` and `POSTHOG_HOST` are plain vars in `wrangler.jsonc`.
 
 ## Deploying to Cloudflare
 

@@ -1,7 +1,9 @@
-import { Icon, Label, Text } from '@gravity-ui/uikit'
-import { Bell, CircleDollar, Receipt, Smartphone } from '@gravity-ui/icons'
+import { Icon, Text } from '@gravity-ui/uikit'
+import { Bell, ChartColumn, CircleDollar, Receipt, Smartphone } from '@gravity-ui/icons'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { isApiError } from '../../api/client'
+import { metricsApi } from '../../api/metrics'
 import { notificationsApi } from '../../api/notifications'
 import { receiptsApi } from '../../api/receipts'
 import { transactionsApi } from '../../api/transactions'
@@ -9,15 +11,6 @@ import { versionsApi } from '../../api/versions'
 import { PageHeader } from '../../components/PageHeader'
 import { formatNumber, formatSum, plural, tiynsToSum } from '../../lib/format'
 import { platformLabel } from '../../lib/constants'
-
-const SOON_METRICS: { title: string; text: string }[] = [
-  { title: 'Регистрации и активные пользователи', text: 'Сколько людей пришло и сколько возвращается.' },
-  { title: 'Прошли KYC', text: 'Доля пользователей, подтвердивших личность через MyID.' },
-  { title: 'Выплачено и выведено', text: 'Начисленный кешбэк против вывода на карты, лимит 500 000 сум в месяц.' },
-  { title: 'Расход бюджета', text: 'Сколько маркетингового бюджета на базовый кешбэк уже потрачено.' },
-  { title: 'Конверсия апселла и смены продукта', text: 'Сколько предложений привели к покупке.' },
-  { title: 'Рефералы и открываемость пушей', text: 'Рост по приглашениям и сколько люди читают рассылки.' },
-]
 
 export function OverviewPage() {
   const notifications = useQuery({
@@ -39,6 +32,13 @@ export function OverviewPage() {
     queryKey: ['transactions', 'list', 'overview'],
     queryFn: ({ signal }) => transactionsApi.list({ limit: 1 }, signal),
   })
+  const metrics = useQuery({
+    queryKey: ['metrics', 'app', 7],
+    queryFn: ({ signal }) => metricsApi.app(7, signal),
+    staleTime: 60_000,
+    retry: false,
+  })
+  const metricsOff = metrics.isError && isApiError(metrics.error) && metrics.error.alias === 'metrics.not_configured'
 
   const versionItems = versions.data?.items ?? []
   const receiptSummary = receipts.data?.summary
@@ -46,10 +46,7 @@ export function OverviewPage() {
 
   return (
     <>
-      <PageHeader
-        title="Обзор"
-        description="Утренняя проверка: растём ли мы и не утекают ли деньги. Чеки и деньги считаются живьём, остальные метрики ждут API."
-      />
+      <PageHeader title="Обзор" description="Утренняя проверка: растём ли мы и не утекают ли деньги." />
 
       <section className="section">
         <Text variant="subheader-2">Чеки и деньги</Text>
@@ -107,6 +104,24 @@ export function OverviewPage() {
       <section className="section">
         <Text variant="subheader-2">Работает сейчас</Text>
         <div className="tiles">
+          <Link to="/analytics" className="tile">
+            <Text variant="body-1" color="secondary">
+              <Icon data={ChartColumn} size={14} /> В приложении сегодня
+            </Text>
+            <Text variant="header-2" className="tile__value">
+              {metrics.isPending ? '…' : metrics.data ? formatNumber(metrics.data.active.day) : '—'}
+            </Text>
+            <Text variant="caption-2" color="hint">
+              {metricsOff
+                ? 'аналитика не подключена'
+                : metrics.isError
+                  ? 'не удалось загрузить'
+                  : metrics.data
+                    ? `за 7 дней ${formatNumber(metrics.data.active.week)} · ${plural(metrics.data.in_range.errors, ['ошибка', 'ошибки', 'ошибок'])}`
+                    : ''}
+            </Text>
+          </Link>
+
           <Link to="/notifications" className="tile">
             <Text variant="body-1" color="secondary">
               <Icon data={Bell} size={14} /> Уведомлений отправлено
@@ -151,28 +166,6 @@ export function OverviewPage() {
             </Text>
           </Link>
         </div>
-      </section>
-
-      <section className="section">
-        <Text variant="subheader-2">
-          Метрики{' '}
-          <Label theme="utility" size="xs">
-            Скоро
-          </Label>
-        </Text>
-        <div className="tiles">
-          {SOON_METRICS.map((m) => (
-            <div key={m.title} className="tile tile_outlined">
-              <Text variant="subheader-1">{m.title}</Text>
-              <Text variant="body-1" color="secondary">
-                {m.text}
-              </Text>
-            </div>
-          ))}
-        </div>
-        <Text variant="body-1" color="hint">
-          Пока данных нет, вместо цифр показываем прочерк. Нулей и примерных значений здесь не будет.
-        </Text>
       </section>
     </>
   )

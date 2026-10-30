@@ -41,6 +41,10 @@ const ALIAS_MESSAGES: Record<string, string> = {
   'upload.file_required': 'Файл не выбран.',
   'upload.empty': 'Файл пустой.',
   'upload.name_invalid': 'Недопустимое имя файла.',
+  'metrics.not_configured': 'Аналитика приложения не подключена: на сервере нет ключа PostHog.',
+  'metrics.upstream_auth': 'PostHog не принял ключ. Проверьте, что у ключа есть доступ к проекту и право query:read.',
+  'metrics.upstream': 'PostHog не ответил. Попробуйте позже.',
+  'metrics.auth_unavailable': 'Не удалось проверить сессию. Попробуйте позже.',
 }
 
 /** Human-readable error text for toasts and inline alerts. */

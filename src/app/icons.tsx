@@ -47,3 +47,14 @@ export function ListCheckFill(props: SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+
+/** Solid chart columns: Gravity `ChartColumn` with the three bars filled. */
+export function ChartColumnFill(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} fill="none" viewBox="0 0 16 16" {...props}>
+      <rect width={4} height={5} x={1.5} y={9} fill="currentColor" rx={1.25} />
+      <rect width={4} height={9} x={6} y={5} fill="currentColor" rx={1.25} />
+      <rect width={4} height={12} x={10.5} y={2} fill="currentColor" rx={1.25} />
+    </svg>
+  )
+}
