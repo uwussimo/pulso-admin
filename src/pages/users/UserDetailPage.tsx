@@ -11,6 +11,7 @@ import { ErrorState, LoadingState } from '../../components/States'
 import { userStatusMeta } from '../../lib/constants'
 import { errorText } from '../../lib/errors'
 import { formatDateTime, formatNumber, formatPhone, formatSum, tiynsToSum } from '../../lib/format'
+import { UserAppActivity } from './UserAppActivity'
 
 type PendingStatus = 'blocked' | 'active'
 
@@ -154,6 +155,8 @@ export function UserDetailPage() {
               <Text className="num">{formatDateTime(u.updated_at)}</Text>
             </div>
           </div>
+
+          <UserAppActivity userId={u.id} />
 
           <div className="panel panel_filled">
             <Text variant="subheader-2" className="panel__title" as="div">

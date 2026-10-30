@@ -43,7 +43,7 @@ make build             # сборка в dist/
 | Версии приложения           | `GET/POST /internal/versions`, `DELETE /internal/versions/{platform}`                                                                                                                                                     |
 | Перевод кешбэка             | `POST /internal/receipts/promote-pending`                                                                                                                                                                                 |
 
-Everything else (Обзор metrics, Транзакции, Промо, Апселл, Смена продукта, Акции 5+1, журнал действий, операторы) is shown as «Скоро» with a description and no numbers.
+Аналитика reads the mobile app's PostHog project through the Worker (see «Mobile app analytics» below). There are no placeholder sections: what is not built is not in the navigation.
 
 ## Блокировка пользователя
 

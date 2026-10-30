@@ -6,7 +6,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { formatPhone } from '../lib/format'
 import { useAppTheme } from './AppTheme'
-import { NAV_GROUPS, NAV_SOON, type NavItem } from './nav'
+import { NAV_GROUPS, type NavItem } from './nav'
 
 interface SidebarProps {
   /** Icon-only rail. */
@@ -23,9 +23,7 @@ function Item({ item, compact, onNavigate }: { item: NavItem; compact: boolean; 
       end={item.to === '/'}
       onClick={onNavigate}
       aria-label={compact ? item.label : undefined}
-      className={({ isActive }) =>
-        ['nav__item', isActive ? 'nav__item_active' : '', item.soon ? 'nav__item_soon' : ''].filter(Boolean).join(' ')
-      }
+      className={({ isActive }) => ['nav__item', isActive ? 'nav__item_active' : ''].filter(Boolean).join(' ')}
     >
       {({ isActive }) => (
         <>
@@ -43,7 +41,7 @@ function Item({ item, compact, onNavigate }: { item: NavItem; compact: boolean; 
   )
   if (!compact) return link
   return (
-    <Tooltip content={item.soon ? `${item.label} · скоро` : item.label} placement="right" openDelay={200}>
+    <Tooltip content={item.label} placement="right" openDelay={200}>
       {link}
     </Tooltip>
   )
@@ -168,12 +166,6 @@ export function Sidebar({ compact = false, onToggleCompact, onNavigate }: Sideba
             </div>
           </div>
         ))}
-        <GroupLabel compact={compact}>Скоро</GroupLabel>
-        <div className="nav">
-          {NAV_SOON.map((it) => (
-            <Item key={it.to} item={it} compact={compact} onNavigate={onNavigate} />
-          ))}
-        </div>
       </nav>
 
       <div className="aside__footer">

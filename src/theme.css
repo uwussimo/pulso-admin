@@ -252,10 +252,6 @@ body {
   background: var(--app-nav-active-bg);
 }
 
-.nav__item_soon {
-  color: var(--g-color-text-secondary);
-}
-
 .nav__icon {
   flex-shrink: 0;
   display: grid;
@@ -491,6 +487,65 @@ a.tile:hover {
 
 .spark__bar:last-child {
   opacity: 1;
+}
+
+.bars {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--g-spacing-1);
+  align-items: end;
+}
+
+.bars__col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.bars__track {
+  width: 100%;
+  max-width: 40px;
+  height: 120px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bars__bar {
+  width: 100%;
+  border-radius: 6px 6px 2px 2px;
+  background: var(--g-color-base-brand);
+  opacity: 0.8;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--g-spacing-1);
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--g-spacing-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.timeline__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--g-spacing-3);
+  align-items: baseline;
+}
+
+.timeline__text {
+  min-width: 0;
 }
 
 .metrics-lists {
@@ -780,42 +835,6 @@ a.tile:hover {
   border-radius: 28px;
   background: var(--app-sheet-bg);
   box-sizing: border-box;
-}
-
-.soon {
-  display: flex;
-  flex-direction: column;
-  gap: var(--g-spacing-4);
-  max-width: 640px;
-}
-
-.soon__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--g-spacing-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.soon__item {
-  display: flex;
-  gap: var(--g-spacing-3);
-  align-items: flex-start;
-  padding: var(--g-spacing-3) var(--g-spacing-4);
-  border-radius: var(--g-border-radius-l);
-  background: var(--g-color-base-generic);
-}
-
-.soon__item-icon {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: var(--g-color-base-float);
-  display: grid;
-  place-items: center;
-  color: var(--g-color-text-secondary);
 }
 
 @media (max-width: 900px) {

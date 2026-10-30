@@ -64,7 +64,6 @@ One folder per section. Each page is a route in `App.tsx`.
 - `ConfirmDialog.tsx` — confirmation modal
 - `States.tsx` — loading/error/empty states
 - `Field.tsx` — form field wrapper
-- `ComingSoon.tsx` — stub for unimplemented sections
 - `AudienceLabel.tsx` — notification audience badge
 
 ### Lib (`src/lib/`)
@@ -90,7 +89,7 @@ One folder per section. Each page is a route in `App.tsx`.
 | Cashback      | `POST /internal/receipts/promote-pending`                                                                                                           |
 | Экстра-выгода | `GET/POST /internal/extra-benefit/offers`, `GET/PUT/DELETE /internal/extra-benefit/offers/{id}`, `PATCH /internal/extra-benefit/offers/{id}/status` |
 
-All other sections (Апселл, Смена продукта) show "Скоро" (coming soon).
+Аналитика (`src/pages/analytics/`) reads the mobile app's PostHog project through `/metrics/app` (Worker in production, Vite dev route locally; key in `POSTHOG_API_KEY`). There are no "Скоро" placeholder sections: unbuilt features are simply not in the navigation.
 
 ### Экстра-выгода (goal offers, IT-10739)
 
