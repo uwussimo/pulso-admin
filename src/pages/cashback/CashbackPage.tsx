@@ -1,4 +1,4 @@
-import { Alert, Button, Flex, Icon, Text, TextInput, useToaster } from '@gravity-ui/uikit'
+import { Alert, Button, Flex, Icon, SegmentedRadioGroup, Text, TextInput, useToaster } from '@gravity-ui/uikit'
 import { ArrowRight } from '@gravity-ui/icons'
 import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
@@ -60,21 +60,17 @@ export function CashbackPage() {
                 всё, что старше одной минуты.
               </Text>
 
-              <Flex gap={2} wrap>
-                <Button view={useCustom ? 'normal' : 'action'} size="l" onClick={() => setUseCustom(false)}>
-                  Всё старше минуты
-                </Button>
-                <Button
-                  view={useCustom ? 'action' : 'normal'}
-                  size="l"
-                  onClick={() => {
-                    setCutoff(tashkentNowLocalInput(-1))
-                    setUseCustom(true)
-                  }}
-                >
-                  Указать момент
-                </Button>
-              </Flex>
+              <SegmentedRadioGroup
+                size="l"
+                value={useCustom ? 'custom' : 'default'}
+                onUpdate={(v) => {
+                  if (v === 'custom') setCutoff(tashkentNowLocalInput(-1))
+                  setUseCustom(v === 'custom')
+                }}
+              >
+                <SegmentedRadioGroup.Option value="default">Всё старше минуты</SegmentedRadioGroup.Option>
+                <SegmentedRadioGroup.Option value="custom">Указать момент</SegmentedRadioGroup.Option>
+              </SegmentedRadioGroup>
 
               {useCustom ? (
                 <Field label="Отсканированы до (время Ташкента)" hint="Чеки, созданные позже этого момента, не тронем.">

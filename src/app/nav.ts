@@ -1,6 +1,8 @@
 import {
   Bell,
   BellFill,
+  CircleArrowRight,
+  CircleArrowRightFill,
   CircleArrowUp,
   CircleArrowUpFill,
   CircleDollar,
@@ -32,18 +34,43 @@ export interface NavItem {
   soon?: boolean
 }
 
-/** What works today, most used first. */
-export const NAV_MAIN: NavItem[] = [
-  { to: '/', label: 'Обзор', icon: House, iconActive: HouseFill },
-  { to: '/receipts', label: 'Чеки', icon: Receipt, iconActive: ReceiptFill },
-  { to: '/transactions', label: 'Транзакции', icon: CircleDollar, iconActive: CircleDollarFill },
-  { to: '/notifications', label: 'Уведомления', icon: Bell, iconActive: BellFill },
-  { to: '/surveys', label: 'Опросы', icon: ListCheck, iconActive: ListCheckFill },
-  { to: '/users', label: 'Пользователи', icon: Person, iconActive: PersonFill },
-  { to: '/versions', label: 'Версии приложения', icon: CircleArrowUp, iconActive: CircleArrowUpFill },
-  { to: '/cashback', label: 'Перевод кешбэка', icon: CircleDollar, iconActive: CircleDollarFill },
-  { to: '/promo', label: 'Промо-товары', icon: Star, iconActive: StarFill },
-  { to: '/extra-benefit', label: 'Экстра-выгода', icon: Sparkles, iconActive: SparklesFill },
+export interface NavGroup {
+  /** Caption above the group; omitted for the top-level items. */
+  label?: string
+  items: NavItem[]
+}
+
+/**
+ * Working sections, chunked by what the operator is doing so nine rows read
+ * as three short lists instead of one long one. Overview stays on top, alone.
+ */
+export const NAV_GROUPS: NavGroup[] = [
+  { items: [{ to: '/', label: 'Обзор', icon: House, iconActive: HouseFill }] },
+  {
+    label: 'Деньги',
+    items: [
+      { to: '/receipts', label: 'Чеки', icon: Receipt, iconActive: ReceiptFill },
+      { to: '/transactions', label: 'Транзакции', icon: CircleDollar, iconActive: CircleDollarFill },
+      // Not another coin: this is the action that pushes pending cashback forward.
+      { to: '/cashback', label: 'Перевод кешбэка', icon: CircleArrowRight, iconActive: CircleArrowRightFill },
+    ],
+  },
+  {
+    label: 'Общение',
+    items: [
+      { to: '/notifications', label: 'Уведомления', icon: Bell, iconActive: BellFill },
+      { to: '/surveys', label: 'Опросы', icon: ListCheck, iconActive: ListCheckFill },
+    ],
+  },
+  {
+    label: 'Приложение',
+    items: [
+      { to: '/users', label: 'Пользователи', icon: Person, iconActive: PersonFill },
+      { to: '/promo', label: 'Промо-товары', icon: Star, iconActive: StarFill },
+      { to: '/extra-benefit', label: 'Экстра-выгода', icon: Sparkles, iconActive: SparklesFill },
+      { to: '/versions', label: 'Версии приложения', icon: CircleArrowUp, iconActive: CircleArrowUpFill },
+    ],
+  },
 ]
 
 /** Sections that wait for the backend. Grouped and dimmed so they don't compete for attention. */

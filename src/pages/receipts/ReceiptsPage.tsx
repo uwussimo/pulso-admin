@@ -1,7 +1,7 @@
 import { Button, Flex, Icon, Label, Select, Table, Text, TextInput, type TableColumnConfig } from '@gravity-ui/uikit'
 import { Magnifier } from '@gravity-ui/icons'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { receiptsApi } from '../../api/receipts'
 import type { AdminReceipt, ReceiptStatus, ReceiptsSummary } from '../../api/types'
@@ -9,17 +9,9 @@ import { PageHeader } from '../../components/PageHeader'
 import { EmptyState, ErrorState, LoadingState } from '../../components/States'
 import { RECEIPT_STATUSES, receiptStatusMeta, transactionStatusMeta } from '../../lib/constants'
 import { formatDateTime, formatNumber, formatPhone, formatSum, tiynsToSum } from '../../lib/format'
+import { useDebounced } from '../../lib/useDebounced'
 
 const PAGE = 25
-
-function useDebounced<T>(value: T, ms: number): T {
-  const [v, setV] = useState(value)
-  useEffect(() => {
-    const t = setTimeout(() => setV(value), ms)
-    return () => clearTimeout(t)
-  }, [value, ms])
-  return v
-}
 
 function SummaryTiles({ summary }: { summary?: ReceiptsSummary }) {
   if (!summary) return null

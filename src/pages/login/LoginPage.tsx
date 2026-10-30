@@ -5,22 +5,17 @@ import { isApiError } from '../../api/client'
 import { useAuth } from '../../auth/AuthContext'
 import { errorText } from '../../lib/errors'
 import { PulsoMark } from '../../app/PulsoLogo'
-
-function normalizePhone(raw: string): string {
-  const digits = raw.replace(/\D/g, '')
-  if (!digits) return ''
-  if (digits.startsWith('998')) return `+${digits}`
-  if (digits.length === 9) return `+998${digits}`
-  return `+${digits}`
-}
+import { Field } from '../../components/Field'
+import { UZ_PREFIX, nextUzInput, toE164 } from '../../lib/phone'
 
 export function LoginPage() {
   const { login, expiredNotice } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const [phone, setPhone] = useState('+998')
+  const [phone, setPhone] = useState(UZ_PREFIX)
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [fieldError, setFieldError] = useState<{ phone?: string; password?: string }>({})
   const [busy, setBusy] = useState(false)
 
   const from = (location.state as { from?: string } | null)?.from
@@ -29,15 +24,12 @@ export function LoginPage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
-    const p = normalizePhone(phone)
-    if (p.length < 13) {
-      setError('Введите номер телефона полностью, например +998 90 123 45 67')
-      return
-    }
-    if (!password) {
-      setError('Введите пароль')
-      return
-    }
+    const p = toE164(phone)
+    const next: { phone?: string; password?: string } = {}
+    if (!p) next.phone = 'Введите номер полностью, например +998 90 123 45 67'
+    if (!password) next.password = 'Введите пароль'
+    setFieldError(next)
+    if (next.phone || next.password || !p) return
     setBusy(true)
     try {
       await login(p, password)
@@ -72,23 +64,34 @@ export function LoginPage() {
         {error ? <Alert theme="danger" message={error} /> : null}
 
         <Flex direction="column" gap={3}>
-          <TextInput
-            size="xl"
-            type="tel"
-            value={phone}
-            onUpdate={setPhone}
-            placeholder="+998 90 123 45 67"
-            autoFocus
-            controlProps={{ autoComplete: 'username', inputMode: 'tel' }}
-          />
-          <PasswordInput
-            size="xl"
-            value={password}
-            onUpdate={setPassword}
-            placeholder="Пароль"
-            hideCopyButton
-            controlProps={{ autoComplete: 'current-password' }}
-          />
+          <Field label="Телефон" error={fieldError.phone}>
+            <TextInput
+              size="xl"
+              type="tel"
+              value={phone}
+              onUpdate={(v) => {
+                setPhone((prev) => nextUzInput(prev, v))
+                if (fieldError.phone) setFieldError((f) => ({ ...f, phone: undefined }))
+              }}
+              placeholder="+998 90 123 45 67"
+              autoFocus
+              validationState={fieldError.phone ? 'invalid' : undefined}
+              controlProps={{ autoComplete: 'username', inputMode: 'tel' }}
+            />
+          </Field>
+          <Field label="Пароль" error={fieldError.password}>
+            <PasswordInput
+              size="xl"
+              value={password}
+              onUpdate={(v) => {
+                setPassword(v)
+                if (fieldError.password) setFieldError((f) => ({ ...f, password: undefined }))
+              }}
+              hideCopyButton
+              validationState={fieldError.password ? 'invalid' : undefined}
+              controlProps={{ autoComplete: 'current-password' }}
+            />
+          </Field>
         </Flex>
 
         <Button view="action" size="xl" type="submit" loading={busy} width="max">

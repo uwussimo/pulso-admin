@@ -1,12 +1,13 @@
 import { Button, Dialog, Flex, Icon, Loader, Text, TextInput, useToaster } from '@gravity-ui/uikit'
 import { Magnifier } from '@gravity-ui/icons'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useId, useState } from 'react'
+import { useId, useState } from 'react'
 import { nomenclatureApi } from '../../api/promo'
 import type { CatalogDrug } from '../../api/types'
 import { errorText } from '../../lib/errors'
 import { NomenclatureCell } from './NomenclatureCell'
 import { sums } from './promo.utils'
+import { useDebounced } from '../../lib/useDebounced'
 
 interface Props {
   open: boolean
@@ -17,15 +18,6 @@ interface Props {
 }
 
 const SEARCH_LIMIT = 20
-
-function useDebounced<T>(value: T, ms: number): T {
-  const [v, setV] = useState(value)
-  useEffect(() => {
-    const t = setTimeout(() => setV(value), ms)
-    return () => clearTimeout(t)
-  }, [value, ms])
-  return v
-}
 
 /**
  * The product identity is chosen, never typed: the catalog belongs to

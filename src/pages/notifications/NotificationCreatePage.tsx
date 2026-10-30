@@ -113,13 +113,15 @@ export function NotificationCreatePage() {
     audienceKind === 'all' ||
     audienceKind === 'platform' ||
     (audienceKind === 'users' ? ids.length > 0 : tokens.length > 0)
-  const readiness: { label: string; done: boolean }[] = [
-    { label: 'Выбрана аудитория', done: audienceReady },
-    { label: 'Заголовок на русском', done: Boolean(cleanTitle.ru) },
-    { label: 'Текст на русском', done: Boolean(cleanDescription.ru) },
-    { label: 'Узбекские версии', done: Boolean(cleanTitle.uz && cleanTitle.uzCyrl) },
+  // A push without a feed entry has nothing but its body to show, so the
+  // body stops being optional the moment the switch goes off.
+  const readiness: { label: string; done: boolean; required: boolean }[] = [
+    { label: 'Выбрана аудитория', done: audienceReady, required: true },
+    { label: 'Заголовок на русском', done: Boolean(cleanTitle.ru), required: true },
+    { label: 'Текст на русском', done: Boolean(cleanDescription.ru), required: !saveToFeed },
+    { label: 'Узбекские версии', done: Boolean(cleanTitle.uz && cleanTitle.uzCyrl), required: false },
   ]
-  const requiredDone = readiness.slice(0, 2).every((r) => r.done)
+  const requiredDone = readiness.filter((r) => r.required).every((r) => r.done)
 
   function buildTarget(): Target {
     switch (audienceKind) {
@@ -291,8 +293,6 @@ export function NotificationCreatePage() {
 
       <Flex gap={6} alignItems="flex-start" wrap>
         <div className="form" style={{ flex: '1 1 520px', minWidth: 0 }}>
-          {formError ? <Alert theme="danger" message={formError} onClose={() => setFormError(null)} /> : null}
-
           <div className="panel">
             <Text variant="subheader-2" className="panel__title" as="div">
               1. Кому
@@ -421,15 +421,18 @@ export function NotificationCreatePage() {
             </div>
           </div>
 
-          <Flex gap={2} alignItems="center">
-            <Button view="action" size="xl" onClick={onSendClick} loading={send.isPending}>
-              <Icon data={Bell} size={16} />
-              {requiredDone ? 'Отправить' : 'Проверить и отправить'}
-            </Button>
-            <Button view="flat" size="xl" onClick={() => navigate('/notifications')}>
-              Отмена
-            </Button>
-          </Flex>
+          <div className="form__actions">
+            {formError ? <Alert theme="danger" message={formError} onClose={() => setFormError(null)} /> : null}
+            <Flex gap={2} alignItems="center">
+              <Button view="action" size="xl" onClick={onSendClick} loading={send.isPending}>
+                <Icon data={Bell} size={16} />
+                {requiredDone ? 'Отправить' : 'Проверить и отправить'}
+              </Button>
+              <Button view="flat" size="xl" onClick={() => navigate('/notifications')}>
+                Отмена
+              </Button>
+            </Flex>
+          </div>
         </div>
 
         <aside style={{ flex: '0 1 360px', position: 'sticky', top: 'var(--g-spacing-3)' }}>
@@ -472,6 +475,7 @@ export function NotificationCreatePage() {
                   </span>
                   <Text variant="body-1" color={r.done ? 'primary' : 'secondary'}>
                     {r.label}
+                    {!r.required && !r.done ? <Text color="hint"> · по желанию</Text> : null}
                   </Text>
                 </li>
               ))}
